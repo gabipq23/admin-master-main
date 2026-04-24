@@ -53,7 +53,6 @@ export function useUpdateCompanyMutation() {
   return useMutation({
     mutationFn: entity.service.update,
     onMutate: async (newEntity: IUpdateCompany) => {
-      console.log("onMutate update", newEntity);
       await queryClient.cancelQueries({ queryKey: [entity.key] });
 
       const previousClients = queryClient.getQueryData<ICompanyResponse>([

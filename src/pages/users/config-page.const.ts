@@ -13,7 +13,7 @@ export const useListEntity = useUserQuery;
 export type EntityType = IUser;
 
 export type FormValues = {
-  name: string;
+  user_name: string;
   email: string;
   cpf: string;
   telephone: string;

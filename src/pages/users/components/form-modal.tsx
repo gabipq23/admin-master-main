@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Form, Input, Modal, Select, Row, Col, Checkbox, Typography } from "antd";
 import {
   useCreateEntity,
@@ -7,7 +7,8 @@ import {
   type EntityType,
   type FormValues,
 } from "../config-page.const";
-import { options } from "@/constants/app-setting/config.const";
+import { useCompanyQuery } from "@/hooks/companies/useCompanyQuery";
+import { usePartnerQuery } from "@/hooks/partners/usePartnerQuery";
 interface FormModalProps {
   open: boolean;
   editingEntity: EntityType | null;
@@ -23,30 +24,50 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
   const isPending = createMutation.isPending || updateMutation.isPending;
   const userType = Form.useWatch("user_type", form);
   const selectedRole = Form.useWatch("role", form);
+  const selectedCompanyId = Form.useWatch("company_id", form);
 
-  const supervisorOptions = ["Nome 1", "Nome 2", "Nome 3"].map((name) => ({
+  const supervisorOptions = [1, 2, 3].map((name) => ({
     label: name,
     value: name,
   }));
-  const companyOptions = Object.entries(options).map(([id, data]) => ({
-    label: data.name,
-    value: id,
-  }));
+
+  const companyOptions = useCompanyQuery().data?.companies.map((company) => ({
+    label: company.company_name,
+    value: company.company_id,
+  })) ?? [];
+
+  const partners = usePartnerQuery().data?.partners;
+
+  const partnersByCompany = useMemo(
+    () => (partners ?? []).filter(
+      (partner) => String(partner.company_id) === String(selectedCompanyId),
+    ),
+    [partners, selectedCompanyId],
+  );
+
+  const partnerOptions = useMemo(
+    () => partnersByCompany.map((partner) => ({
+      label: partner.partner_name,
+      value: partner.partner_id,
+    })),
+    [partnersByCompany],
+  );
+
 
   const allRoleOptions = [
-    { label: "Admin", value: "admin" },
-    { label: "Gestor", value: "gestor" },
-    { label: "Diretor", value: "diretor" },
-    { label: "Gerente", value: "gerente" },
-    { label: "Líder", value: "lider" },
-    { label: "Consultor", value: "consultor" },
+    { label: "Admin", value: "ADMIN" },
+    { label: "Gestor", value: "GESTOR" },
+    { label: "Diretor", value: "DIRETOR" },
+    { label: "Gerente", value: "GERENTE" },
+    { label: "Líder", value: "LIDER" },
+    { label: "Consultor", value: "CONSULTOR" },
   ];
 
   const subCredenciadoRoleOptions = allRoleOptions.filter(
-    (option) => option.value === "lider" || option.value === "consultor",
+    (option) => option.value === "LIDER" || option.value === "CONSULTOR",
   );
 
-  const showPersonResponsible = ["gerente", "lider", "consultor"].includes(
+  const showPersonResponsible = ["GERENTE", "LIDER", "CONSULTOR"].includes(
     selectedRole ?? "",
   );
 
@@ -66,7 +87,7 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
   useEffect(() => {
     if (userType === "subcredenciado") {
       const currentRole = form.getFieldValue("role");
-      if (!["lider", "consultor"].includes(currentRole)) {
+      if (!["LIDER", "CONSULTOR"].includes(currentRole)) {
         form.setFieldValue("role", undefined);
       }
       return;
@@ -78,6 +99,21 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
       form.setFieldValue("person_responsible_id", undefined);
     }
   }, [showPersonResponsible, form]);
+
+  useEffect(() => {
+    const selectedPartnerId = form.getFieldValue("partner_id");
+    if (!selectedPartnerId)
+      return;
+
+    const hasValidPartnerForCompany = partnersByCompany.some(
+      (partner) =>
+        String(partner.partner_id) === String(selectedPartnerId),
+    );
+
+    if (!hasValidPartnerForCompany) {
+      form.setFieldValue("partner_id", undefined);
+    }
+  }, [partnersByCompany, form]);
 
   async function handleSubmit() {
     const values = await form.validateFields();
@@ -108,6 +144,7 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
           user_type: values.user_type ?? "",
           team: values.team ?? "",
           cnpj: values.cnpj ?? "",
+          user_name: values.user_name,
         },
         { onSuccess: onClose },
       );
@@ -143,15 +180,15 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
               <Select
                 placeholder="Selecione..."
                 options={[
-                  { label: "Equipe", value: "equipe" },
-                  { label: "Subcredenciado", value: "subcredenciado" },
+                  { label: "Equipe", value: "EQUIPE" },
+                  { label: "Subcredenciado", value: "SUBCREDENCIADO" },
                 ]}
               />
             </Form.Item>
           </Col>
           <Col span={8}>
             <Form.Item
-              name="name"
+              name="user_name"
               label="Nome"
               rules={[{ required: true, message: "Informe o nome" }]}
             >
@@ -224,7 +261,12 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
           </Col>
           <Col span={8}>
             <Form.Item name="partner_id" label="Parceiro">
-              <Input placeholder="Opcional" />
+              <Select
+                placeholder={selectedCompanyId ? "Selecione..." : "Selecione uma empresa primeiro"}
+                options={partnerOptions}
+                disabled={!selectedCompanyId}
+
+              />
             </Form.Item>
           </Col>
           <Col span={9}>

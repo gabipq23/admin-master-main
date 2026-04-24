@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { messageQueryFeedback as fb } from "@/helpers/MessageQueryFeedback.helper";
 import { dictionaryQueryClient } from "@/constants/dictionaryQueryClient.const";
-import type { IUpdateUser, IUser } from "@/types/IUser.type";
+import type { IUpdateUser, IUser, IUserResponse } from "@/types/IUser.type";
 
 export function useUpdateUserMutation() {
   const queryClient = useQueryClient();
@@ -12,15 +12,22 @@ export function useUpdateUserMutation() {
     onMutate: async (newEntity: IUpdateUser) => {
       await queryClient.cancelQueries({ queryKey: [entity.key] });
 
-      const previousClients = queryClient.getQueryData<IUser[]>([entity.key]);
+      const previousClients = queryClient.getQueryData<IUserResponse>([
+        entity.key,
+      ]);
       //basicamente atualiza a info da query sem precisar chamar o get novamente
-      queryClient.setQueryData<IUser[]>([entity.key], (old) =>
-        old?.map((entity) => {
-          delete newEntity.password;
-          if (entity.id == newEntity.id) return { ...entity, ...newEntity };
-          return entity;
-        }),
-      );
+      queryClient.setQueryData<IUserResponse>([entity.key], (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          users: old.users.map((entity: IUser) => {
+            if (entity.user_id === newEntity.user_id) {
+              return { ...entity, ...newEntity };
+            }
+            return entity;
+          }),
+        };
+      });
 
       return { previousClients, toastId: fb.updateLoading(entity.name) };
     },
