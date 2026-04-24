@@ -83,15 +83,7 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
       // requiredMark="optional"
       >
         <Row gutter={16}>
-          <Col span={8}>
-            <Form.Item
-              name="company_id"
-              label="Empresa"
-              rules={[{ required: true, message: "Informe a empresa" }]}
-            >
-              <Select placeholder="Selecione a empresa" options={companuies} />
-            </Form.Item>
-          </Col>
+
           <Col span={8}>
             <Form.Item
               name="logo_url"
@@ -158,6 +150,16 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
 
 
         </Row>
+
+        <Col span={8}>
+          <Form.Item
+            name="company_id"
+            label="Empresa"
+            rules={[{ required: true, message: "Informe a empresa" }]}
+          >
+            <Select placeholder="Selecione a empresa" options={companuies} />
+          </Form.Item>
+        </Col>
       </Form>
     </Modal >
   );

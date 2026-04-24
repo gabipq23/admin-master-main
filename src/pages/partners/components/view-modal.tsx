@@ -1,4 +1,4 @@
-import { Col, Modal, Row, Button } from "antd";
+import { Col, Modal, Row, Button, Typography, Space } from "antd";
 import { entityPage, type EntityType } from "../config-page.const";
 import ReadonlyField from "@/layout/common-components/ReadOnlyField";
 
@@ -44,20 +44,25 @@ export function ViewModal({
             <div style={{ marginTop: 16 }}>
                 <Row gutter={[16, 16]}>
                     <Col span={8}>
-                        <div style={{
-                            minHeight: 30,
-                            padding: "4px 10px",
-                            border: "1px solid #d9d9d9",
-                            borderRadius: 8,
-                            backgroundColor: "rgba(0, 0, 0, 0.015)",
-                        }}>
-                            <img src={viewingEntity?.logo_url} alt="Logo" className="h-12 " />
-                        </div>
+
+                        <Space orientation="vertical" size={4} style={{ display: "flex" }}>
+                            <Typography.Text type="secondary">Logo</Typography.Text>
+                            <div
+                                style={{
+                                    minHeight: 30,
+                                    padding: "4px 10px",
+                                    border: "1px solid #d9d9d9",
+                                    borderRadius: 8,
+                                    backgroundColor: "rgba(0, 0, 0, 0.015)",
+                                }}
+                            >
+                                <img src={viewingEntity?.logo_url} alt="Logo" className="h-6" />
+
+                            </div>
+                        </Space>
 
                     </Col>
-                    <Col span={8}>
-                        <ReadonlyField label="Hash" value={viewingEntity?.partner_hash} />
-                    </Col>
+
                     <Col span={8}>
                         <ReadonlyField label="Razão Social" value={viewingEntity?.partner_name} />
                     </Col> <Col span={8}>
@@ -80,6 +85,9 @@ export function ViewModal({
                             label="Empresa"
                             value={viewingEntity?.company?.company_name}
                         />
+                    </Col>
+                    <Col span={8}>
+                        <ReadonlyField label="Identificador" value={viewingEntity?.partner_hash} />
                     </Col>
                 </Row>
             </div>
