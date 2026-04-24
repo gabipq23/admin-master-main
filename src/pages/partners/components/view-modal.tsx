@@ -1,6 +1,8 @@
-import { Col, Modal, Row, Button } from "antd";
+import { Col, Modal, Row, Button, Typography, Space } from "antd";
 import { entityPage, type EntityType } from "../config-page.const";
 import ReadonlyField from "@/layout/common-components/ReadOnlyField";
+import { formatPhoneNumber } from "@/utils/number.utils";
+import { formatCNPJ } from "@/utils/document.util";
 
 interface ViewModalProps {
     open: boolean;
@@ -44,30 +46,35 @@ export function ViewModal({
             <div style={{ marginTop: 16 }}>
                 <Row gutter={[16, 16]}>
                     <Col span={8}>
-                        <div style={{
-                            minHeight: 30,
-                            padding: "4px 10px",
-                            border: "1px solid #d9d9d9",
-                            borderRadius: 8,
-                            backgroundColor: "rgba(0, 0, 0, 0.015)",
-                        }}>
-                            <img src="https://vivo.empresas.gold/assets/logo-site.png" alt="Logo" className="h-12 " />
-                        </div>
+
+                        <Space orientation="vertical" size={4} style={{ display: "flex" }}>
+                            <Typography.Text type="secondary">Logo</Typography.Text>
+                            <div
+                                style={{
+                                    minHeight: 30,
+                                    padding: "4px 10px",
+                                    border: "1px solid #d9d9d9",
+                                    borderRadius: 8,
+                                    backgroundColor: "rgba(0, 0, 0, 0.015)",
+                                }}
+                            >
+                                <img src={viewingEntity?.logo_url ?? ""} alt="Logo" className="h-6" />
+
+                            </div>
+                        </Space>
 
                     </Col>
+
                     <Col span={8}>
-                        <ReadonlyField label="Hash" value={viewingEntity?.partner_hash} />
-                    </Col>
-                    <Col span={8}>
-                        <ReadonlyField label="Razão Social" value={viewingEntity?.partner_name} />
+                        <ReadonlyField label="Nome" value={viewingEntity?.partner_name} />
                     </Col> <Col span={8}>
-                        <ReadonlyField label="CNPJ" value={viewingEntity?.cnpj} />
+                        <ReadonlyField label="CNPJ" value={formatCNPJ(viewingEntity?.cnpj ?? "")} />
                     </Col>
                     <Col span={8}>
                         <ReadonlyField label="Email" value={viewingEntity?.email} />
                     </Col>
                     <Col span={8}>
-                        <ReadonlyField label="Telefone" value={viewingEntity?.telephone} />
+                        <ReadonlyField label="Telefone" value={formatPhoneNumber(viewingEntity?.telephone ?? "")} />
                     </Col>
                     <Col span={8}>
                         <ReadonlyField
@@ -75,8 +82,15 @@ export function ViewModal({
                             value={viewingEntity?.manager_name}
                         />
                     </Col>
-
-
+                    <Col span={8}>
+                        <ReadonlyField
+                            label="Empresa"
+                            value={viewingEntity?.company?.company_name}
+                        />
+                    </Col>
+                    <Col span={8}>
+                        <ReadonlyField label="Identificador" value={viewingEntity?.partner_hash} copyable />
+                    </Col>
                 </Row>
             </div>
         </Modal>

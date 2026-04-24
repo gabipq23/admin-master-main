@@ -5,7 +5,7 @@ import type { IUser } from "@/types/IUser.type";
 
 export function useDeleteUserMutation() {
   const queryClient = useQueryClient();
-  const entity = dictionaryQueryClient['users'];
+  const entity = dictionaryQueryClient["users"];
 
   return useMutation({
     mutationFn: entity.service.deleteItems,

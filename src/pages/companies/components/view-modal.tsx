@@ -1,6 +1,8 @@
 import { Col, Modal, Row, Button } from "antd";
 import { entityPage, type EntityType } from "../config-page.const";
 import ReadonlyField from "@/layout/common-components/ReadOnlyField";
+import { formatCNPJ } from "@/utils/document.util";
+import { formatPhoneNumber } from "@/utils/number.utils";
 
 interface ViewModalProps {
     open: boolean;
@@ -50,13 +52,13 @@ export function ViewModal({
                         <ReadonlyField label="Nome da empresa" value={viewingEntity?.company_name} />
                     </Col>
                     <Col span={8}>
-                        <ReadonlyField label="CNPJ" value={viewingEntity?.cnpj} />
+                        <ReadonlyField label="CNPJ" value={formatCNPJ(viewingEntity?.cnpj ?? "")} />
                     </Col>
                     <Col span={8}>
                         <ReadonlyField label="Email" value={viewingEntity?.email} />
                     </Col>
                     <Col span={8}>
-                        <ReadonlyField label="Telefone" value={viewingEntity?.telephone} />
+                        <ReadonlyField label="Telefone" value={formatPhoneNumber(viewingEntity?.telephone ?? "")} />
                     </Col>
 
                     <Col span={8}>

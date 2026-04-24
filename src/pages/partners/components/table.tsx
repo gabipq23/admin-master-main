@@ -38,6 +38,7 @@ export function TableMain({ data, isLoading }: PartnersTableProps) {
   function handleEdit(record: IPartner) {
     setEditingEntity(record);
     setIsFormModalOpen(true);
+    setIsViewModalOpen(false);
   }
   function handleView(record: IPartner) {
     setViewingEntity(record);
@@ -50,7 +51,7 @@ export function TableMain({ data, isLoading }: PartnersTableProps) {
   }
 
   function handleBulkDelete() {
-    const selected = data.filter((u) => selectedRowKeys.includes(u.id));
+    const selected = data.filter((u) => selectedRowKeys.includes(u.partner_id));
     setEntitiesToDelete(selected);
     setIsDeleteModalOpen(true);
   }
@@ -87,7 +88,7 @@ export function TableMain({ data, isLoading }: PartnersTableProps) {
       />
 
       <Table
-        rowKey="id"
+        rowKey="partner_id"
         columns={columns}
         dataSource={filteredData}
         className={styles.customTable}
@@ -101,7 +102,7 @@ export function TableMain({ data, isLoading }: PartnersTableProps) {
           showTotal: (total) =>
             `Total: ${total} ${entityPage.plural.toLowerCase()}`,
         }}
-          scroll={{ y: 800 }}
+        scroll={{ y: 800 }}
         onRow={(record) => ({
           onClick: () => handleView(record),
           style: { cursor: 'pointer' },

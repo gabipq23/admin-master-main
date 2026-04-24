@@ -49,7 +49,7 @@ export function useDeleteCompanyMutation() {
 
   return useMutation({
     mutationFn: entity.service.deleteItems,
-    onMutate: async ({ ids }: { ids: string[] }) => {
+    onMutate: async ({ ids }: { ids: number[] }) => {
       await queryClient.cancelQueries({ queryKey: [entity.key] });
 
       const previousClients = queryClient.getQueryData<ICompanyResponse>([
@@ -62,7 +62,7 @@ export function useDeleteCompanyMutation() {
         return {
           ...old,
           companies: old.companies.filter(
-            (company: ICompany) => !ids.includes(String(company.company_id)),
+            (company: ICompany) => !ids.includes(company.company_id),
           ),
         };
       });

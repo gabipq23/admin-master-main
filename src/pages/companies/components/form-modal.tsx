@@ -109,7 +109,7 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
             <Form.Item
               name="cnpj"
               label="CNPJ"
-              rules={[{ required: true, message: "Informe o CNPJ" }]}
+
             >
               <Input placeholder="00.000.000/0000-00" />
             </Form.Item>
@@ -122,7 +122,6 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
               name="email"
               label="Email"
               rules={[
-                { required: true, message: "Informe o email" },
                 { type: "email", message: "Email inválido" },
               ]}
             >
@@ -133,7 +132,7 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
             <Form.Item
               name="telephone"
               label="Telefone"
-              rules={[{ required: true, message: "Informe o telefone" }]}
+
             >
               <Input placeholder="(00) 00000-0000" />
             </Form.Item>
@@ -143,7 +142,7 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
             <Form.Item
               name="manager_name"
               label="Responsável"
-              rules={[{ required: true, message: "Informe o responsável" }]}
+
             >
               <Input placeholder="Informe o responsável" />
             </Form.Item>
