@@ -1,6 +1,8 @@
 import { Col, Modal, Row, Button, Typography, Space } from "antd";
 import { entityPage, type EntityType } from "../config-page.const";
 import ReadonlyField from "@/layout/common-components/ReadOnlyField";
+import { formatPhoneNumber } from "@/utils/number.utils";
+import { formatCNPJ } from "@/utils/document.util";
 
 interface ViewModalProps {
     open: boolean;
@@ -56,7 +58,7 @@ export function ViewModal({
                                     backgroundColor: "rgba(0, 0, 0, 0.015)",
                                 }}
                             >
-                                <img src={viewingEntity?.logo_url} alt="Logo" className="h-6" />
+                                <img src={viewingEntity?.logo_url ?? ""} alt="Logo" className="h-6" />
 
                             </div>
                         </Space>
@@ -64,15 +66,15 @@ export function ViewModal({
                     </Col>
 
                     <Col span={8}>
-                        <ReadonlyField label="Razão Social" value={viewingEntity?.partner_name} />
+                        <ReadonlyField label="Nome" value={viewingEntity?.partner_name} />
                     </Col> <Col span={8}>
-                        <ReadonlyField label="CNPJ" value={viewingEntity?.cnpj} />
+                        <ReadonlyField label="CNPJ" value={formatCNPJ(viewingEntity?.cnpj ?? "")} />
                     </Col>
                     <Col span={8}>
                         <ReadonlyField label="Email" value={viewingEntity?.email} />
                     </Col>
                     <Col span={8}>
-                        <ReadonlyField label="Telefone" value={viewingEntity?.telephone} />
+                        <ReadonlyField label="Telefone" value={formatPhoneNumber(viewingEntity?.telephone ?? "")} />
                     </Col>
                     <Col span={8}>
                         <ReadonlyField
@@ -87,7 +89,7 @@ export function ViewModal({
                         />
                     </Col>
                     <Col span={8}>
-                        <ReadonlyField label="Identificador" value={viewingEntity?.partner_hash} />
+                        <ReadonlyField label="Identificador" value={viewingEntity?.partner_hash} copyable />
                     </Col>
                 </Row>
             </div>

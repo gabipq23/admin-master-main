@@ -1,6 +1,8 @@
 
 import type { TableColumnsType } from "antd";
 import type { EntityType } from "../config-page.const";
+import { formatPhoneNumber } from "@/utils/number.utils";
+import { formatCNPJ } from "@/utils/document.util";
 
 export function getColumns(): TableColumnsType<EntityType> {
   return [
@@ -15,6 +17,7 @@ export function getColumns(): TableColumnsType<EntityType> {
       title: "CNPJ",
       dataIndex: "cnpj",
       key: "cnpj",
+      render: (cnpj: string) => formatCNPJ(cnpj)
     },
     {
       title: "Email",
@@ -25,6 +28,7 @@ export function getColumns(): TableColumnsType<EntityType> {
       title: "Telefone",
       dataIndex: "telephone",
       key: "telephone",
+      render: (telephone: string) => formatPhoneNumber(telephone)
     },
 
   ];

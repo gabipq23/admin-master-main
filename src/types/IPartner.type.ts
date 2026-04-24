@@ -11,7 +11,7 @@ export interface IPartner {
   cnpj: string;
   email: string;
   partner_id: number;
-  logo_url: string;
+  logo_url: string | null;
   manager_name: string;
   partner_name: string;
   company_id: number;
@@ -29,10 +29,10 @@ export interface IPartner {
 }
 
 export interface ICreatePartner {
-  partner_id: number;
+  partner_id?: number;
   cnpj: string;
   email: string;
-  logo_url: string;
+  logo_url?: string | null;
   manager_name: string;
   partner_name: string;
   telephone: string;
@@ -43,11 +43,21 @@ export interface ICreatePartner {
   };
 }
 
+export interface ICreatePartnerPayload {
+  entity: ICreatePartner;
+  logoFile?: File;
+}
+
+export interface ICreatePartnerResponse {
+  success: boolean;
+  partner: IPartner;
+}
+
 export interface IUpdatePartner {
   cnpj: string;
   email: string;
   partner_id: number;
-  logo_url: string;
+  logo_url?: string | null;
   manager_name: string;
   partner_name: string;
   telephone: string;
@@ -56,4 +66,9 @@ export interface IUpdatePartner {
     company_id: number;
     company_name: string;
   };
+}
+
+export interface IUpdatePartnerPayload {
+  entity: IUpdatePartner;
+  logoFile?: File;
 }

@@ -2,9 +2,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { messageQueryFeedback as fb } from "@/helpers/MessageQueryFeedback.helper";
 import { dictionaryQueryClient } from "@/constants/dictionaryQueryClient.const";
 import type {
-  IUpdatePartner,
   IPartner,
   IPartnerResponse,
+  IUpdatePartnerPayload,
 } from "@/types/IPartner.type";
 
 export function useUpdatePartnerMutation() {
@@ -12,8 +12,16 @@ export function useUpdatePartnerMutation() {
   const entity = dictionaryQueryClient["partners"];
 
   return useMutation({
-    mutationFn: entity.service.update,
-    onMutate: async (newEntity: IUpdatePartner) => {
+    mutationFn: async ({
+      entity: payload,
+      logoFile,
+    }: IUpdatePartnerPayload) => {
+      await entity.service.update(payload);
+      if (logoFile) {
+        await entity.service.uploadLogo(payload.partner_id, logoFile);
+      }
+    },
+    onMutate: async ({ entity: newEntity }: IUpdatePartnerPayload) => {
       await queryClient.cancelQueries({ queryKey: [entity.key] });
 
       const previousClients = queryClient.getQueryData<IPartnerResponse>([

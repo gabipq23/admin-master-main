@@ -4,6 +4,7 @@ import { useDeletePartnerMutation } from "@/hooks/partners/useDeletePartnerMutat
 import { usePartnerQuery } from "@/hooks/partners/usePartnerQuery";
 import { useUpdatePartnerMutation } from "@/hooks/partners/useUpdatePartnerMutation";
 import type { IPartner } from "@/types/IPartner.type";
+import type { UploadFile } from "antd";
 
 export const entityPage = dictionaryQueryClient.partners;
 export const useCreateEntity = useCreatePartnerMutation;
@@ -18,7 +19,8 @@ export type FormValues = {
   manager_name: string;
   telephone: string;
   email: string;
-  logo_url: string;
+  logo_url?: string | null;
+  logo_file?: UploadFile[];
   id: string;
   partner_id: number;
   partner_hash: string;
