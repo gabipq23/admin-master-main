@@ -19,7 +19,7 @@ export type FormValues = {
   manager_name: string;
   telephone: string;
   email: string;
-  logo_url: string;
-  company_id: string;
+  logo_url: File;
+  company_id: number;
   segment: string;
 };

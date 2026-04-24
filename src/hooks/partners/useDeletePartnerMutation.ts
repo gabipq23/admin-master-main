@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { messageQueryFeedback as fb } from "@/helpers/MessageQueryFeedback.helper";
 import { dictionaryQueryClient } from "@/constants/dictionaryQueryClient.const";
-import type { IPartner } from "@/types/IPartner.type";
+import type { IPartner, IPartnerResponse } from "@/types/IPartner.type";
 
 export function useDeletePartnerMutation() {
   const queryClient = useQueryClient();
@@ -9,16 +9,23 @@ export function useDeletePartnerMutation() {
 
   return useMutation({
     mutationFn: entity.service.deleteItems,
-    onMutate: async ({ ids }: { ids: string[] }) => {
+    onMutate: async ({ ids }: { ids: number[] }) => {
       await queryClient.cancelQueries({ queryKey: [entity.key] });
 
-      const previousClients = queryClient.getQueryData<IPartner[]>([
+      const previousClients = queryClient.getQueryData<IPartnerResponse>([
         entity.key,
       ]);
 
-      queryClient.setQueryData<IPartner[]>([entity.key], (old) =>
-        old?.filter((client) => !ids.includes(client.id)),
-      );
+      queryClient.setQueryData<IPartnerResponse>([entity.key], (old) => {
+        if (!old) return old;
+
+        return {
+          ...old,
+          partners: old.partners.filter(
+            (partner: IPartner) => !ids.includes(partner.partner_id),
+          ),
+        };
+      });
 
       return {
         previousClients,

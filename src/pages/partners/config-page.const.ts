@@ -20,6 +20,11 @@ export type FormValues = {
   email: string;
   logo_url: string;
   id: string;
-  company_id: string;
+  partner_id: number;
   partner_hash: string;
+  company_id: number;
+  company: {
+    company_id: number;
+    company_name: string;
+  };
 };

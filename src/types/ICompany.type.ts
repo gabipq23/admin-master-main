@@ -10,7 +10,7 @@ export interface ICompanyResponse {
 export interface ICompany {
   cnpj?: string;
   email?: string;
-  company_id: string;
+  company_id: number;
   company_name: string;
   manager_name?: string;
   telephone?: string;
@@ -24,7 +24,7 @@ export interface ICompany {
 }
 
 export interface ICreateCompany {
-  company_id: string;
+  company_id: number;
   cnpj?: string;
   email?: string;
   company_name: string;
@@ -34,7 +34,7 @@ export interface ICreateCompany {
 }
 
 export interface IUpdateCompany {
-  company_id: string;
+  company_id: number;
   cnpj?: string;
   email?: string;
   company_name: string;

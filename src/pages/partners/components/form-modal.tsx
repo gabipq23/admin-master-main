@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Form, Input, Modal, Row, Col, Upload, Button } from "antd";
+import { Form, Input, Modal, Row, Col, Upload, Button, Select } from "antd";
 import {
   useCreateEntity,
   entityPage,
@@ -8,6 +8,7 @@ import {
   type FormValues,
 } from "../config-page.const";
 import { UploadOutlined } from "@ant-design/icons";
+import { useCompanyQuery } from "@/hooks/companies/useCompanyQuery";
 
 interface FormModalProps {
   open: boolean;
@@ -20,6 +21,10 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
   const createMutation = useCreateEntity();
   const updateMutation = useUpdateEntity();
 
+  const companuies = useCompanyQuery().data?.companies.map((company) => ({
+    label: company.company_name,
+    value: company.company_id,
+  })) ?? [];
   const isEditing = !!editingEntity;
   const isPending = createMutation.isPending || updateMutation.isPending;
 
@@ -27,7 +32,7 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
     if (open && editingEntity) {
       form.setFieldsValue({
         ...editingEntity,
-        id: editingEntity.id ?? undefined,
+        partner_id: editingEntity.partner_id ?? undefined,
       });
     } else if (open) {
       form.resetFields();
@@ -42,7 +47,7 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
         {
           ...editingEntity,
           ...values,
-          id: values.id ?? null,
+          partner_id: values.partner_id,
 
         },
         { onSuccess: onClose },
@@ -51,7 +56,7 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
       createMutation.mutate(
         {
           ...values,
-          id: values.id ?? null,
+          partner_id: values.partner_id ?? null,
         },
         { onSuccess: onClose },
       );
@@ -78,6 +83,15 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
       // requiredMark="optional"
       >
         <Row gutter={16}>
+          <Col span={8}>
+            <Form.Item
+              name="company_id"
+              label="Empresa"
+              rules={[{ required: true, message: "Informe a empresa" }]}
+            >
+              <Select placeholder="Selecione a empresa" options={companuies} />
+            </Form.Item>
+          </Col>
           <Col span={8}>
             <Form.Item
               name="logo_url"
@@ -141,6 +155,7 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
               <Input placeholder="Informe o responsável" />
             </Form.Item>
           </Col>
+
 
         </Row>
       </Form>

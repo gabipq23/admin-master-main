@@ -51,7 +51,7 @@ export function ViewModal({
                             borderRadius: 8,
                             backgroundColor: "rgba(0, 0, 0, 0.015)",
                         }}>
-                            <img src="https://vivo.empresas.gold/assets/logo-site.png" alt="Logo" className="h-12 " />
+                            <img src={viewingEntity?.logo_url} alt="Logo" className="h-12 " />
                         </div>
 
                     </Col>
@@ -75,8 +75,12 @@ export function ViewModal({
                             value={viewingEntity?.manager_name}
                         />
                     </Col>
-
-
+                    <Col span={8}>
+                        <ReadonlyField
+                            label="Empresa"
+                            value={viewingEntity?.company?.company_name}
+                        />
+                    </Col>
                 </Row>
             </div>
         </Modal>

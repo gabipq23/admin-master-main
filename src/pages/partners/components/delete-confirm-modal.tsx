@@ -17,7 +17,7 @@ export function DeleteConfirmModal({
   const deleteMutation = useDeletePartnerMutation();
 
   function handleConfirm() {
-    const ids = entitiesToDelete.map((u) => u.id);
+    const ids = entitiesToDelete.map((u) => u.partner_id);
     deleteMutation.mutate({ ids }, { onSuccess: onClose });
   }
 
