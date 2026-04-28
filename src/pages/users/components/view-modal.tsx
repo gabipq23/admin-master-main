@@ -3,6 +3,15 @@ import { entityPage, type EntityType } from "../config-page.const";
 import ReadonlyField from "@/layout/common-components/ReadOnlyField";
 import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 
+const roleLabelMap: Record<EntityType["role"], string> = {
+    ADMIN: "Admin",
+    GESTOR: "Gestor",
+    DIRETOR: "Diretor",
+    GERENTE: "Gerente",
+    LIDER: "Líder",
+    CONSULTOR: "Consultor",
+};
+
 interface ViewModalProps {
     open: boolean;
     viewingEntity: EntityType | null;
@@ -70,7 +79,7 @@ export function ViewModal({
                     <Col span={8}>
                         <ReadonlyField
                             label="Nível de Acesso"
-                            value={viewingEntity?.role === "ADMIN" ? "Admin" : "Usuário"}
+                            value={viewingEntity?.role ? roleLabelMap[viewingEntity.role] : undefined}
                         />
                     </Col>
                     <Col span={8}>

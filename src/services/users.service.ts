@@ -29,7 +29,7 @@ export class UsersService {
     //     allow_sms_notifications: i % 4 === 0,
     //     person_responsible_id: `Supervisor ${i * 4}`,
     //     consultant_hash: `hash${i}`,
-    //     user_type: i % 2 === 0 ? "equipe" : "subcredenciado",
+    //     user_type: i % 2 === 0 ? "EQUIPE" : "SUBCREDENCIADO",
     //     team: `Time ${i % 5}`,
     //     cnpj: `123456780001${i.toString().padStart(2, "0")}`,
     //   });

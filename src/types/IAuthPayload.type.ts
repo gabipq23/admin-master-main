@@ -11,7 +11,7 @@ export interface IAuthUser {
   email: string;
   role: UserRole;
   user_type: string;
-  company_id?: string | number;
-  partner_id?: string | number;
+  company_id?: number | null;
+  partner_id?: number | null;
   partner_url_logo?: string;
 }

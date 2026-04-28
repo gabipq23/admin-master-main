@@ -2,6 +2,15 @@ import { Tag } from "antd";
 import type { TableColumnsType } from "antd";
 import type { EntityType } from "../config-page.const";
 
+const roleLabelMap: Record<EntityType["role"], string> = {
+  ADMIN: "Admin",
+  GESTOR: "Gestor",
+  DIRETOR: "Diretor",
+  GERENTE: "Gerente",
+  LIDER: "Líder",
+  CONSULTOR: "Consultor",
+};
+
 export function getColumns(): TableColumnsType<EntityType> {
   return [
     {
@@ -29,15 +38,12 @@ export function getColumns(): TableColumnsType<EntityType> {
       title: "Nível de Acesso",
       dataIndex: "role",
       key: "role",
-      filters: [
-        { text: "Admin", value: "ADMIN" },
-        { text: "Usuário", value: "user" },
-      ],
+      filters: Object.entries(roleLabelMap).map(([value, text]) => ({ text, value })),
       onFilter: (value, record: EntityType) =>
         (typeof value === "string" || typeof value === "number") && record.role === value,
-      render: (role: string) => (
-        <Tag color={role === "ADMIN" ? "magenta" : "blue"}>
-          {role === "ADMIN" ? "Admin" : "Usuário"}
+      render: (role: EntityType["role"]) => (
+        <Tag color={role === "ADMIN" ? "magenta" : "gray"}>
+          {roleLabelMap[role]}
         </Tag>
       ),
     },

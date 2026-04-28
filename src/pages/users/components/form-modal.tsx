@@ -75,8 +75,8 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
     if (open && editingEntity) {
       form.setFieldsValue({
         ...editingEntity,
-        company_id: editingEntity.company_id ?? undefined,
-        partner_id: editingEntity.partner_id ?? undefined,
+        company_id: editingEntity.company_id ?? null,
+        partner_id: editingEntity.partner_id ?? null,
         password: undefined,
       });
     } else if (open) {
@@ -85,7 +85,7 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
   }, [open, editingEntity, form]);
 
   useEffect(() => {
-    if (userType === "subcredenciado") {
+    if (userType === "SUBCREDENCIADO") {
       const currentRole = form.getFieldValue("role");
       if (!["LIDER", "CONSULTOR"].includes(currentRole)) {
         form.setFieldValue("role", undefined);
@@ -135,11 +135,11 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
       createMutation.mutate(
         {
           ...values,
-          company_id: values.company_id ?? null,
+          company_id: values.company_id ?? 0,
           allow_email_notifications: values.allow_email_notifications ?? false,
           allow_sms_notifications: values.allow_sms_notifications ?? false,
-          partner_id: values.partner_id ?? null,
-          person_responsible_id: values.person_responsible_id ?? "",
+          partner_id: values.partner_id ?? 0,
+          person_responsible_id: values.person_responsible_id ?? null,
           password: values.password!,
           user_type: values.user_type ?? "",
           team: values.team ?? "",
@@ -224,11 +224,11 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
           </Col>
           <Col span={8}>
             <Form.Item
-              name={userType === "subcredenciado" ? "cnpj" : "cpf"}
-              label={userType === "subcredenciado" ? "CNPJ" : "CPF"}
-              rules={[{ required: true, message: `Informe o ${userType === "subcredenciado" ? "CNPJ" : "CPF"}` }]}
+              name={userType === "SUBCREDENCIADO" ? "cnpj" : "cpf"}
+              label={userType === "SUBCREDENCIADO" ? "CNPJ" : "CPF"}
+              rules={[{ required: true, message: `Informe o ${userType === "SUBCREDENCIADO" ? "CNPJ" : "CPF"}` }]}
             >
-              <Input placeholder={userType === "subcredenciado" ? "00.000.000/0000-00" : "000.000.000-00"} />
+              <Input placeholder={userType === "SUBCREDENCIADO" ? "00.000.000/0000-00" : "000.000.000-00"} />
             </Form.Item>
           </Col>
           <Col span={9}>
@@ -278,7 +278,7 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
               <Select
                 placeholder="Selecione..."
                 options={
-                  userType === "subcredenciado"
+                  userType === "SUBCREDENCIADO"
                     ? subCredenciadoRoleOptions
                     : allRoleOptions
                 }

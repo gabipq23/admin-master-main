@@ -16,17 +16,17 @@ export interface IUserResponse {
 }
 
 export interface IUser {
-  company_id: string | null;
+  company_id: number | null | null;
   cpf: string;
   email: string;
   user_id: number;
   user_name: string;
-  partner_id: string | null;
+  partner_id: number;
   role: UserRole;
   telephone: string;
   allow_email_notifications: boolean;
   allow_sms_notifications: boolean;
-  person_responsible_id: string;
+  person_responsible_id: number | null;
   consultant_hash: string;
   user_type: string;
   team: string;
@@ -34,50 +34,50 @@ export interface IUser {
   created_at: string;
   updated_at: string;
   company: {
-    company_id: string;
+    company_id: number;
     company_name: string;
   };
   partner: {
-    partner_id: string;
+    partner_id: number;
     partner_name: string;
     partner_hash: string;
   };
   person_responsible: {
-    person_responsible_id: string;
+    person_responsible_id: number;
     person_responsible_name: string;
   };
 }
 
 export interface ICreateUser {
-  company_id: string | null;
+  company_id: number | null;
   cpf: string;
   email: string;
   user_name: string;
-  partner_id: string | null;
+  partner_id: number | null;
   password: string;
   role: UserRole;
   telephone: string;
   allow_email_notifications: boolean;
   allow_sms_notifications: boolean;
-  person_responsible_id: string;
+  person_responsible_id: number | null;
   user_type: string;
   team: string;
   cnpj: string;
 }
 
 export interface IUpdateUser {
-  company_id: string | null;
+  company_id: number | null;
   cpf: string;
   email: string;
   user_id: number;
   user_name: string;
-  partner_id: string | null;
+  partner_id: number | null;
   password?: string;
   role: UserRole;
   telephone: string;
   allow_email_notifications: boolean;
   allow_sms_notifications: boolean;
-  person_responsible_id: string;
+  person_responsible_id: number | null;
   user_type: string;
   team: string;
   cnpj: string;
