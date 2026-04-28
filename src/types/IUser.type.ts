@@ -16,12 +16,12 @@ export interface IUserResponse {
 }
 
 export interface IUser {
-  company_id: number | null | null;
+  company_id: number | null;
   cpf: string;
   email: string;
   user_id: number;
   user_name: string;
-  partner_id: number;
+  partner_id: number | null;
   role: UserRole;
   telephone: string;
   allow_email_notifications: boolean;
