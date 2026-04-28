@@ -7,19 +7,27 @@ import { useAuth } from "../../context/auth-provider";
 import { summarizeName } from "../../utils/text.util";
 import { useTheme } from "../../context/theme-provider";
 import { MoonOutlined, SunOutlined } from "@ant-design/icons";
-import { useSearch } from "@tanstack/react-router";
-import { usePartnerQuery } from "../../hooks/partners/usePartnerQuery";
-export function LayoutMain() {
 
+import { usePartnerQuery } from "../../hooks/partners/usePartnerQuery";
+
+export function LayoutMain() {
 
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { toggleDarkMode, isDarkMode } = useTheme();
 
-  const { partner_hash } = useSearch({ from: '/app' });
+  // const { partner_hash } = useSearch({ from: '/app' });
+  // const { data: partnersData } = usePartnerQuery();
+  // const previewPartner = partner_hash
+  //   ? partnersData?.partners?.find((p) => p.partner_hash === partner_hash)
+  //   : null;
+
   const { data: partnersData } = usePartnerQuery();
-  const previewPartner = partner_hash
-    ? partnersData?.partners?.find((p) => p.partner_hash === partner_hash)
+
+  const previewPartner = user?.user?.partner_id
+    ? partnersData?.partners?.find(
+      (partner) => partner.partner_id === user.user.partner_id,
+    )
     : null;
 
   const handleSignOut = async () => {
@@ -46,15 +54,6 @@ export function LayoutMain() {
               alt="Partner Logo"
             />
           )}
-          {/* {user?.user?.partner_url_logo && (
-            <>
-              <img
-                className="h-6"
-                src={user.user.partner_url_logo}
-                alt="Partner Logo"
-              />
-            </>
-          )} */}
         </div>
       </header>
 
