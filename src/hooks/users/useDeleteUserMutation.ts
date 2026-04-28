@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { messageQueryFeedback as fb } from "@/helpers/MessageQueryFeedback.helper";
 import { dictionaryQueryClient } from "@/constants/dictionaryQueryClient.const";
-import type { IUser } from "@/types/IUser.type";
+import type { IUser, IUserResponse } from "@/types/IUser.type";
 
 export function useDeleteUserMutation() {
   const queryClient = useQueryClient();
@@ -9,15 +9,21 @@ export function useDeleteUserMutation() {
 
   return useMutation({
     mutationFn: entity.service.deleteItems,
-    onMutate: async ({ ids }: { ids: string[] }) => {
+    onMutate: async ({ ids }: { ids: number[] }) => {
       await queryClient.cancelQueries({ queryKey: [entity.key] });
 
-      const previousClients = queryClient.getQueryData<IUser[]>([entity.key]);
+      const previousClients = queryClient.getQueryData<IUserResponse>([
+        entity.key,
+      ]);
 
-      queryClient.setQueryData<IUser[]>([entity.key], (old) =>
-        old?.filter((client) => !ids.includes(client.id)),
-      );
+      queryClient.setQueryData<IUserResponse>([entity.key], (old) => {
+        if (!old) return old;
 
+        return {
+          ...old,
+          users: old.users.filter((user: IUser) => !ids.includes(user.user_id)),
+        };
+      });
       return {
         previousClients,
         toastId: fb.deleteLoading(entity, ids.length),

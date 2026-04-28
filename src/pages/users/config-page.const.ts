@@ -13,17 +13,17 @@ export const useListEntity = useUserQuery;
 export type EntityType = IUser;
 
 export type FormValues = {
-  name: string;
+  user_name: string;
   email: string;
   cpf: string;
   telephone: string;
   role: UserRole;
   password?: string;
-  company_id?: string;
-  partner_id?: string;
+  company_id?: number | null;
+  partner_id?: number | null;
   allow_email_notifications?: boolean;
   allow_sms_notifications?: boolean;
-  person_responsible_id?: string;
+  person_responsible_id?: number | null;
   consultant_hash?: string;
   user_type?: string;
   team?: string;

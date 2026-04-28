@@ -1,10 +1,7 @@
-import type { UserRole } from "../../types/IUser.type";
-
 interface MenuItem {
   label: string;
   to?: string;
   items?: MenuItem[];
-  role?: UserRole;
 }
 
 // telas do menu comum a todas as empresas
@@ -15,17 +12,14 @@ export const menuOptionsCommon: MenuItem[] = [
       {
         label: "Usuários",
         to: "/app/users",
-        role: "ADMIN",
       },
       {
         label: "Parceiros",
         to: "/app/partners",
-        role: "ADMIN",
       },
       {
         label: "Empresas",
         to: "/app/companies",
-        role: "ADMIN",
       },
     ],
   },
@@ -89,6 +83,23 @@ export const menuOptionsVivo: MenuItem[] = [
       },
       {
         label: "Banda Larga PJ",
+        to: "/app/vivo/example",
+      },
+      {
+        label: "Aparelhos",
+        to: "/app/vivo/example",
+      },
+    ],
+  },
+  {
+    label: "Produtos",
+    items: [
+      {
+        label: "Banda Larga",
+        to: "/app/vivo/example",
+      },
+      {
+        label: "Aparelhos",
         to: "/app/vivo/example",
       },
     ],

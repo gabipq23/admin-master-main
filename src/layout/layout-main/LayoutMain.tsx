@@ -7,13 +7,20 @@ import { useAuth } from "../../context/auth-provider";
 import { summarizeName } from "../../utils/text.util";
 import { useTheme } from "../../context/theme-provider";
 import { MoonOutlined, SunOutlined } from "@ant-design/icons";
-
+import { useSearch } from "@tanstack/react-router";
+import { usePartnerQuery } from "../../hooks/partners/usePartnerQuery";
 export function LayoutMain() {
 
 
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { toggleDarkMode, isDarkMode } = useTheme();
+
+  const { partner_hash } = useSearch({ from: '/app' });
+  const { data: partnersData } = usePartnerQuery();
+  const previewPartner = partner_hash
+    ? partnersData?.partners?.find((p) => p.partner_hash === partner_hash)
+    : null;
 
   const handleSignOut = async () => {
     await logout();
@@ -32,8 +39,14 @@ export function LayoutMain() {
         <div className="flex items-center justify-between gap-1 w-full">
           <img className="h-6" src={appSetting.logo} alt="Logo" />
 
-
-          {user?.user?.partner_url_logo && (
+          {(previewPartner?.logo_url || user?.user?.partner_url_logo) && (
+            <img
+              className="h-6"
+              src={previewPartner?.logo_url ?? user?.user?.partner_url_logo}
+              alt="Partner Logo"
+            />
+          )}
+          {/* {user?.user?.partner_url_logo && (
             <>
               <img
                 className="h-6"
@@ -41,7 +54,7 @@ export function LayoutMain() {
                 alt="Partner Logo"
               />
             </>
-          )}
+          )} */}
         </div>
       </header>
 

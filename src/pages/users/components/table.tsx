@@ -30,13 +30,13 @@ export function TableMain({ data, isLoading }: UsersTableProps) {
     const lower = searchText.toLowerCase();
     return data.filter(
       (u) =>
-        u.name.toLowerCase().includes(lower) ||
+        u.user_name.toLowerCase().includes(lower) ||
         u.email.toLowerCase().includes(lower),
     );
   }, [data, searchText]);
 
   function handleEdit(record: IUser) {
-    // setIsViewModalOpen(false);
+    setIsViewModalOpen(false);
     setEditingEntity(record);
     setIsFormModalOpen(true);
   }
@@ -53,7 +53,7 @@ export function TableMain({ data, isLoading }: UsersTableProps) {
   }
 
   function handleBulkDelete() {
-    const selected = data.filter((u) => selectedRowKeys.includes(u.id));
+    const selected = data.filter((u) => selectedRowKeys.includes(u.user_id));
     setEntitiesToDelete(selected);
     setIsDeleteModalOpen(true);
   }
@@ -92,7 +92,7 @@ export function TableMain({ data, isLoading }: UsersTableProps) {
       />
 
       <Table
-        rowKey="id"
+        rowKey="user_id"
         columns={columns}
         dataSource={filteredData}
         className={styles.customTable}

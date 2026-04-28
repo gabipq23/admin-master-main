@@ -17,7 +17,7 @@ export function DeleteConfirmModal({
   const deleteMutation = useDeleteUserMutation();
 
   function handleConfirm() {
-    const ids = entitiesToDelete.map((u) => u.id);
+    const ids = entitiesToDelete.map((u) => u.user_id);
     deleteMutation.mutate({ ids }, { onSuccess: onClose });
   }
 
@@ -37,7 +37,7 @@ export function DeleteConfirmModal({
       {isSingle ? (
         <Typography.Text>
           Tem certeza que deseja deletar o(a) {entityPage.name.toLowerCase()}{" "}
-          <Typography.Text strong>{entitiesToDelete[0]?.name}</Typography.Text>?
+          <Typography.Text strong>{entitiesToDelete[0]?.user_name}</Typography.Text>?
           Esta ação não pode ser desfeita.
         </Typography.Text>
       ) : (

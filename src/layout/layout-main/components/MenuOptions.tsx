@@ -3,11 +3,13 @@ import { ConfigProvider, Dropdown } from "antd";
 import { type JSX } from "react";
 import { appSetting } from "../../../constants/app-setting/config.const";
 import { useAuth } from "@/context/auth-provider";
+import { canAccessRoute } from "@/helpers/access-control.helper";
 
 export function MenuOptions(): JSX.Element {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const color = appSetting?.primaryColor
+  const currentRole = user?.user?.role;
+  const color = appSetting?.primaryColor;
   function navigeteTo(to?: string) {
     if (to) navigate({ to });
   }
@@ -25,14 +27,14 @@ export function MenuOptions(): JSX.Element {
         }}
       >
         {appSetting.optionsMenu.map((item, index) => {
-          if (item.role && item.role !== user?.user?.role) return null;
+          const subItems = (item.items ?? [])
+            .filter((subItem) => canAccessRoute(currentRole, subItem.to))
+            .map((subItem, idx) => ({
+              key: `${index}-${idx}`,
+              label: <a onClick={() => navigeteTo(subItem.to)}>{subItem.label}</a>,
+            }));
 
-          const subItems = item.items?.map((subItem, idx) => ({
-            key: `${index}-${idx}`,
-            label: <a onClick={() => navigeteTo(subItem.to)}>{subItem.label}</a>,
-          }));
-
-          if (subItems)
+          if (subItems.length > 0)
             return (
               <Dropdown
                 key={index}
@@ -49,6 +51,8 @@ export function MenuOptions(): JSX.Element {
                 </a>
               </Dropdown>
             );
+
+          if (!item.to || !canAccessRoute(currentRole, item.to)) return null;
 
           return (
             <a
