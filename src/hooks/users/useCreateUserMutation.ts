@@ -1,13 +1,29 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { messageQueryFeedback as fb } from "@/helpers/MessageQueryFeedback.helper";
 import { dictionaryQueryClient } from "@/constants/dictionaryQueryClient.const";
+import type { ICreateUser } from "@/types/IUser.type";
+import { useAuth } from "@/context/auth-provider";
 
 export function useCreateUserMutation() {
   const queryClient = useQueryClient();
-  const entity = dictionaryQueryClient['users'];
+  const entity = dictionaryQueryClient["users"];
+  const { user, isGlobalAdmin } = useAuth();
 
   return useMutation({
-    mutationFn: entity.service.create,
+    mutationFn: (payload: ICreateUser) => {
+      if (isGlobalAdmin) {
+        return entity.service.create(payload);
+      }
+
+      const companyId = user?.user.company_id ?? payload.company_id;
+      const partnerId = user?.user.partner_id ?? payload.partner_id;
+
+      return entity.service.create({
+        ...payload,
+        company_id: companyId,
+        partner_id: partnerId,
+      });
+    },
     onMutate: () => {
       return {
         toastId: fb.createLoading(entity.name),
