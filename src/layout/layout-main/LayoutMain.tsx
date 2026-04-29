@@ -15,12 +15,13 @@ import { useMemo } from "react";
 export function LayoutMain() {
 
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, isGlobalAdmin } = useAuth();
   const { toggleDarkMode, isDarkMode } = useTheme();
   const { selectedCompanyId, selectedPartnerId, setSelectedCompanyId, setSelectedPartnerId } = useAdminScope();
+  const shouldShowAdminScope = isAdminDomain && isGlobalAdmin;
 
-  const { data: companiesData } = useCompanyQuery({ enabled: isAdminDomain });
-  const { data: partnersData } = usePartnerQuery();
+  const { data: companiesData } = useCompanyQuery({ enabled: shouldShowAdminScope });
+  const { data: partnersData } = usePartnerQuery({ enabled: shouldShowAdminScope || !isAdminDomain });
 
   const companyOptions = useMemo(
     () => companiesData?.companies.map((c) => ({ label: c.company_name, value: c.company_id })) ?? [],
@@ -68,7 +69,7 @@ export function LayoutMain() {
       <div className="bg-[#d4d4d4] dark:bg-neutral-700 px-6 md:px-10 lg:px-14 py-2 flex items-center justify-between w-full" >
         <MenuOptions />
         <div className="flex items-center text-neutral-800 dark:text-neutral-400 gap-3">
-          {isAdminDomain && (
+          {shouldShowAdminScope && (
             <>
               <Select
                 allowClear

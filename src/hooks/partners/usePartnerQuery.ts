@@ -9,21 +9,16 @@ export function usePartnerQuery({
 }: { enabled?: boolean } = {}) {
   const entity = dictionaryQueryClient["partners"];
   const { user } = useAuth();
-  const { selectedCompanyId, selectedPartnerId } = useAdminScope();
+  const { selectedCompanyId } = useAdminScope();
 
   const filters = isAdminDomain
     ? {
         ...(selectedCompanyId != null ? { company_id: selectedCompanyId } : {}),
-        ...(selectedPartnerId != null ? { partner_id: selectedPartnerId } : {}),
       }
     : { company_id: user?.user.company_id ?? undefined };
 
   return useQuery({
-    queryKey: [
-      entity.key,
-      filters.company_id ?? null,
-      filters.partner_id ?? null,
-    ],
+    queryKey: [entity.key, filters.company_id ?? null],
     queryFn: () => entity.service.getAll(filters),
     retry: 2,
     enabled,
