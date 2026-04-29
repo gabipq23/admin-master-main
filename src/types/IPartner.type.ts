@@ -26,6 +26,8 @@ export interface IPartner {
   _count: {
     users: number;
   };
+  uf: string[];
+  client_type: string[];
 }
 
 export interface ICreatePartner {
@@ -41,6 +43,8 @@ export interface ICreatePartner {
     company_id: number;
     company_name: string;
   };
+  uf: string[];
+  client_type: string[];
 }
 
 export interface ICreatePartnerPayload {
@@ -66,6 +70,8 @@ export interface IUpdatePartner {
     company_id: number;
     company_name: string;
   };
+  uf: string[];
+  client_type: string[];
 }
 
 export interface IUpdatePartnerPayload {

@@ -67,7 +67,10 @@ export function ViewModal({
 
                     <Col span={8}>
                         <ReadonlyField label="Nome" value={viewingEntity?.partner_name} />
-                    </Col> <Col span={8}>
+                    </Col>
+                    <Col span={8}>
+                        <ReadonlyField label="Identificador" value={viewingEntity?.partner_hash} copyable />
+                    </Col><Col span={8}>
                         <ReadonlyField label="CNPJ" value={formatCNPJ(viewingEntity?.cnpj ?? "")} />
                     </Col>
                     <Col span={8}>
@@ -89,7 +92,43 @@ export function ViewModal({
                         />
                     </Col>
                     <Col span={8}>
-                        <ReadonlyField label="Identificador" value={viewingEntity?.partner_hash} copyable />
+
+                        <Space orientation="vertical" size={4} style={{ display: "flex" }}>
+                            <Typography.Text type="secondary">Tipo de Cliente</Typography.Text>
+                            <div
+                                style={{
+                                    minHeight: 30,
+                                    padding: "4px 10px",
+                                    border: "1px solid #d9d9d9",
+                                    borderRadius: 8,
+                                    backgroundColor: "rgba(0, 0, 0, 0.015)",
+                                }}
+                            >
+                                {viewingEntity?.client_type.join(", ")}
+
+                            </div>
+                        </Space>
+
+                    </Col>
+
+                    <Col span={8}>
+
+                        <Space orientation="vertical" size={4} style={{ display: "flex" }}>
+                            <Typography.Text type="secondary">Estados de Cobertura</Typography.Text>
+                            <div
+                                style={{
+                                    minHeight: 30,
+                                    padding: "4px 10px",
+                                    border: "1px solid #d9d9d9",
+                                    borderRadius: 8,
+                                    backgroundColor: "rgba(0, 0, 0, 0.015)",
+                                }}
+                            >
+                                {viewingEntity?.uf.join(", ")}
+
+                            </div>
+                        </Space>
+
                     </Col>
                 </Row>
             </div>

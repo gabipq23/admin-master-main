@@ -54,5 +54,19 @@ export function getColumns(): TableColumnsType<EntityType> {
       width: 140,
       render: (company_name: string) => company_name || "-"
     },
+    {
+      title: "Tipo de Cliente",
+      dataIndex: "client_type",
+      key: "client_type",
+      width: 140,
+      render: (client_type: string[]) => client_type?.join(", ") || "-"
+    },
+    {
+      title: "UF",
+      dataIndex: "uf",
+      key: "uf",
+      width: 140,
+      render: (uf: string[]) => uf?.join(", ") || "-"
+    },
   ];
 }
