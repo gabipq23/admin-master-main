@@ -72,3 +72,8 @@ export interface IUpdatePartnerPayload {
   entity: IUpdatePartner;
   logoFile?: File;
 }
+
+export interface IPartnerFilters {
+  company_id?: number;
+  partner_id?: number;
+}

@@ -5,11 +5,14 @@ import type {
   IUpdatePartner,
   IPartner,
   IPartnerResponse,
+  IPartnerFilters,
 } from "@/types/IPartner.type";
 
 export class PartnersService {
-  static async getAll(): Promise<IPartnerResponse> {
-    const { data } = await httpClientAxios.get<IPartnerResponse>(`/partners`);
+  static async getAll(filters?: IPartnerFilters): Promise<IPartnerResponse> {
+    const { data } = await httpClientAxios.get<IPartnerResponse>(`/partners`, {
+      params: filters,
+    });
     return data;
   }
 
