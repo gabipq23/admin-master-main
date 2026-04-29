@@ -9,40 +9,50 @@ export function getColumns(): TableColumnsType<EntityType> {
     {
       title: "Logo",
       dataIndex: "logo_url", key: "logo_url",
+      width: 140,
       render: (logo_url: string) => <img src={logo_url} alt="Logo" className="h-6 " />
     },
     {
       title: "Nome",
       dataIndex: "partner_name",
       key: "partner_name",
+      width: 140,
       sorter: (a, b) => a.partner_name.localeCompare(b.partner_name),
     },
     {
       title: "CNPJ",
       dataIndex: "cnpj",
       key: "cnpj",
-      render: (cnpj: string) => formatCNPJ(cnpj)
+      width: 140,
+      render: (cnpj: string) => formatCNPJ(cnpj) || "-"
     },
     {
       title: "Email",
       dataIndex: "email",
       key: "email",
+      width: 140,
+      render: (email: string) => email || "-"
     },
     {
       title: "Telefone",
       dataIndex: "telephone",
       key: "telephone",
-      render: (telephone: string) => formatPhoneNumber(telephone)
+      width: 140,
+      render: (telephone: string) => formatPhoneNumber(telephone) || "-"
     },
     {
       title: "Responsável",
       dataIndex: "manager_name",
       key: "manager_name",
+      width: 140,
+      render: (manager_name: string) => manager_name || "-"
     },
     {
       title: "Empresa",
       dataIndex: ["company", "company_name"],
       key: "company_name",
+      width: 140,
+      render: (company_name: string) => company_name || "-"
     },
   ];
 }
