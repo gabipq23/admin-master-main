@@ -15,8 +15,8 @@ export function useUpdateUserMutation() {
         return entity.service.update(payload);
       }
 
-      const companyId = user?.user.company_id ?? payload.company_id;
-      const partnerId = user?.user.partner_id ?? payload.partner_id;
+      const companyId = user?.user.company_id ?? null;
+      const partnerId = user?.user.partner_id ?? null;
 
       return entity.service.update({
         ...payload,

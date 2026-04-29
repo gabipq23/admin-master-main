@@ -1,20 +1,31 @@
 import { dictionaryQueryClient } from "@/constants/dictionaryQueryClient.const";
 import { useAuth } from "@/context/auth-provider";
+import { useAdminScope } from "@/context/admin-scope-provider";
+import { isAdminDomain } from "@/constants/app-setting/config.const";
 import { useQuery } from "@tanstack/react-query";
 
 export function usePartnerQuery({
   enabled = true,
 }: { enabled?: boolean } = {}) {
   const entity = dictionaryQueryClient["partners"];
-  const { user, isGlobalAdmin } = useAuth();
-  const filters = isGlobalAdmin
-    ? {}
+  const { user } = useAuth();
+  const { selectedCompanyId, selectedPartnerId } = useAdminScope();
+
+  const filters = isAdminDomain
+    ? {
+        ...(selectedCompanyId != null ? { company_id: selectedCompanyId } : {}),
+        ...(selectedPartnerId != null ? { partner_id: selectedPartnerId } : {}),
+      }
     : { company_id: user?.user.company_id ?? undefined };
 
   return useQuery({
-    queryKey: [entity.key, filters.company_id ?? null],
+    queryKey: [
+      entity.key,
+      filters.company_id ?? null,
+      filters.partner_id ?? null,
+    ],
     queryFn: () => entity.service.getAll(filters),
     retry: 2,
-    enabled, // para verificar se o usuario logado tem acesso ou não a query
+    enabled,
   });
 }

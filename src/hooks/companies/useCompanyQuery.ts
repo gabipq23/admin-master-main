@@ -10,6 +10,6 @@ export function useCompanyQuery({
     queryKey: [entity.key],
     queryFn: entity.service.getAll,
     retry: 2,
-    enabled, // para verificar se o usuario logado tem acesso ou não a query
+    enabled,
   });
 }
