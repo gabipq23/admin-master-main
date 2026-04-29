@@ -18,7 +18,7 @@ export default defineConfig({
     babel({ presets: [reactCompilerPreset()] }),
   ],
   server: {
-    port: 9003,
+    port: 9001,
   },
   resolve: {
     alias: {
