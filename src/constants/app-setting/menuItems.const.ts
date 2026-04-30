@@ -21,6 +21,10 @@ export const menuOptionsCommon: MenuItem[] = [
         label: "Empresas",
         to: "/app/companies",
       },
+      {
+        label: "Prioridades",
+        to: "/app/priorities",
+      },
     ],
   },
 ];

@@ -2,10 +2,18 @@ import { LocalStorageKeys } from "@/enums/LocalStorageKeys.enum";
 import type { IAuthPayload } from "@/types/IAuthPayload.type";
 import type { UserRole } from "@/types/IUser.type";
 
-export type PermissionResource = "companies" | "partners" | "users";
+export type PermissionResource =
+  | "companies"
+  | "partners"
+  | "users"
+  | "priorities";
 export type PermissionAction = "view" | "create" | "edit" | "delete";
 
-type RestrictedRoute = "/app/companies" | "/app/partners" | "/app/users";
+type RestrictedRoute =
+  | "/app/companies"
+  | "/app/partners"
+  | "/app/users"
+  | "/app/priorities";
 
 const allCrudActions: PermissionAction[] = ["view", "create", "edit", "delete"];
 
@@ -17,9 +25,11 @@ const permissionsByRole: Record<
     companies: allCrudActions,
     partners: allCrudActions,
     users: allCrudActions,
+    priorities: ["view", "edit"],
   },
   GESTOR: {
     users: allCrudActions,
+    priorities: ["view", "edit"],
   },
   DIRETOR: {},
   GERENTE: {},
@@ -31,6 +41,7 @@ const routeResourceMap: Record<RestrictedRoute, PermissionResource> = {
   "/app/companies": "companies",
   "/app/partners": "partners",
   "/app/users": "users",
+  "/app/priorities": "priorities",
 };
 
 export function getStoredUserRole(): UserRole | null {
