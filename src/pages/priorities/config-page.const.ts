@@ -3,12 +3,13 @@ import { UF_OPTIONS } from "@/utils/ufOptions";
 
 export const entityPage = {
   name: "Prioridade",
-  plural: "Gestao de prioridades",
+  plural: "Sugestão de Prioridades",
 };
 
 export const clientTypeOptions = [
-  { label: "PF - Pessoa Fisica", value: "PF" },
-  { label: "PJ - Pessoa Juridica", value: "PJ" },
+  { label: " B2C - Pessoa Física", value: "PF" },
+  { label: " B2B - Pessoa Jurídica", value: "PJ" },
+  { label: "B2B e B2C - Pessoa Física e Jurídica", value: "PF e PJ" },
 ];
 
 const ufNameByCode = new Map(

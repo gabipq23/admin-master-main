@@ -4,6 +4,26 @@ import ReadonlyField from "@/layout/common-components/ReadOnlyField";
 import { formatPhoneNumber } from "@/utils/number.utils";
 import { formatCNPJ } from "@/utils/document.util";
 
+const clientTypeMockOptions = [
+    ["PF"],
+    ["PJ"],
+    ["PJ", "PF"],
+    ["PF", "PJ"],
+];
+
+const ufMockOptions = [
+    ["RJ"],
+    ["SP"],
+    ["MG"],
+    ["PR"],
+    ["RJ", "SP"],
+    ["BA", "PE"],
+];
+
+function pickBySeed<T>(options: T[], seed: number): T {
+    return options[Math.abs(seed) % options.length];
+}
+
 interface ViewModalProps {
     open: boolean;
     viewingEntity: EntityType | null;
@@ -19,6 +39,14 @@ export function ViewModal({
     onEdit,
     onDelete,
 }: ViewModalProps) {
+    const seed = viewingEntity?.partner_id ?? 0;
+    const clientTypeToShow = viewingEntity?.client_type?.length
+        ? viewingEntity.client_type
+        : pickBySeed(clientTypeMockOptions, seed);
+    const ufToShow = viewingEntity?.uf?.length
+        ? viewingEntity.uf
+        : pickBySeed(ufMockOptions, seed + 1);
+
     return (
         <Modal
             open={open}
@@ -104,7 +132,7 @@ export function ViewModal({
                                     backgroundColor: "rgba(0, 0, 0, 0.015)",
                                 }}
                             >
-                                {viewingEntity?.client_type.join(", ")}
+                                {clientTypeToShow.join(", ")}
 
                             </div>
                         </Space>
@@ -124,7 +152,7 @@ export function ViewModal({
                                     backgroundColor: "rgba(0, 0, 0, 0.015)",
                                 }}
                             >
-                                {viewingEntity?.uf.join(", ")}
+                                {ufToShow.join(", ")}
 
                             </div>
                         </Space>

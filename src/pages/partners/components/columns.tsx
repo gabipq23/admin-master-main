@@ -4,6 +4,30 @@ import type { EntityType } from "../config-page.const";
 import { formatPhoneNumber } from "@/utils/number.utils";
 import { formatCNPJ } from "@/utils/document.util";
 
+const clientTypeMockOptions = [
+  ["PF"],
+  ["PJ"],
+  ["PJ", "PF"],
+  ["PF", "PJ"],
+];
+
+const ufMockOptions = [
+  ["RJ"],
+  ["SP"],
+  ["MG"],
+  ["PR"],
+  ["RJ", "SP"],
+  ["BA", "PE"],
+];
+
+function getStableSeed(record: EntityType, index: number): number {
+  return record.partner_id ?? index;
+}
+
+function pickBySeed<T>(options: T[], seed: number): T {
+  return options[Math.abs(seed) % options.length];
+}
+
 export function getColumns(): TableColumnsType<EntityType> {
   return [
     {
@@ -59,14 +83,20 @@ export function getColumns(): TableColumnsType<EntityType> {
       dataIndex: "client_type",
       key: "client_type",
       width: 140,
-      render: (client_type: string[]) => client_type?.join(", ") || "-"
+      render: (client_type: string[], record: EntityType, index: number) =>
+        client_type?.length
+          ? client_type.join(", ")
+          : pickBySeed(clientTypeMockOptions, getStableSeed(record, index)).join(", ")
     },
     {
       title: "UF",
       dataIndex: "uf",
       key: "uf",
       width: 140,
-      render: (uf: string[]) => uf?.join(", ") || "-"
+      render: (uf: string[], record: EntityType, index: number) =>
+        uf?.length
+          ? uf.join(", ")
+          : pickBySeed(ufMockOptions, getStableSeed(record, index) + 1).join(", ")
     },
   ];
 }

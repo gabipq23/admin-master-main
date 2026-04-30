@@ -112,7 +112,7 @@ export function PrioritiesPage() {
 
                 <Row gutter={16} align="bottom">
                     <Col>
-                        <Typography.Text strong>Empresa (Company)</Typography.Text>
+                        <Typography.Text strong>Empresa</Typography.Text>
                         <Select
                             allowClear
                             placeholder="Selecione a empresa"
@@ -122,12 +122,12 @@ export function PrioritiesPage() {
                             onChange={setCompanyId}
                         />
                     </Col>
-                    <Col >
-                        <Typography.Text strong>Tipo de cliente</Typography.Text>
+                    <Col className="flex flex-col">
+                        <Typography.Text strong>Atuação</Typography.Text>
                         <Select
                             allowClear
-                            placeholder="Selecione o tipo"
-                            style={{ width: "100%", marginTop: 8 }}
+                            placeholder="Selecione a atuação"
+                            style={{ width: "300px", marginTop: 8 }}
                             options={clientTypeOptions}
                             value={clientType}
                             onChange={setClientType}
@@ -140,7 +140,7 @@ export function PrioritiesPage() {
                             disabled={!companyId || !clientType}
                             onClick={handleSearch}
                         >
-                            Buscar estados
+                            Buscar Estados
                         </Button>
                     </Col>
                 </Row>
