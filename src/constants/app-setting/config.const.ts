@@ -9,6 +9,7 @@ import {
   menuOptionsVivo,
   menuOptionsVR,
   menuOptionsC6,
+  menuOptionsCommon,
 } from "./menuItems.const";
 
 /* 
@@ -21,6 +22,7 @@ nio.megalead.digital
 vero.megalead.digital
 c6.megalead.digital
 vr.megalead.digital
+admin.megalead.digital → domínio geral do ADMIN
 esses domínios, colocar no lugar dos numeros de portas dos options 
 */
 
@@ -29,6 +31,15 @@ const subdomain = window.location.port; // - DEV // remover essse quando ja tive
 const url = window.location.origin;
 
 export const options = {
+  "9000": {
+    name: "Admin",
+    logo: "/megalead.png",
+    primaryColor: "#333333",
+    baseUrl: "https://evolution.bigdates.com.br:3720",
+    favicon: `${url}/favicon/favicon.ico`,
+    optionsMenu: menuOptionsCommon,
+    isAdminDomain: true,
+  },
   "9001": {
     name: "Tim",
     logo: timLogo,
@@ -36,6 +47,7 @@ export const options = {
     baseUrl: "https://evolution.bigdates.com.br:3720",
     favicon: `${url}/favicon/tim.ico`,
     optionsMenu: menuOptionsTim,
+    isAdminDomain: false,
   },
   "9002": {
     name: "Claro",
@@ -44,6 +56,7 @@ export const options = {
     baseUrl: "https://evolution.bigdates.com.br:3720",
     favicon: `${url}/favicon/claro.ico`,
     optionsMenu: menuOptionsClaro,
+    isAdminDomain: false,
   },
   "9003": {
     name: "Vivo",
@@ -52,6 +65,7 @@ export const options = {
     baseUrl: "https://evolution.bigdates.com.br:3720",
     favicon: `${url}/favicon/vivo.ico`,
     optionsMenu: menuOptionsVivo,
+    isAdminDomain: false,
   },
   "9004": {
     name: "VR",
@@ -60,6 +74,7 @@ export const options = {
     baseUrl: "https://evolution.bigdates.com.br:3720",
     favicon: `${url}/favicon/vr.ico`,
     optionsMenu: menuOptionsVR,
+    isAdminDomain: false,
   },
   "9005": {
     name: "C6",
@@ -68,8 +83,11 @@ export const options = {
     baseUrl: "https://evolution.bigdates.com.br:3720",
     favicon: `${url}/favicon/c6.ico`,
     optionsMenu: menuOptionsC6,
+    isAdminDomain: false,
   },
 };
 
 export const appSetting =
   options[subdomain as keyof typeof options] || options["9001"];
+
+export const isAdminDomain = appSetting.isAdminDomain;

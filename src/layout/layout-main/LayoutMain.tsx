@@ -1,28 +1,51 @@
 import { Outlet, useNavigate } from "@tanstack/react-router";
-import { Avatar, Button, ConfigProvider, Divider, Layout, Popover } from "antd";
+import { Avatar, Button, ConfigProvider, Divider, Layout, Popover, Select } from "antd";
 import { Content } from "antd/es/layout/layout";
-import { appSetting } from "../../constants/app-setting/config.const";
+import { appSetting, isAdminDomain } from "../../constants/app-setting/config.const";
 import { MenuOptions } from "./components/MenuOptions";
 import { useAuth } from "../../context/auth-provider";
 import { summarizeName } from "../../utils/text.util";
 import { useTheme } from "../../context/theme-provider";
 import { MoonOutlined, SunOutlined } from "@ant-design/icons";
-
 import { usePartnerQuery } from "../../hooks/partners/usePartnerQuery";
+import { useCompanyQuery } from "../../hooks/companies/useCompanyQuery";
+import { useAdminScope } from "../../context/admin-scope-provider";
+import { useMemo } from "react";
+
+const segmentOptions = [
+  { label: "Financeiro", value: "financies" },
+  { label: "Beneficios", value: "benefits" },
+  { label: "Telecom", value: "telecom" },
+];
 
 export function LayoutMain() {
 
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, isGlobalAdmin } = useAuth();
   const { toggleDarkMode, isDarkMode } = useTheme();
+  const {
+    selectedSegmentId,
+    selectedCompanyId,
+    selectedPartnerId,
+    setSelectedSegmentId,
+    setSelectedCompanyId,
+    setSelectedPartnerId,
+  } = useAdminScope();
+  const shouldShowAdminScope = isAdminDomain && isGlobalAdmin;
+  const shouldFetchPartners = shouldShowAdminScope ? selectedCompanyId != null : true;
 
-  // const { partner_hash } = useSearch({ from: '/app' });
-  // const { data: partnersData } = usePartnerQuery();
-  // const previewPartner = partner_hash
-  //   ? partnersData?.partners?.find((p) => p.partner_hash === partner_hash)
-  //   : null;
+  const { data: companiesData } = useCompanyQuery({ enabled: shouldShowAdminScope });
+  const { data: partnersData } = usePartnerQuery({ enabled: shouldFetchPartners });
 
-  const { data: partnersData } = usePartnerQuery();
+  const companyOptions = useMemo(
+    () => companiesData?.companies.map((c) => ({ label: c.company_name, value: c.company_id })) ?? [],
+    [companiesData],
+  );
+
+  const partnerOptions = useMemo(
+    () => (partnersData?.partners ?? []).map((p) => ({ label: p.partner_name, value: p.partner_id })),
+    [partnersData],
+  );
 
   const previewPartner = user?.user?.partner_id
     ? partnersData?.partners?.find(
@@ -60,6 +83,36 @@ export function LayoutMain() {
       <div className="bg-[#d4d4d4] dark:bg-neutral-700 px-6 md:px-10 lg:px-14 py-2 flex items-center justify-between w-full" >
         <MenuOptions />
         <div className="flex items-center text-neutral-800 dark:text-neutral-400 gap-3">
+          {shouldShowAdminScope && (
+            <>
+              <Select
+                allowClear
+                placeholder="Segmento"
+                options={segmentOptions}
+                value={selectedSegmentId}
+                onChange={setSelectedSegmentId}
+                style={{ minWidth: 140 }}
+              />
+              <Select
+                allowClear
+                placeholder="Empresa"
+                options={companyOptions}
+                value={selectedCompanyId}
+                onChange={setSelectedCompanyId}
+                disabled={!selectedSegmentId}
+                style={{ minWidth: 140 }}
+              />
+              <Select
+                allowClear
+                placeholder="Parceiro"
+                options={partnerOptions}
+                value={selectedPartnerId}
+                onChange={setSelectedPartnerId}
+                disabled={!selectedCompanyId}
+                style={{ minWidth: 140 }}
+              />
+            </>
+          )}
           <ConfigProvider
             theme={{
               components: {

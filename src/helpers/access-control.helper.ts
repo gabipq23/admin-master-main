@@ -68,6 +68,12 @@ export function canAccessRoute(
   return can(role, resource, "view");
 }
 
+export function isGlobalAdminUser(
+  userPayload: IAuthPayload | null | undefined,
+) {
+  return userPayload?.user?.role === "ADMIN";
+}
+
 // Empresas
 // view/create/edit/delete: só Admin.
 // Parceiros

@@ -4,12 +4,17 @@ import type {
   ICreateCompany,
   IUpdateCompany,
   ICompany,
+  ICompanyFilters,
 } from "@/types/ICompany.type";
 
 export class CompaniesService {
-  static async getAll(): Promise<ICompanyResponse> {
-    const { data } =
-      await httpClientAxios.get<ICompanyResponse>(`/business-companies`);
+  static async getAll(filters?: ICompanyFilters): Promise<ICompanyResponse> {
+    const { data } = await httpClientAxios.get<ICompanyResponse>(
+      `/business-companies`,
+      {
+        params: filters,
+      },
+    );
     return data;
 
     // await new Promise((resolve) => setTimeout(resolve, 1000));

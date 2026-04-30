@@ -29,4 +29,6 @@ export type FormValues = {
     company_id: number;
     company_name: string;
   };
+  uf: string[];
+  client_type: string[];
 };

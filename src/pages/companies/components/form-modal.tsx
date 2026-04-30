@@ -87,9 +87,9 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
               <Select
                 placeholder="Selecione..."
                 options={[
-                  { label: "Financeiro", value: "financeiro" },
+                  { label: "Financeiro", value: "financies" },
                   { label: "Telecom", value: "telecom" },
-                  { label: "Benefícios", value: "beneficios" },
+                  { label: "Benefícios", value: "benefits" },
                 ]}
               />
             </Form.Item>

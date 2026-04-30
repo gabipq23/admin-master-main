@@ -9,6 +9,8 @@ import {
 } from "../config-page.const";
 import { useCompanyQuery } from "@/hooks/companies/useCompanyQuery";
 import { usePartnerQuery } from "@/hooks/partners/usePartnerQuery";
+import { useAuth } from "@/context/auth-provider";
+
 interface FormModalProps {
   open: boolean;
   editingEntity: EntityType | null;
@@ -19,6 +21,7 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
   const [form] = Form.useForm<FormValues>();
   const createMutation = useCreateEntity();
   const updateMutation = useUpdateEntity();
+  const { isGlobalAdmin } = useAuth();
 
   const isEditing = !!editingEntity;
   const isPending = createMutation.isPending || updateMutation.isPending;
@@ -30,13 +33,12 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
     label: name,
     value: name,
   }));
-
-  const companyOptions = useCompanyQuery().data?.companies.map((company) => ({
+  const companyOptions = useCompanyQuery({ enabled: isGlobalAdmin }).data?.companies.map((company) => ({
     label: company.company_name,
     value: company.company_id,
   })) ?? [];
 
-  const partners = usePartnerQuery().data?.partners;
+  const partners = usePartnerQuery({ enabled: isGlobalAdmin }).data?.partners;
 
   const partnersByCompany = useMemo(
     () => (partners ?? []).filter(
@@ -249,26 +251,27 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
         </Row>
 
         <Row gutter={16}>
-          <Col span={7}>
-            <Form.Item name="company_id" label="Empresa">
-              <Select
-                placeholder="Selecione..."
-                options={companyOptions}
-
-              />
-
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item name="partner_id" label="Parceiro">
-              <Select
-                placeholder={selectedCompanyId ? "Selecione..." : "Selecione uma empresa primeiro"}
-                options={partnerOptions}
-                disabled={!selectedCompanyId}
-
-              />
-            </Form.Item>
-          </Col>
+          {isGlobalAdmin && (
+            <Col span={7}>
+              <Form.Item name="company_id" label="Empresa">
+                <Select
+                  placeholder="Selecione..."
+                  options={companyOptions}
+                />
+              </Form.Item>
+            </Col>
+          )}
+          {isGlobalAdmin && (
+            <Col span={8}>
+              <Form.Item name="partner_id" label="Parceiro">
+                <Select
+                  placeholder={selectedCompanyId ? "Selecione..." : "Selecione uma empresa primeiro"}
+                  options={partnerOptions}
+                  disabled={!selectedCompanyId}
+                />
+              </Form.Item>
+            </Col>
+          )}
           <Col span={9}>
             <Form.Item
               name="role"

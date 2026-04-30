@@ -14,23 +14,23 @@ export interface IAuthContext {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   user: IAuthPayload | null;
+  isGlobalAdmin: boolean;
 }
 
 const AuthContext = createContext<IAuthContext | null>(null);
 
 export function AuthProvider({ children }: { children: JSX.Element }) {
   const [user, setUser] = useState<IAuthPayload | null>(getStoredUser());
+  const isGlobalAdmin = user?.user?.role === "ADMIN";
 
   const logout = useCallback(async () => {
     await AuthService.logout();
-
     setStoredUser(null);
     setUser(null);
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
     const data = await AuthService.login(email, password);
-
     setStoredUser(data);
     setUser(data);
   }, []);
@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: JSX.Element }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, isGlobalAdmin }}>
       {children}
     </AuthContext.Provider>
   );

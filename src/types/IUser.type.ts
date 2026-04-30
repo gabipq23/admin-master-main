@@ -82,3 +82,8 @@ export interface IUpdateUser {
   team: string;
   cnpj: string;
 }
+
+export interface IUserFilters {
+  company_id?: number;
+  partner_id?: number;
+}

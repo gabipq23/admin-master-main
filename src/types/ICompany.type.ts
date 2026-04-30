@@ -42,3 +42,7 @@ export interface IUpdateCompany {
   manager_name?: string;
   segment: string;
 }
+
+export interface ICompanyFilters {
+  segment?: string;
+}
