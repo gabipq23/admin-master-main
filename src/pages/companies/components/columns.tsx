@@ -6,7 +6,10 @@ import { formatCNPJ } from "@/utils/document.util";
 
 export function getColumns(): TableColumnsType<EntityType> {
   return [
-    { title: "Segmento", dataIndex: "segment", width: 120, key: "segment" },
+    {
+      title: "Segmento", dataIndex: "segment", width: 120, key: "segment"
+      , render: (segment: string) => segment === "telecom" ? "Telecom" : segment === "financies" ? "Financeiro" : segment === "benefits" ? "Benefícios" : "-"
+    },
     {
       title: "Nome da empresa",
       dataIndex: "company_name",

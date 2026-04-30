@@ -6,8 +6,10 @@ import {
 } from "react";
 
 interface IAdminScopeContext {
+    selectedSegmentId: string | undefined;
     selectedCompanyId: number | undefined;
     selectedPartnerId: number | undefined;
+    setSelectedSegmentId: (id: string | undefined) => void;
     setSelectedCompanyId: (id: number | undefined) => void;
     setSelectedPartnerId: (id: number | undefined) => void;
 }
@@ -15,8 +17,15 @@ interface IAdminScopeContext {
 const AdminScopeContext = createContext<IAdminScopeContext | null>(null);
 
 export function AdminScopeProvider({ children }: { children: JSX.Element }) {
+    const [selectedSegmentId, setSelectedSegmentId] = useState<string | undefined>(undefined);
     const [selectedCompanyId, setSelectedCompanyId] = useState<number | undefined>(undefined);
     const [selectedPartnerId, setSelectedPartnerId] = useState<number | undefined>(undefined);
+
+    function handleSetSegmentId(id: string | undefined) {
+        setSelectedSegmentId(id);
+        setSelectedCompanyId(undefined);
+        setSelectedPartnerId(undefined);
+    }
 
     function handleSetCompanyId(id: number | undefined) {
         setSelectedCompanyId(id);
@@ -26,8 +35,10 @@ export function AdminScopeProvider({ children }: { children: JSX.Element }) {
     return (
         <AdminScopeContext.Provider
             value={{
+                selectedSegmentId,
                 selectedCompanyId,
                 selectedPartnerId,
+                setSelectedSegmentId: handleSetSegmentId,
                 setSelectedCompanyId: handleSetCompanyId,
                 setSelectedPartnerId,
             }}

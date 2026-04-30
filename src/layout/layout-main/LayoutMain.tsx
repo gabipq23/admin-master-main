@@ -12,16 +12,30 @@ import { useCompanyQuery } from "../../hooks/companies/useCompanyQuery";
 import { useAdminScope } from "../../context/admin-scope-provider";
 import { useMemo } from "react";
 
+const segmentOptions = [
+  { label: "Financeiro", value: "financies" },
+  { label: "Beneficios", value: "benefits" },
+  { label: "Telecom", value: "telecom" },
+];
+
 export function LayoutMain() {
 
   const navigate = useNavigate();
   const { user, logout, isGlobalAdmin } = useAuth();
   const { toggleDarkMode, isDarkMode } = useTheme();
-  const { selectedCompanyId, selectedPartnerId, setSelectedCompanyId, setSelectedPartnerId } = useAdminScope();
+  const {
+    selectedSegmentId,
+    selectedCompanyId,
+    selectedPartnerId,
+    setSelectedSegmentId,
+    setSelectedCompanyId,
+    setSelectedPartnerId,
+  } = useAdminScope();
   const shouldShowAdminScope = isAdminDomain && isGlobalAdmin;
+  const shouldFetchPartners = shouldShowAdminScope ? selectedCompanyId != null : true;
 
   const { data: companiesData } = useCompanyQuery({ enabled: shouldShowAdminScope });
-  const { data: partnersData } = usePartnerQuery({ enabled: shouldShowAdminScope || !isAdminDomain });
+  const { data: partnersData } = usePartnerQuery({ enabled: shouldFetchPartners });
 
   const companyOptions = useMemo(
     () => companiesData?.companies.map((c) => ({ label: c.company_name, value: c.company_id })) ?? [],
@@ -73,10 +87,19 @@ export function LayoutMain() {
             <>
               <Select
                 allowClear
+                placeholder="Segmento"
+                options={segmentOptions}
+                value={selectedSegmentId}
+                onChange={setSelectedSegmentId}
+                style={{ minWidth: 140 }}
+              />
+              <Select
+                allowClear
                 placeholder="Empresa"
                 options={companyOptions}
                 value={selectedCompanyId}
                 onChange={setSelectedCompanyId}
+                disabled={!selectedSegmentId}
                 style={{ minWidth: 140 }}
               />
               <Select
