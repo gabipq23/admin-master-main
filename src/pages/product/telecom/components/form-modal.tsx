@@ -48,7 +48,6 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
         ...editingEntity,
         company_id: editingEntity.company_id ?? undefined,
         partner_id: editingEntity.partner_id ?? undefined,
-
       });
     } else if (open) {
       form.resetFields();
@@ -73,8 +72,21 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
       }))
       .filter((d) => d.files.length > 0);
 
+    const rawPricing = values.pricing;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { pricing: _p, ...restValues } = values;
+
     const entityPayload = {
-      ...values,
+      ...restValues,
+      pricing: {
+        base_monthly: {
+          current_price: Number(rawPricing?.base_monthly?.current_price ?? 0),
+          ...(rawPricing?.base_monthly?.original_price != null && {
+            original_price: Number(rawPricing.base_monthly.original_price),
+          }),
+        },
+        installation: { current_price: Number(rawPricing?.installation?.current_price ?? 0) },
+      },
       details: (values.details ?? []).map((detail) => ({
         ...detail,
         images: (detail.images ?? [])

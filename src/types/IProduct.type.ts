@@ -102,6 +102,9 @@ export interface IUpdateProductPayload {
   conditionFiles?: File[];
   detailsImages?: { detailIndex: number; files: File[] }[];
   extrasImages?: { extraId: string; files: File[] }[];
+  pricing_base_monthly?: number;
+  pricing_installation?: number;
+  pricing_base_monthly_original?: number;
 }
 
 export interface IDeleteProductPayload {
@@ -115,6 +118,9 @@ export interface ICreateProductPayload {
   extrasImages?: { extraId: string; files: File[] }[];
   company?: string;
   category?: string;
+  pricing_base_monthly?: number;
+  pricing_installation?: number;
+  pricing_base_monthly_original?: number;
 }
 // IDEIA PARA FUTURAMENTE USAR UM MODELO DE PRODUCT QUE SEJA FLEXIVEL PARA OS DIFERENTES SEGMENTOS
 

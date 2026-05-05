@@ -26,11 +26,10 @@ export type FormValues = {
   company_id?: number | null;
   partner_id?: number | null;
   category?: string;
-  pricing: {
-    base_monthly: { current_price: number; original_price?: number };
-    installation: { current_price: number; original_price?: number };
+  pricing?: {
+    base_monthly?: { current_price?: number; original_price?: number };
+    installation?: { current_price?: number };
   };
-
   offer_conditions?: UploadFile[];
   details?: {
     title?: string;
