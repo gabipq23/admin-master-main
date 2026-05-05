@@ -1,8 +1,11 @@
 
-import { type TableColumnsType } from "antd";
+import { ConfigProvider, Switch, Tooltip, type TableColumnsType } from "antd";
 import type { EntityType } from "../config-page.const";
+import type { useUpdateProductMutation } from "@/hooks/products/useUpdateProductMutation";
 
-export function getColumns(): TableColumnsType<EntityType> {
+type UpdateMutation = ReturnType<typeof useUpdateProductMutation>;
+
+export function getColumns(updateMutation: UpdateMutation): TableColumnsType<EntityType> {
   return [
     {
       title: "Plano",
@@ -28,40 +31,38 @@ export function getColumns(): TableColumnsType<EntityType> {
     },
     { title: " Tipo", dataIndex: "client_type", width: 100 },
 
-    // {
-    //     title: "",
-    //     dataIndex: "online",
-    //     width: 50,
-    //     render: (_value, record) => (
-    //         <ConfigProvider
-    //             theme={{
-    //                 components: {
-    //                     Switch: { colorPrimary: "#0026d9", colorPrimaryHover: "#550088" },
-    //                 },
-    //             }}
-    //         >
-    //             <Tooltip
-    //                 title="Ative ou desative o aparelho da plataforma"
-    //                 placement="top"
-    //                 styles={{ body: { fontSize: "12px" } }}
-    //             >
-    //                 <Switch
-    //                     className={blueOutlineButtonClass}
-    //                     size="small"
-    //                     checked={!!record.online}
-    //                     onChange={(checked) => {
-    //                         updateProductBL({
-    //                             id: record.id,
-    //                             values: {
-    //                                 online: checked,
-    //                                 uf: Array.isArray(record.uf) ? record.uf : [],
-    //                             },
-    //                         });
-    //                     }}
-    //                 />
-    //             </Tooltip>
-    //         </ConfigProvider>
-    //     ),
-    // },
+    {
+      title: "",
+      dataIndex: "online",
+      width: 50,
+      render: (_value, record) => (
+        <ConfigProvider
+          theme={{
+            components: {
+              Switch: { colorPrimary: "#0026d9", colorPrimaryHover: "#550088" },
+            },
+          }}
+        >
+          <Tooltip
+            title="Ative ou desative o aparelho da plataforma"
+            placement="top"
+            overlayInnerStyle={{ fontSize: "12px" }}
+          >
+            <Switch
+
+              size="small"
+              checked={!!record.online}
+              loading={updateMutation.isPending}
+              onChange={(checked) => {
+                updateMutation.mutate({
+                  id: record.id,
+                  entity: { online: checked },
+                });
+              }}
+            />
+          </Tooltip>
+        </ConfigProvider>
+      ),
+    },
   ];
 }

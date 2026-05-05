@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Table } from "antd";
 import type { Key } from "react";
 import { getColumns } from "./columns";
+import { useUpdateEntity } from "../config-page.const";
 import { TableToolbar } from "./table-toolbar";
 import { FormModal } from "./form-modal";
 import { DeleteConfirmModal } from "./delete-confirm-modal";
@@ -25,6 +26,7 @@ export function TableMain({ data, isLoading }: ProductsTableProps) {
   const [entitiesToDelete, setEntitiesToDelete] = useState<IProduct[]>([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const { styles } = useStyle();
+  const updateMutation = useUpdateEntity();
   const filteredData = useMemo(() => {
     if (!searchText) return data;
     const lower = searchText.toLowerCase();
@@ -75,7 +77,7 @@ export function TableMain({ data, isLoading }: ProductsTableProps) {
     setIsViewModalOpen(false);
     setViewingEntity(null);
   }
-  const columns = getColumns();
+  const columns = getColumns(updateMutation);
 
   return (
     <>

@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { messageQueryFeedback as fb } from "@/helpers/MessageQueryFeedback.helper";
 import { dictionaryQueryClient } from "@/constants/dictionaryQueryClient.const";
+import { uploadProductFiles } from "@/helpers/uploadProductFiles.helper";
 import type {
   IProduct,
   IProductsResponse,
@@ -22,25 +23,12 @@ export function useUpdateProductMutation(model: ProductModel = "telecom") {
     }: IUpdateProductPayload) => {
       await entity.service.update(id, payload, model);
 
-      if (conditionFiles?.length) {
-        await entity.service.uploadConditions(id, conditionFiles, model);
-      }
-
-      if (detailsImages?.length) {
-        await Promise.all(
-          detailsImages.map(({ detailIndex, files }) =>
-            entity.service.uploadDetails(id, detailIndex, files, model),
-          ),
-        );
-      }
-
-      if (extrasImages?.length) {
-        await Promise.all(
-          extrasImages.map(({ extraId, files }) =>
-            entity.service.uploadExtras(id, extraId, files, model),
-          ),
-        );
-      }
+      await uploadProductFiles(
+        id,
+        { conditionFiles, detailsImages, extrasImages },
+        model,
+        entity.service,
+      );
     },
     onMutate: async ({ id, entity: payload }: IUpdateProductPayload) => {
       await queryClient.cancelQueries({ queryKey: [entity.key] });
@@ -53,13 +41,13 @@ export function useUpdateProductMutation(model: ProductModel = "telecom") {
         { queryKey: [entity.key] },
         (old) => {
           if (!old) return old;
-
           return {
             ...old,
-            products: old.products.map((product: IProduct) => {
-              if (product.id !== id) return product;
-              return { ...product, ...payload } as IProduct;
-            }),
+            products: old.products.map((product: IProduct) =>
+              product.id !== id
+                ? product
+                : ({ ...product, ...payload } as IProduct),
+            ),
           };
         },
       );
@@ -70,14 +58,10 @@ export function useUpdateProductMutation(model: ProductModel = "telecom") {
       context?.previousQueries?.forEach(([queryKey, data]) => {
         queryClient.setQueryData(queryKey, data);
       });
-
       if (context?.toastId) fb.updateError(entity.name, context.toastId);
     },
     onSuccess: (_data, _payload, context) => {
-      queryClient.invalidateQueries({
-        queryKey: [entity.key],
-      });
-
+      queryClient.invalidateQueries({ queryKey: [entity.key] });
       if (context?.toastId) fb.updateSuccess(entity.name, context.toastId);
     },
   });

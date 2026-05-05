@@ -64,53 +64,24 @@ export interface IProductsResponse {
   totalPages: number;
 }
 
-export interface CreatedProductResponse {
-  id: number;
-}
-
-export interface UploadedProductDetailImageResponse {
-  success?: boolean;
-  url?: string;
-  product?: IProduct;
-}
-
 export interface IProductFilters {
   page?: number;
   perPage?: number;
   company_id?: number;
   partner_id?: number;
+  company?: string;
   category?: string;
 }
 
+export interface CreatedProductResponse {
+  id: number;
+}
 export interface ICreateProductApiResponse {
   product?: {
     id?: number | string;
   };
 }
 
-export type ProductModel =
-  | "telecom"
-  | "telecom-vivo"
-  | "financies"
-  | "benefits";
-
-export type ProductRequestEntity = FormData | Record<string, unknown>;
-
-export interface IUpdateProductPayload {
-  id: number;
-  entity: Record<string, unknown>;
-  conditionFiles?: File[];
-  detailsImages?: { detailIndex: number; files: File[] }[];
-  extrasImages?: { extraId: string; files: File[] }[];
-  pricing_base_monthly?: number;
-  pricing_installation?: number;
-  pricing_base_monthly_original?: number;
-}
-
-export interface IDeleteProductPayload {
-  ids: number[];
-  model?: ProductModel;
-}
 export interface ICreateProductPayload {
   entity: Record<string, unknown>;
   conditionFiles?: File[];
@@ -118,59 +89,24 @@ export interface ICreateProductPayload {
   extrasImages?: { extraId: string; files: File[] }[];
   company?: string;
   category?: string;
-  pricing_base_monthly?: number;
-  pricing_installation?: number;
-  pricing_base_monthly_original?: number;
 }
-// IDEIA PARA FUTURAMENTE USAR UM MODELO DE PRODUCT QUE SEJA FLEXIVEL PARA OS DIFERENTES SEGMENTOS
+export interface UploadedProductDetailImageResponse {
+  success?: boolean;
+  url?: string;
+  product?: IProduct;
+}
+export interface IUpdateProductPayload {
+  id: number;
+  entity: Record<string, unknown>;
+  conditionFiles?: File[];
+  detailsImages?: { detailIndex: number; files: File[] }[];
+  extrasImages?: { extraId: string; files: File[] }[];
+}
 
-// type ProductModel = "telecom" | "financeiro" | "beneficios" | "telecom-vivo" | "financeiro-c6";
+export interface IDeleteProductPayload {
+  ids: number[];
+  model?: ProductModel;
+}
+export type ProductModel = "telecom" | "financies" | "benefits";
 
-// export interface IProductBase {
-//   id: number;
-//   name: string;
-//   description: string;
-//   model: ProductModel; // telecom, financeiro,...
-//   company_id: number;
-//   partner_id: number;
-//   online: boolean;
-//   created_at: string;
-//   updated_at: string;
-//   // Aqui fica genérico — qualquer JSON específico do segmento
-//   metadata: Record<string, unknown>;
-// }
-
-// export interface IProductTelecom extends IProductBase {
-//   model: "telecom"
-//   metadata: {
-//     landing_page: string;
-//     pricing: {
-//       base_monthly: { current_price: number; original_price?: number };
-//       installation: { current_price: number; original_price?: number };
-//     };
-//     offer_title: string;
-//     offer_subtitle: string;
-//     uf: string[];
-//      ...
-//   };
-// }
-
-//   model: "financeiro" ;
-//   metadata: {
-//     taxa_juros: number;
-//     limite_credito: number;
-//     parcelas_maximas: number;
-//     // ...
-//   };
-// }
-
-// export type IProduct = IProductTelecom | IProductFinanceiro;
-
-// export interface IProductsResponse {
-//   success: boolean;
-//   products: IProduct[];
-//   total: number;
-//   page: number;
-//   perPage: number;
-//   totalPages: number;
-// }
+export type ProductRequestEntity = FormData | Record<string, unknown>;
