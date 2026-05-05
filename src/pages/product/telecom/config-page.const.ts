@@ -8,9 +8,24 @@ import type { UploadFile } from "antd";
 
 export const entityPage = dictionaryQueryClient.products;
 export const productModel = "telecom" as const;
+export const TELECOM_DEFAULT_CATEGORY = "banda-larga" as const;
+
+const telecomCategoryLabelMap: Record<string, string> = {
+  "banda-larga": "Banda Larga",
+  "telefonia-movel": "Telefonia Móvel",
+};
+
+export function getTelecomCategoryLabel(category: string) {
+  return telecomCategoryLabelMap[category] ?? category;
+}
+
 export const useCreateEntity = () => useCreateProductMutation(productModel);
 export const useUpdateEntity = () => useUpdateProductMutation(productModel);
-export const useListEntity = () => useProductQuery({ model: productModel });
+export const useListEntity = (category: string = TELECOM_DEFAULT_CATEGORY) =>
+  useProductQuery({
+    model: productModel,
+    filters: { category },
+  });
 export const useDeleteEntity = () => useDeleteProductMutation(productModel);
 export type EntityType = IProduct;
 

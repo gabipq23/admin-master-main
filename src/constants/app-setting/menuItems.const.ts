@@ -21,10 +21,19 @@ export const menuOptionsCommon: MenuItem[] = [
         label: "Empresas",
         to: "/app/companies",
       },
+    ],
+  },
+  {
+    label: "Produtos",
+    items: [
       {
-        label: "Produtos",
+        label: "Banda Larga",
 
-        to: "/app/products",
+        to: "/app/products/banda-larga",
+      },
+      {
+        label: "Telefonia Móvel",
+        to: "/app/products/telefonia-movel",
       },
     ],
   },
@@ -55,11 +64,11 @@ export const menuOptionsTim: MenuItem[] = [
     items: [
       {
         label: "Banda Larga",
-        to: "/app/products",
+        to: "/app/products/banda-larga",
       },
       {
         label: "Aparelhos",
-        to: "/app/vivo/example",
+        to: "/app/products/telefonia-movel",
       },
     ],
   },

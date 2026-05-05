@@ -14,9 +14,10 @@ import type { IProduct } from "@/types/IProduct.type";
 interface ProductsTableProps {
   data: IProduct[];
   isLoading: boolean;
+  category: string;
 }
 
-export function TableMain({ data, isLoading }: ProductsTableProps) {
+export function TableMain({ data, isLoading, category }: ProductsTableProps) {
   const [selectedRowKeys, setSelectedRowKeys] = useState<Key[]>([]);
   const [searchText, setSearchText] = useState("");
   const [viewingEntity, setViewingEntity] = useState<IProduct | null>(null);
@@ -114,6 +115,7 @@ export function TableMain({ data, isLoading }: ProductsTableProps) {
       <FormModal
         open={isFormModalOpen}
         editingEntity={editingEntity}
+        category={category}
         onClose={handleFormClose}
       />
 

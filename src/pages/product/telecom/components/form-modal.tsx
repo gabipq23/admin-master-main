@@ -31,10 +31,11 @@ import type { UploadFile } from "antd";
 interface FormModalProps {
   open: boolean;
   editingEntity: EntityType | null;
+  category: string;
   onClose: () => void;
 }
 
-export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
+export function FormModal({ open, editingEntity, category, onClose }: FormModalProps) {
   const [form] = Form.useForm<FormValues>();
   const createMutation = useCreateEntity();
   const updateMutation = useUpdateEntity();
@@ -115,6 +116,7 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
         {
           entity: {
             ...entityPayload,
+            category,
             company: "TIM",
             company_id: values.company_id ?? null,
             partner_id: values.partner_id ?? null,
