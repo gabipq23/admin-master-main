@@ -113,6 +113,8 @@ export interface ICreateProductPayload {
   conditionFiles?: File[];
   detailsImages?: { detailIndex: number; files: File[] }[];
   extrasImages?: { extraId: string; files: File[] }[];
+  company?: string;
+  category?: string;
 }
 // IDEIA PARA FUTURAMENTE USAR UM MODELO DE PRODUCT QUE SEJA FLEXIVEL PARA OS DIFERENTES SEGMENTOS
 

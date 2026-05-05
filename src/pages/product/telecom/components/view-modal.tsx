@@ -5,6 +5,37 @@ import { entityPage, type EntityType } from "../config-page.const";
 type ProductOfferConditionFile = { url: string; type: string };
 type ProductDetail = EntityType["details"][number];
 
+function resolveImageUrl(value: unknown): string | null {
+    if (typeof value === "string" && value.trim().length > 0) return value;
+    if (!value || typeof value !== "object") return null;
+
+    const candidate = value as {
+        url?: unknown;
+        thumbUrl?: unknown;
+        response?: { url?: unknown };
+        originFileObj?: { name?: unknown };
+        name?: unknown;
+    };
+
+    if (typeof candidate.url === "string" && candidate.url.trim().length > 0) {
+        return candidate.url;
+    }
+
+    if (
+        candidate.response &&
+        typeof candidate.response.url === "string" &&
+        candidate.response.url.trim().length > 0
+    ) {
+        return candidate.response.url;
+    }
+
+    if (typeof candidate.thumbUrl === "string" && candidate.thumbUrl.trim().length > 0) {
+        return candidate.thumbUrl;
+    }
+
+    return null;
+}
+
 function formatBRL(value: number | undefined): string {
     if (value === undefined || value === null) return "-";
     return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -241,7 +272,9 @@ export function ViewModal({
 
                                             {Array.isArray(detail.images) && detail.images.length > 0 && (
                                                 <Space wrap size={8} style={{ marginTop: 8 }}>
-                                                    {detail.images.map((imgUrl: string, idx: number) => {
+                                                    {detail.images.map((imageItem: unknown, idx: number) => {
+                                                        const imgUrl = resolveImageUrl(imageItem);
+                                                        if (!imgUrl) return null;
                                                         const imgName = imgUrl.split("/").pop() || `imagem_${idx + 1}`;
                                                         return (
                                                             <a

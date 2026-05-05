@@ -51,7 +51,7 @@ export function TableMain({ data, isLoading }: ProductsTableProps) {
   }
 
   function handleBulkDelete() {
-    const selected = data.filter((u) => selectedRowKeys.includes(u.company_id));
+    const selected = data.filter((u) => selectedRowKeys.includes(u.id));
     setEntitiesToDelete(selected);
     setIsDeleteModalOpen(true);
   }
@@ -88,7 +88,7 @@ export function TableMain({ data, isLoading }: ProductsTableProps) {
       />
 
       <Table
-        rowKey="company_id"
+        rowKey="id"
         columns={columns}
         dataSource={filteredData}
         className={styles.customTable}

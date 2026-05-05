@@ -1,7 +1,6 @@
 import { Modal, Typography } from "antd";
 
-import { entityPage } from "../config-page.const";
-import { useDeleteCompanyMutation } from "@/hooks/companies/useDeleteCompanyMutation";
+import { entityPage, useDeleteEntity } from "../config-page.const";
 import type { IProduct } from "@/types/IProduct.type";
 
 interface DeleteConfirmModalProps {
@@ -15,10 +14,10 @@ export function DeleteConfirmModal({
   entitiesToDelete,
   onClose,
 }: DeleteConfirmModalProps) {
-  const deleteMutation = useDeleteCompanyMutation();
+  const deleteMutation = useDeleteEntity();
 
   function handleConfirm() {
-    const ids = entitiesToDelete.map((u) => u.company_id);
+    const ids = entitiesToDelete.map((u) => u.id);
     deleteMutation.mutate({ ids }, { onSuccess: onClose });
     console.log("handleConfirm disparou", entitiesToDelete);
   }

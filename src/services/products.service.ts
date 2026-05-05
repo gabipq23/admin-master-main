@@ -1,5 +1,7 @@
 import { httpClientAxios } from "@/http/api";
 import type {
+  CreatedProductResponse,
+  ICreateProductApiResponse,
   IProduct,
   IProductFilters,
   IProductsResponse,
@@ -34,7 +36,7 @@ function buildFilesFormData(files: File[], fields?: Record<string, string>) {
   return formData;
 }
 
-const headers = {
+const multipartHeaders = {
   "Content-Type": "multipart/form-data",
 };
 
@@ -54,16 +56,26 @@ export class ProductsService {
   static async create(
     entity: Record<string, unknown>,
     model: ProductModel = "telecom",
-  ): Promise<IProduct> {
-    const { data } = await httpClientAxios.post<IProduct>(
-      resolveProductsBasePath(model),
-      entity,
-      {
-        headers,
-      },
-    );
+  ): Promise<CreatedProductResponse> {
+    const { data } = await httpClientAxios.post<
+      ICreateProductApiResponse | IProduct | { id?: number | string }
+    >(resolveProductsBasePath(model), entity);
 
-    return data;
+    const rawId =
+      (data as IProduct)?.id ??
+      (data as { id?: number | string })?.id ??
+      (data as ICreateProductApiResponse)?.product?.id ??
+      (data as { data?: { product?: { id?: number | string } } })?.data?.product
+        ?.id;
+
+    const id = Number(rawId);
+    if (!Number.isFinite(id)) {
+      throw new Error(
+        "Falha ao obter id do produto criado para upload de arquivos",
+      );
+    }
+
+    return { id };
   }
 
   static async update(
@@ -100,7 +112,7 @@ export class ProductsService {
       `${resolveProductsBasePath(model)}/${id}/conditions`,
       formData,
       {
-        headers,
+        headers: multipartHeaders,
       },
     );
 
@@ -122,7 +134,7 @@ export class ProductsService {
         `${resolveProductsBasePath(model)}/${id}/details`,
         formData,
         {
-          headers,
+          headers: multipartHeaders,
         },
       );
 
@@ -144,7 +156,7 @@ export class ProductsService {
         `${resolveProductsBasePath(model)}/${id}/extras-images`,
         formData,
         {
-          headers,
+          headers: multipartHeaders,
         },
       );
 
