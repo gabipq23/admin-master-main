@@ -13,6 +13,7 @@ import { Route as AppRouteRouteImport } from './routes/app/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppUsersRouteImport } from './routes/app/users'
+import { Route as AppProductsRouteImport } from './routes/app/products'
 import { Route as AppPartnersRouteImport } from './routes/app/partners'
 import { Route as AppCompaniesRouteImport } from './routes/app/companies'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
@@ -38,6 +39,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
 const AppUsersRoute = AppUsersRouteImport.update({
   id: '/users',
   path: '/users',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppProductsRoute = AppProductsRouteImport.update({
+  id: '/products',
+  path: '/products',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AppPartnersRoute = AppPartnersRouteImport.update({
@@ -77,6 +83,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof authLoginRoute
   '/app/companies': typeof AppCompaniesRoute
   '/app/partners': typeof AppPartnersRoute
+  '/app/products': typeof AppProductsRoute
   '/app/users': typeof AppUsersRoute
   '/app/': typeof AppIndexRoute
   '/app/claro/example': typeof AppClaroExampleRoute
@@ -88,6 +95,7 @@ export interface FileRoutesByTo {
   '/login': typeof authLoginRoute
   '/app/companies': typeof AppCompaniesRoute
   '/app/partners': typeof AppPartnersRoute
+  '/app/products': typeof AppProductsRoute
   '/app/users': typeof AppUsersRoute
   '/app': typeof AppIndexRoute
   '/app/claro/example': typeof AppClaroExampleRoute
@@ -101,6 +109,7 @@ export interface FileRoutesById {
   '/(auth)/login': typeof authLoginRoute
   '/app/companies': typeof AppCompaniesRoute
   '/app/partners': typeof AppPartnersRoute
+  '/app/products': typeof AppProductsRoute
   '/app/users': typeof AppUsersRoute
   '/app/': typeof AppIndexRoute
   '/app/claro/example': typeof AppClaroExampleRoute
@@ -115,6 +124,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/app/companies'
     | '/app/partners'
+    | '/app/products'
     | '/app/users'
     | '/app/'
     | '/app/claro/example'
@@ -126,6 +136,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/app/companies'
     | '/app/partners'
+    | '/app/products'
     | '/app/users'
     | '/app'
     | '/app/claro/example'
@@ -138,6 +149,7 @@ export interface FileRouteTypes {
     | '/(auth)/login'
     | '/app/companies'
     | '/app/partners'
+    | '/app/products'
     | '/app/users'
     | '/app/'
     | '/app/claro/example'
@@ -179,6 +191,13 @@ declare module '@tanstack/react-router' {
       path: '/users'
       fullPath: '/app/users'
       preLoaderRoute: typeof AppUsersRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/products': {
+      id: '/app/products'
+      path: '/products'
+      fullPath: '/app/products'
+      preLoaderRoute: typeof AppProductsRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/app/partners': {
@@ -229,6 +248,7 @@ declare module '@tanstack/react-router' {
 interface AppRouteRouteChildren {
   AppCompaniesRoute: typeof AppCompaniesRoute
   AppPartnersRoute: typeof AppPartnersRoute
+  AppProductsRoute: typeof AppProductsRoute
   AppUsersRoute: typeof AppUsersRoute
   AppIndexRoute: typeof AppIndexRoute
   AppClaroExampleRoute: typeof AppClaroExampleRoute
@@ -239,6 +259,7 @@ interface AppRouteRouteChildren {
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppCompaniesRoute: AppCompaniesRoute,
   AppPartnersRoute: AppPartnersRoute,
+  AppProductsRoute: AppProductsRoute,
   AppUsersRoute: AppUsersRoute,
   AppIndexRoute: AppIndexRoute,
   AppClaroExampleRoute: AppClaroExampleRoute,

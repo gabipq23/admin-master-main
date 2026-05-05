@@ -21,6 +21,11 @@ export const menuOptionsCommon: MenuItem[] = [
         label: "Empresas",
         to: "/app/companies",
       },
+      {
+        label: "Produtos",
+
+        to: "/app/products",
+      },
     ],
   },
 ];
@@ -42,6 +47,19 @@ export const menuOptionsTim: MenuItem[] = [
       {
         label: "Banda Larga PJ",
         to: "/app/tim/example",
+      },
+    ],
+  },
+  {
+    label: "Produtos",
+    items: [
+      {
+        label: "Banda Larga",
+        to: "/app/products",
+      },
+      {
+        label: "Aparelhos",
+        to: "/app/vivo/example",
       },
     ],
   },
