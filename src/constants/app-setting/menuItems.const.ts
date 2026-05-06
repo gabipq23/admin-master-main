@@ -174,3 +174,18 @@ export const menuOptionsC6: MenuItem[] = [
     ],
   },
 ];
+
+export const menuOptionsBrisanet: MenuItem[] = [
+  ...menuOptionsCommon,
+  // {
+  //   label: "Dashboard",
+  //   to: "/app",
+  // },
+];
+export const menuOptionsAlgar: MenuItem[] = [
+  ...menuOptionsCommon,
+  // {
+  //   label: "Dashboard",
+  //   to: "/app",
+  // },
+];
