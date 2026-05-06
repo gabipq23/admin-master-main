@@ -3,7 +3,7 @@ import { useCreateProductMutation } from "@/hooks/products/useCreateProductMutat
 import { useDeleteProductMutation } from "@/hooks/products/useDeleteProductMutation";
 import { useProductQuery } from "@/hooks/products/useProductQuery";
 import { useUpdateProductMutation } from "@/hooks/products/useUpdateProductMutation";
-import type { IProduct } from "@/types/IProduct.type";
+import type { Extra, IProduct } from "@/types/IProduct.type";
 import type { UploadFile } from "antd";
 
 export const entityPage = dictionaryQueryClient.products;
@@ -52,5 +52,43 @@ export type FormValues = {
     highlight_top?: boolean;
     highlight_bottom?: boolean;
     images?: (UploadFile | string)[];
+  }[];
+  extras_non_client?: {
+    id?: string;
+    label?: string;
+    description?: string;
+    input_type?: Extra["input_type"] | "select";
+    images?: (UploadFile | string)[];
+    options?: {
+      id?: string;
+      label?: string;
+      price?: number;
+      description?: string;
+      bonus?: {
+        type?: string;
+        price?: number;
+        speed?: number;
+        description?: string;
+      };
+    }[];
+  }[];
+  extras_client?: {
+    id?: string;
+    label?: string;
+    description?: string;
+    input_type?: Extra["input_type"] | "select";
+    images?: (UploadFile | string)[];
+    options?: {
+      id?: string;
+      label?: string;
+      price?: number;
+      description?: string;
+      bonus?: {
+        type?: string;
+        price?: number;
+        speed?: number;
+        description?: string;
+      };
+    }[];
   }[];
 };

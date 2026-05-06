@@ -1,4 +1,4 @@
-interface Extra {
+export interface Extra {
   id: string;
   label: string;
   images: string[];
