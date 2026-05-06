@@ -3,11 +3,9 @@ import { useParams } from "@tanstack/react-router";
 import { useMemo } from "react";
 import type { ComponentType } from "react";
 
-// Importar configs de cada modelo
 import * as telecomConfig from "./telecom/config-page.const";
 import * as financiesConfig from "./financies/config-page.const";
 
-// Importar tabelas de cada modelo
 import { TableMain as TelecomTable } from "./telecom/components/table";
 import { TableMain as FinanciesTable } from "./financies/components/table";
 interface ModelConfig {

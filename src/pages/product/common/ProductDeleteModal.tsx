@@ -1,26 +1,35 @@
 import { Modal, Typography } from "antd";
-import { entityPage, useDeleteEntity } from "../config-page.const";
 import type { IProduct } from "@/types/IProduct.type";
 
-interface DeleteConfirmModalProps {
-    open: boolean;
-    entitiesToDelete: IProduct[];
-    onClose: () => void;
+interface DeleteMutation {
+    mutate: (payload: { ids: number[] }, opts: { onSuccess: () => void }) => void;
+    isPending: boolean;
 }
 
-export function DeleteConfirmModal({
+interface ProductDeleteModalProps {
+    open: boolean;
+    entitiesToDelete: IProduct[];
+    entityName: string;
+    entityPlural: string;
+    onClose: () => void;
+    deleteMutation: DeleteMutation;
+}
+
+export function ProductDeleteModal({
     open,
     entitiesToDelete,
+    entityName,
+    entityPlural,
     onClose,
-}: DeleteConfirmModalProps) {
-    const deleteMutation = useDeleteEntity();
-
+    deleteMutation,
+}: ProductDeleteModalProps) {
     function handleConfirm() {
-        const ids = entitiesToDelete.map((u) => u.id);
+        const ids = entitiesToDelete.map((e) => e.id);
         deleteMutation.mutate({ ids }, { onSuccess: onClose });
     }
 
     const isSingle = entitiesToDelete.length === 1;
+
     return (
         <Modal
             open={open}
@@ -34,7 +43,7 @@ export function DeleteConfirmModal({
         >
             {isSingle ? (
                 <Typography.Text>
-                    Tem certeza que deseja deletar o(a) {entityPage.name.toLowerCase()}{" "}
+                    Tem certeza que deseja deletar o(a) {entityName.toLowerCase()}{" "}
                     <Typography.Text strong>{entitiesToDelete[0]?.name}</Typography.Text>?
                     Esta ação não pode ser desfeita.
                 </Typography.Text>
@@ -42,7 +51,7 @@ export function DeleteConfirmModal({
                 <Typography.Text>
                     Tem certeza que deseja deletar{" "}
                     <Typography.Text strong>
-                        {entitiesToDelete.length} {entityPage.plural.toLowerCase()}
+                        {entitiesToDelete.length} {entityPlural.toLowerCase()}
                     </Typography.Text>
                     ? Esta ação não pode ser desfeita.
                 </Typography.Text>

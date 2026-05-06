@@ -1,22 +1,25 @@
 import { Button, Input, Space } from "antd";
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
-import { entityPage } from "../config-page.const";
 
-interface TableToolbarProps {
+interface ProductTableToolbarProps {
     searchText: string;
     onSearchChange: (value: string) => void;
     selectedCount: number;
+    entityName: string;
+    entityPlural: string;
     onBulkDelete: () => void;
     onCreate: () => void;
 }
 
-export function TableToolbar({
+export function ProductTableToolbar({
     searchText,
     onSearchChange,
     selectedCount,
+    entityName,
+    entityPlural,
     onBulkDelete,
     onCreate,
-}: TableToolbarProps) {
+}: ProductTableToolbarProps) {
     return (
         <div
             style={{
@@ -30,7 +33,7 @@ export function TableToolbar({
         >
             <Space wrap>
                 <Input.Search
-                    placeholder="Buscar por nome..."
+                    placeholder={`Buscar por nome...`}
                     value={searchText}
                     onChange={(e) => onSearchChange(e.target.value)}
                     allowClear
@@ -38,13 +41,13 @@ export function TableToolbar({
                 />
                 {selectedCount > 0 && (
                     <Button danger icon={<DeleteOutlined />} onClick={onBulkDelete}>
-                        Deletar {selectedCount} {entityPage.plural.toLowerCase()}
+                        Deletar {selectedCount} {entityPlural.toLowerCase()}
                     </Button>
                 )}
             </Space>
 
             <Button type="primary" icon={<PlusOutlined />} onClick={onCreate}>
-                Novo(a) {entityPage.name.toLowerCase()}
+                Novo(a) {entityName.toLowerCase()}
             </Button>
         </div>
     );

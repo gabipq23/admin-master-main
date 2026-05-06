@@ -1,15 +1,13 @@
-import { useMemo, useState } from "react";
 import { Table } from "antd";
-import type { Key } from "react";
 import { getColumns } from "./columns";
-import { useUpdateEntity } from "../config-page.const";
-import { TableToolbar } from "./table-toolbar";
+import { useUpdateEntity, useDeleteEntity, entityPage } from "../config-page.const";
 import { FormModal } from "./form-modal";
-import { DeleteConfirmModal } from "./delete-confirm-modal";
-import { entityPage } from "../config-page.const";
-import { useStyle } from "@/style/tableStyle";
 import { ViewModal } from "./view-modal";
+import { useStyle } from "@/style/tableStyle";
 import type { IProduct } from "@/types/IProduct.type";
+import { useProductTable } from "../../common/useProductTable";
+import { ProductTableToolbar } from "../../common/ProductTableToolbar";
+import { ProductDeleteModal } from "../../common/ProductDeleteModal";
 
 interface ProductsTableProps {
   data: IProduct[];
@@ -18,74 +16,41 @@ interface ProductsTableProps {
 }
 
 export function TableMain({ data, isLoading, category }: ProductsTableProps) {
-  const [selectedRowKeys, setSelectedRowKeys] = useState<Key[]>([]);
-  const [searchText, setSearchText] = useState("");
-  const [viewingEntity, setViewingEntity] = useState<IProduct | null>(null);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [editingEntity, setEditingEntity] = useState<IProduct | null>(null);
-  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
-  const [entitiesToDelete, setEntitiesToDelete] = useState<IProduct[]>([]);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const { styles } = useStyle();
   const updateMutation = useUpdateEntity();
-  const filteredData = useMemo(() => {
-    if (!searchText) return data;
-    const lower = searchText.toLowerCase();
-    return data.filter(
-      (u) =>
-        u.name.toLowerCase().includes(lower)
-
-    );
-  }, [data, searchText]);
-
-  function handleEdit(record: IProduct) {
-    setEditingEntity(record);
-    setIsFormModalOpen(true);
-    setIsViewModalOpen(false);
-  }
-  function handleView(record: IProduct) {
-    setViewingEntity(record);
-    setIsViewModalOpen(true);
-  }
-  function handleDelete(record: IProduct) {
-    setIsViewModalOpen(false);
-    setEntitiesToDelete([record]);
-    setIsDeleteModalOpen(true);
-  }
-
-  function handleBulkDelete() {
-    const selected = data.filter((u) => selectedRowKeys.includes(u.id));
-    setEntitiesToDelete(selected);
-    setIsDeleteModalOpen(true);
-  }
-
-  function handleCreate() {
-    setEditingEntity(null);
-    setIsFormModalOpen(true);
-  }
-
-  function handleFormClose() {
-    setIsFormModalOpen(false);
-    setEditingEntity(null);
-  }
-
-  function handleDeleteClose() {
-    setIsDeleteModalOpen(false);
-    setEntitiesToDelete([]);
-    setSelectedRowKeys([]);
-  }
-  function handleViewClose() {
-    setIsViewModalOpen(false);
-    setViewingEntity(null);
-  }
+  const deleteMutation = useDeleteEntity();
   const columns = getColumns(updateMutation);
+
+  const {
+    selectedRowKeys,
+    setSelectedRowKeys,
+    searchText,
+    setSearchText,
+    viewingEntity,
+    isViewModalOpen,
+    editingEntity,
+    isFormModalOpen,
+    entitiesToDelete,
+    isDeleteModalOpen,
+    filteredData,
+    handleEdit,
+    handleView,
+    handleDelete,
+    handleBulkDelete,
+    handleCreate,
+    handleFormClose,
+    handleDeleteClose,
+    handleViewClose,
+  } = useProductTable(data);
 
   return (
     <>
-      <TableToolbar
+      <ProductTableToolbar
         searchText={searchText}
         onSearchChange={setSearchText}
         selectedCount={selectedRowKeys.length}
+        entityName={entityPage.name}
+        entityPlural={entityPage.plural}
         onBulkDelete={handleBulkDelete}
         onCreate={handleCreate}
       />
@@ -108,7 +73,7 @@ export function TableMain({ data, isLoading, category }: ProductsTableProps) {
         scroll={{ y: 800 }}
         onRow={(record) => ({
           onClick: () => handleView(record),
-          style: { cursor: 'pointer' },
+          style: { cursor: "pointer" },
         })}
       />
 
@@ -123,17 +88,17 @@ export function TableMain({ data, isLoading, category }: ProductsTableProps) {
         open={isViewModalOpen}
         viewingEntity={viewingEntity}
         onClose={handleViewClose}
-        onEdit={(entity: IProduct) => {
-          handleEdit(entity);
-        }}
-        onDelete={(entity: IProduct) => {
-          handleDelete(entity);
-        }}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
       />
-      <DeleteConfirmModal
+
+      <ProductDeleteModal
         open={isDeleteModalOpen}
         entitiesToDelete={entitiesToDelete}
+        entityName={entityPage.name}
+        entityPlural={entityPage.plural}
         onClose={handleDeleteClose}
+        deleteMutation={deleteMutation}
       />
     </>
   );
