@@ -1,6 +1,7 @@
 import { Typography } from "antd";
-import { TableMain } from "./components/table";
+
 import { entityPage, useListEntity } from "./config-page.const";
+import { TableMain } from "./components/table";
 
 export function CompaniesPage() {
   const { data, isLoading } = useListEntity();

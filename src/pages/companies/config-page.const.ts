@@ -3,7 +3,6 @@ import { useCompanyQuery } from "@/hooks/companies/useCompanyQuery";
 import { useCreateCompanyMutation } from "@/hooks/companies/useCreateCompanyMutation";
 import { useDeleteCompanyMutation } from "@/hooks/companies/useDeleteCompanyMutation";
 import { useUpdateCompanyMutation } from "@/hooks/companies/useUpdateCompanyMutation";
-
 import type { ICompany } from "@/types/ICompany.type";
 
 export const entityPage = dictionaryQueryClient.companies;

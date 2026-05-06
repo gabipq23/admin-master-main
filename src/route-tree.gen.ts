@@ -13,12 +13,16 @@ import { Route as AppRouteRouteImport } from './routes/app/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppUsersRouteImport } from './routes/app/users'
+import { Route as AppProductsRouteImport } from './routes/app/products'
 import { Route as AppPartnersRouteImport } from './routes/app/partners'
 import { Route as AppCompaniesRouteImport } from './routes/app/companies'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
+import { Route as AppProductsIndexRouteImport } from './routes/app/products/index'
 import { Route as AppVivoExampleRouteImport } from './routes/app/vivo/example'
 import { Route as AppTimExampleRouteImport } from './routes/app/tim/example'
 import { Route as AppClaroExampleRouteImport } from './routes/app/claro/example'
+import { Route as AppProductsModelIndexRouteImport } from './routes/app/products/$model/index'
+import { Route as AppProductsModelCategoryRouteImport } from './routes/app/products/$model.$category'
 
 const AppRouteRoute = AppRouteRouteImport.update({
   id: '/app',
@@ -40,6 +44,11 @@ const AppUsersRoute = AppUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppProductsRoute = AppProductsRouteImport.update({
+  id: '/products',
+  path: '/products',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppPartnersRoute = AppPartnersRouteImport.update({
   id: '/partners',
   path: '/partners',
@@ -54,6 +63,11 @@ const authLoginRoute = authLoginRouteImport.update({
   id: '/(auth)/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppProductsIndexRoute = AppProductsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppProductsRoute,
 } as any)
 const AppVivoExampleRoute = AppVivoExampleRouteImport.update({
   id: '/vivo/example',
@@ -70,6 +84,17 @@ const AppClaroExampleRoute = AppClaroExampleRouteImport.update({
   path: '/claro/example',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppProductsModelIndexRoute = AppProductsModelIndexRouteImport.update({
+  id: '/$model/',
+  path: '/$model/',
+  getParentRoute: () => AppProductsRoute,
+} as any)
+const AppProductsModelCategoryRoute =
+  AppProductsModelCategoryRouteImport.update({
+    id: '/$model/$category',
+    path: '/$model/$category',
+    getParentRoute: () => AppProductsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -77,11 +102,15 @@ export interface FileRoutesByFullPath {
   '/login': typeof authLoginRoute
   '/app/companies': typeof AppCompaniesRoute
   '/app/partners': typeof AppPartnersRoute
+  '/app/products': typeof AppProductsRouteWithChildren
   '/app/users': typeof AppUsersRoute
   '/app/': typeof AppIndexRoute
   '/app/claro/example': typeof AppClaroExampleRoute
   '/app/tim/example': typeof AppTimExampleRoute
   '/app/vivo/example': typeof AppVivoExampleRoute
+  '/app/products/': typeof AppProductsIndexRoute
+  '/app/products/$model/$category': typeof AppProductsModelCategoryRoute
+  '/app/products/$model/': typeof AppProductsModelIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -93,6 +122,9 @@ export interface FileRoutesByTo {
   '/app/claro/example': typeof AppClaroExampleRoute
   '/app/tim/example': typeof AppTimExampleRoute
   '/app/vivo/example': typeof AppVivoExampleRoute
+  '/app/products': typeof AppProductsIndexRoute
+  '/app/products/$model/$category': typeof AppProductsModelCategoryRoute
+  '/app/products/$model': typeof AppProductsModelIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -101,11 +133,15 @@ export interface FileRoutesById {
   '/(auth)/login': typeof authLoginRoute
   '/app/companies': typeof AppCompaniesRoute
   '/app/partners': typeof AppPartnersRoute
+  '/app/products': typeof AppProductsRouteWithChildren
   '/app/users': typeof AppUsersRoute
   '/app/': typeof AppIndexRoute
   '/app/claro/example': typeof AppClaroExampleRoute
   '/app/tim/example': typeof AppTimExampleRoute
   '/app/vivo/example': typeof AppVivoExampleRoute
+  '/app/products/': typeof AppProductsIndexRoute
+  '/app/products/$model/$category': typeof AppProductsModelCategoryRoute
+  '/app/products/$model/': typeof AppProductsModelIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -115,11 +151,15 @@ export interface FileRouteTypes {
     | '/login'
     | '/app/companies'
     | '/app/partners'
+    | '/app/products'
     | '/app/users'
     | '/app/'
     | '/app/claro/example'
     | '/app/tim/example'
     | '/app/vivo/example'
+    | '/app/products/'
+    | '/app/products/$model/$category'
+    | '/app/products/$model/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -131,6 +171,9 @@ export interface FileRouteTypes {
     | '/app/claro/example'
     | '/app/tim/example'
     | '/app/vivo/example'
+    | '/app/products'
+    | '/app/products/$model/$category'
+    | '/app/products/$model'
   id:
     | '__root__'
     | '/'
@@ -138,11 +181,15 @@ export interface FileRouteTypes {
     | '/(auth)/login'
     | '/app/companies'
     | '/app/partners'
+    | '/app/products'
     | '/app/users'
     | '/app/'
     | '/app/claro/example'
     | '/app/tim/example'
     | '/app/vivo/example'
+    | '/app/products/'
+    | '/app/products/$model/$category'
+    | '/app/products/$model/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -181,6 +228,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppUsersRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/app/products': {
+      id: '/app/products'
+      path: '/products'
+      fullPath: '/app/products'
+      preLoaderRoute: typeof AppProductsRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/app/partners': {
       id: '/app/partners'
       path: '/partners'
@@ -201,6 +255,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/login'
       preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/app/products/': {
+      id: '/app/products/'
+      path: '/'
+      fullPath: '/app/products/'
+      preLoaderRoute: typeof AppProductsIndexRouteImport
+      parentRoute: typeof AppProductsRoute
     }
     '/app/vivo/example': {
       id: '/app/vivo/example'
@@ -223,12 +284,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppClaroExampleRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/app/products/$model/': {
+      id: '/app/products/$model/'
+      path: '/$model'
+      fullPath: '/app/products/$model/'
+      preLoaderRoute: typeof AppProductsModelIndexRouteImport
+      parentRoute: typeof AppProductsRoute
+    }
+    '/app/products/$model/$category': {
+      id: '/app/products/$model/$category'
+      path: '/$model/$category'
+      fullPath: '/app/products/$model/$category'
+      preLoaderRoute: typeof AppProductsModelCategoryRouteImport
+      parentRoute: typeof AppProductsRoute
+    }
   }
 }
+
+interface AppProductsRouteChildren {
+  AppProductsIndexRoute: typeof AppProductsIndexRoute
+  AppProductsModelCategoryRoute: typeof AppProductsModelCategoryRoute
+  AppProductsModelIndexRoute: typeof AppProductsModelIndexRoute
+}
+
+const AppProductsRouteChildren: AppProductsRouteChildren = {
+  AppProductsIndexRoute: AppProductsIndexRoute,
+  AppProductsModelCategoryRoute: AppProductsModelCategoryRoute,
+  AppProductsModelIndexRoute: AppProductsModelIndexRoute,
+}
+
+const AppProductsRouteWithChildren = AppProductsRoute._addFileChildren(
+  AppProductsRouteChildren,
+)
 
 interface AppRouteRouteChildren {
   AppCompaniesRoute: typeof AppCompaniesRoute
   AppPartnersRoute: typeof AppPartnersRoute
+  AppProductsRoute: typeof AppProductsRouteWithChildren
   AppUsersRoute: typeof AppUsersRoute
   AppIndexRoute: typeof AppIndexRoute
   AppClaroExampleRoute: typeof AppClaroExampleRoute
@@ -239,6 +331,7 @@ interface AppRouteRouteChildren {
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppCompaniesRoute: AppCompaniesRoute,
   AppPartnersRoute: AppPartnersRoute,
+  AppProductsRoute: AppProductsRouteWithChildren,
   AppUsersRoute: AppUsersRoute,
   AppIndexRoute: AppIndexRoute,
   AppClaroExampleRoute: AppClaroExampleRoute,
