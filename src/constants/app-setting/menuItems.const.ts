@@ -27,13 +27,24 @@ export const menuOptionsCommon: MenuItem[] = [
     label: "Produtos",
     items: [
       {
-        label: "Banda Larga",
-
-        to: "/app/products/banda-larga",
+        label: "Telecom - Banda Larga",
+        to: "/app/products/telecom/Banda Larga",
       },
       {
-        label: "Telefonia Móvel",
-        to: "/app/products/telefonia-movel",
+        label: "Telecom - Telefonia Móvel",
+        to: "/app/products/telecom/Telefonia Móvel",
+      },
+      {
+        label: "Financeiro - Crédito Pessoal",
+        to: "/app/products/financies/Crédito Pessoal",
+      },
+      {
+        label: "Financeiro - Crédito PJ",
+        to: "/app/products/financies/Crédito PJ",
+      },
+      {
+        label: "Financeiro - Seguros",
+        to: "/app/products/financies/Seguros",
       },
     ],
   },
@@ -64,11 +75,11 @@ export const menuOptionsTim: MenuItem[] = [
     items: [
       {
         label: "Banda Larga",
-        to: "/app/products/banda-larga",
+        to: "/app/products/telecom/Banda Larga",
       },
       {
         label: "Aparelhos",
-        to: "/app/products/telefonia-movel",
+        to: "/app/products/telecom/Telefonia Móvel",
       },
     ],
   },
