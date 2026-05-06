@@ -1,4 +1,4 @@
-import { Alert, Card, Typography } from "antd";
+import { Card, Typography } from "antd";
 import { useState, useEffect } from "react";
 import { useAdminScope } from "@/context/admin-scope-provider";
 import * as telecomConfig from "./telecom/config-page.const";

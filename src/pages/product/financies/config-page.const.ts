@@ -7,12 +7,11 @@ import type { IProduct } from "@/types/IProduct.type";
 
 export const entityPage = dictionaryQueryClient.products;
 export const productModel = "financies" as const;
-export const FINANCIES_DEFAULT_CATEGORY = "Crédito Pessoal" as const;
+export const FINANCIES_DEFAULT_CATEGORY = "Maquininha" as const;
 
 const financiesCategoryLabelMap: Record<string, string> = {
-  "credito-pessoal": "Crédito Pessoal",
-  "credito-pj": "Crédito PJ",
-  seguros: "Seguros",
+  "credito-pessoal": "Maquininha",
+  emprestimo: "Empréstimo",
 };
 
 export function getFinanciesCategoryLabel(category: string) {
@@ -37,9 +36,7 @@ export type FormValues = {
   category?: string;
   company_id?: number | null;
   partner_id?: number | null;
-  // Campos específicos do FINANCIES
-  interest_rate?: number;
-  max_amount?: number;
-  min_amount?: number;
-  description?: string;
+  online: boolean;
+  monthly_fee: number;
+  tax_rate: number;
 };

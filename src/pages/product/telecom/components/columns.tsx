@@ -2,10 +2,12 @@
 import { ConfigProvider, Switch, Tooltip, type TableColumnsType } from "antd";
 import type { EntityType } from "../config-page.const";
 import type { useUpdateProductMutation } from "@/hooks/products/useUpdateProductMutation";
+import { appSetting } from "@/constants/app-setting/config.const";
 
 type UpdateMutation = ReturnType<typeof useUpdateProductMutation>;
 
 export function getColumns(updateMutation: UpdateMutation): TableColumnsType<EntityType> {
+
   return [
     {
       title: "Plano",
@@ -39,7 +41,7 @@ export function getColumns(updateMutation: UpdateMutation): TableColumnsType<Ent
         <ConfigProvider
           theme={{
             components: {
-              Switch: { colorPrimary: "#0026d9", colorPrimaryHover: "#550088" },
+              Switch: { colorPrimary: appSetting?.primaryColor, colorPrimaryHover: "gray" },
             },
           }}
         >

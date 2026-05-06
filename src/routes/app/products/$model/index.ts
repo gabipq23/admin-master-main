@@ -6,7 +6,7 @@ export const Route = createFileRoute("/app/products/$model/")({
 
     const defaultCategoryByModel: Record<string, string> = {
       telecom: "Banda Larga",
-      financies: "Crédito Pessoal",
+      financies: "Maquininha",
       benefits: "Benefício-Padrão",
     };
 
