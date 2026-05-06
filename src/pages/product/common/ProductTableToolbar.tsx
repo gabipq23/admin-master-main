@@ -1,5 +1,11 @@
-import { Button, Input, Space } from "antd";
+import { Button, Input, Select, Space } from "antd";
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+
+interface CategorySelectProps {
+    options: Array<{ label: string; value: string }>;
+    value: string;
+    onChange: (value: string) => void;
+}
 
 interface ProductTableToolbarProps {
     searchText: string;
@@ -9,6 +15,7 @@ interface ProductTableToolbarProps {
     entityPlural: string;
     onBulkDelete: () => void;
     onCreate: () => void;
+    categorySelect?: CategorySelectProps;
 }
 
 export function ProductTableToolbar({
@@ -19,6 +26,7 @@ export function ProductTableToolbar({
     entityPlural,
     onBulkDelete,
     onCreate,
+    categorySelect,
 }: ProductTableToolbarProps) {
     return (
         <div
@@ -33,12 +41,20 @@ export function ProductTableToolbar({
         >
             <Space wrap>
                 <Input.Search
-                    placeholder={`Buscar por nome...`}
+                    placeholder="Buscar por nome..."
                     value={searchText}
                     onChange={(e) => onSearchChange(e.target.value)}
                     allowClear
                     style={{ width: 300 }}
                 />
+                {categorySelect && (
+                    <Select
+                        options={categorySelect.options}
+                        value={categorySelect.value}
+                        onChange={categorySelect.onChange}
+                        style={{ minWidth: 200 }}
+                    />
+                )}
                 {selectedCount > 0 && (
                     <Button danger icon={<DeleteOutlined />} onClick={onBulkDelete}>
                         Deletar {selectedCount} {entityPlural.toLowerCase()}

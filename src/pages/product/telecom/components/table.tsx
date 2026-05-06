@@ -13,9 +13,14 @@ interface ProductsTableProps {
   data: IProduct[];
   isLoading: boolean;
   category: string;
+  categorySelect?: {
+    options: Array<{ label: string; value: string }>;
+    value: string;
+    onChange: (value: string) => void;
+  };
 }
 
-export function TableMain({ data, isLoading, category }: ProductsTableProps) {
+export function TableMain({ data, isLoading, category, categorySelect }: ProductsTableProps) {
   const { styles } = useStyle();
   const updateMutation = useUpdateEntity();
   const deleteMutation = useDeleteEntity();
@@ -53,6 +58,7 @@ export function TableMain({ data, isLoading, category }: ProductsTableProps) {
         entityPlural={entityPage.plural}
         onBulkDelete={handleBulkDelete}
         onCreate={handleCreate}
+        categorySelect={categorySelect}
       />
 
       <Table

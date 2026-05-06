@@ -1,4 +1,4 @@
-import { Alert, Card, Select, Space, Typography } from "antd";
+import { Alert, Typography } from "antd";
 import { useState, useEffect } from "react";
 import { useAdminScope } from "@/context/admin-scope-provider";
 import * as telecomConfig from "./telecom/config-page.const";
@@ -25,14 +25,14 @@ const defaultCategoryByModel: Record<ProductModel, string> = {
     financies: financiesConfig.FINANCIES_DEFAULT_CATEGORY,
 };
 
-function TelecomPanel({ category }: { category: string }) {
+function TelecomPanel({ category, categorySelect }: { category: string; categorySelect: { options: Array<{ label: string; value: string }>; value: string; onChange: (v: string) => void } }) {
     const { data, isLoading } = telecomConfig.useListEntity(category);
-    return <TelecomTable data={data?.products ?? []} isLoading={isLoading} category={category} />;
+    return <TelecomTable data={data?.products ?? []} isLoading={isLoading} category={category} categorySelect={categorySelect} />;
 }
 
-function FinanciesPanel({ category }: { category: string }) {
+function FinanciesPanel({ category, categorySelect }: { category: string; categorySelect: { options: Array<{ label: string; value: string }>; value: string; onChange: (v: string) => void } }) {
     const { data, isLoading } = financiesConfig.useListEntity(category);
-    return <FinanciesTable data={data?.products ?? []} isLoading={isLoading} category={category} />;
+    return <FinanciesTable data={data?.products ?? []} isLoading={isLoading} category={category} categorySelect={categorySelect} />;
 }
 
 export function ProductsAdminPage() {
@@ -67,25 +67,25 @@ export function ProductsAdminPage() {
                     description="Use o seletor 'Modelo/Segmento' no topo da página para filtrar por Telecom ou Financeiro. Você também pode refinar por empresa e parceiro."
                 />
             ) : (
-                <>
-                    <Card style={{ marginBottom: 16 }}>
-                        <Space size={12} wrap align="center">
-                            <Typography.Text strong>Categoria:</Typography.Text>
-                            <Select
-                                style={{ minWidth: 240 }}
-                                options={categoryOptions[resolvedModel]}
-                                value={selectedCategory}
-                                onChange={setSelectedCategory}
-                            />
-                        </Space>
-                    </Card>
-
-                    {resolvedModel === "telecom" ? (
-                        <TelecomPanel category={selectedCategory} />
-                    ) : (
-                        <FinanciesPanel category={selectedCategory} />
-                    )}
-                </>
+                resolvedModel === "telecom" ? (
+                    <TelecomPanel
+                        category={selectedCategory}
+                        categorySelect={{
+                            options: categoryOptions[resolvedModel],
+                            value: selectedCategory,
+                            onChange: setSelectedCategory,
+                        }}
+                    />
+                ) : (
+                    <FinanciesPanel
+                        category={selectedCategory}
+                        categorySelect={{
+                            options: categoryOptions[resolvedModel],
+                            value: selectedCategory,
+                            onChange: setSelectedCategory,
+                        }}
+                    />
+                )
             )}
         </div>
     );
