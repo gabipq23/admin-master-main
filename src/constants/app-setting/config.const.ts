@@ -13,7 +13,7 @@ import {
   menuOptionsC6,
   menuOptionsBrisanet,
   menuOptionsAlgar,
-  menuOptionsCommon,
+  menuOptionsAdmin,
 } from "./menuItems.const";
 
 /* 
@@ -41,7 +41,7 @@ export const options = {
     primaryColor: "#333333",
     baseUrl: "https://evolution.bigdates.com.br:3720",
     favicon: `${url}/favicon/favicon.ico`,
-    optionsMenu: menuOptionsCommon,
+    optionsMenu: menuOptionsAdmin,
     isAdminDomain: true,
   },
   "9001": {
