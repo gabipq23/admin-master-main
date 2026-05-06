@@ -1,4 +1,4 @@
-import { Alert, Typography } from "antd";
+import { Alert, Card, Typography } from "antd";
 import { useState, useEffect } from "react";
 import { useAdminScope } from "@/context/admin-scope-provider";
 import * as telecomConfig from "./telecom/config-page.const";
@@ -14,9 +14,8 @@ const categoryOptions: Record<ProductModel, Array<{ label: string; value: string
         { label: "Telefonia Móvel", value: "Telefonia Móvel" },
     ],
     financies: [
-        { label: "Crédito Pessoal", value: "Crédito Pessoal" },
-        { label: "Crédito PJ", value: "Crédito PJ" },
-        { label: "Seguros", value: "Seguros" },
+        { label: "Maquininha", value: "Maquininha" },
+        { label: "Empréstimo", value: "Empréstimo" },
     ],
 };
 
@@ -60,12 +59,19 @@ export function ProductsAdminPage() {
             </Typography.Title>
 
             {!hasSegment ? (
-                <Alert
-                    type="info"
-                    showIcon
-                    message="Selecione um modelo/segmento no subheader"
-                    description="Use o seletor 'Modelo/Segmento' no topo da página para filtrar por Telecom ou Financeiro. Você também pode refinar por empresa e parceiro."
-                />
+                <Card style={{ marginBottom: 16 }}>
+                    <Typography.Paragraph>
+                        Selecione um modelo/segmento usando o seletor "Modelo/Segmento" no topo da página.
+                    </Typography.Paragraph>
+
+                </Card>
+
+                // <Alert
+                //     type="info"
+                //     showIcon
+                //     message="Selecione um modelo/segmento no subheader"
+                //     description="Use o seletor 'Modelo/Segmento' no topo da página para filtrar por Telecom ou Financeiro. Você também pode refinar por empresa e parceiro."
+                // />
             ) : (
                 resolvedModel === "telecom" ? (
                     <TelecomPanel
