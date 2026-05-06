@@ -29,24 +29,7 @@ export const menuOptionsAdmin: MenuItem[] = [
   ...menuOptionsCommon,
   {
     label: "Produtos",
-    items: [
-      {
-        label: "Telecom - Banda Larga",
-        to: "/app/products/telecom/Banda Larga",
-      },
-      {
-        label: "Telecom - Telefonia Móvel",
-        to: "/app/products/telecom/Telefonia Móvel",
-      },
-      {
-        label: "Financeiro - Maquininha",
-        to: "/app/products/financies/Maquininha",
-      },
-      {
-        label: "Financeiro - Empréstimo",
-        to: "/app/products/financies/Empréstimo",
-      },
-    ],
+    to: "/app/products",
   },
 ];
 
