@@ -17,6 +17,7 @@ import { Route as AppProductsRouteImport } from './routes/app/products'
 import { Route as AppPartnersRouteImport } from './routes/app/partners'
 import { Route as AppCompaniesRouteImport } from './routes/app/companies'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
+import { Route as AppProductsIndexRouteImport } from './routes/app/products/index'
 import { Route as AppVivoExampleRouteImport } from './routes/app/vivo/example'
 import { Route as AppTimExampleRouteImport } from './routes/app/tim/example'
 import { Route as AppProductsCategoryRouteImport } from './routes/app/products/$category'
@@ -62,6 +63,11 @@ const authLoginRoute = authLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppProductsIndexRoute = AppProductsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppProductsRoute,
+} as any)
 const AppVivoExampleRoute = AppVivoExampleRouteImport.update({
   id: '/vivo/example',
   path: '/vivo/example',
@@ -96,19 +102,20 @@ export interface FileRoutesByFullPath {
   '/app/products/$category': typeof AppProductsCategoryRoute
   '/app/tim/example': typeof AppTimExampleRoute
   '/app/vivo/example': typeof AppVivoExampleRoute
+  '/app/products/': typeof AppProductsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof authLoginRoute
   '/app/companies': typeof AppCompaniesRoute
   '/app/partners': typeof AppPartnersRoute
-  '/app/products': typeof AppProductsRouteWithChildren
   '/app/users': typeof AppUsersRoute
   '/app': typeof AppIndexRoute
   '/app/claro/example': typeof AppClaroExampleRoute
   '/app/products/$category': typeof AppProductsCategoryRoute
   '/app/tim/example': typeof AppTimExampleRoute
   '/app/vivo/example': typeof AppVivoExampleRoute
+  '/app/products': typeof AppProductsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -124,6 +131,7 @@ export interface FileRoutesById {
   '/app/products/$category': typeof AppProductsCategoryRoute
   '/app/tim/example': typeof AppTimExampleRoute
   '/app/vivo/example': typeof AppVivoExampleRoute
+  '/app/products/': typeof AppProductsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -140,19 +148,20 @@ export interface FileRouteTypes {
     | '/app/products/$category'
     | '/app/tim/example'
     | '/app/vivo/example'
+    | '/app/products/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
     | '/app/companies'
     | '/app/partners'
-    | '/app/products'
     | '/app/users'
     | '/app'
     | '/app/claro/example'
     | '/app/products/$category'
     | '/app/tim/example'
     | '/app/vivo/example'
+    | '/app/products'
   id:
     | '__root__'
     | '/'
@@ -167,6 +176,7 @@ export interface FileRouteTypes {
     | '/app/products/$category'
     | '/app/tim/example'
     | '/app/vivo/example'
+    | '/app/products/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -233,6 +243,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/products/': {
+      id: '/app/products/'
+      path: '/'
+      fullPath: '/app/products/'
+      preLoaderRoute: typeof AppProductsIndexRouteImport
+      parentRoute: typeof AppProductsRoute
+    }
     '/app/vivo/example': {
       id: '/app/vivo/example'
       path: '/vivo/example'
@@ -266,10 +283,12 @@ declare module '@tanstack/react-router' {
 
 interface AppProductsRouteChildren {
   AppProductsCategoryRoute: typeof AppProductsCategoryRoute
+  AppProductsIndexRoute: typeof AppProductsIndexRoute
 }
 
 const AppProductsRouteChildren: AppProductsRouteChildren = {
   AppProductsCategoryRoute: AppProductsCategoryRoute,
+  AppProductsIndexRoute: AppProductsIndexRoute,
 }
 
 const AppProductsRouteWithChildren = AppProductsRoute._addFileChildren(
