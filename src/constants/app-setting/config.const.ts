@@ -3,13 +3,17 @@ import claroLogo from "@/assets/logos/claro-logo.svg";
 import vivoLogo from "@/assets/logos/vivo-logo.png";
 import vrLogo from "@/assets/logos/vr-logo.png";
 import c6Logo from "@/assets/logos/c6-logo.png";
+import brisanetLogo from "@/assets/logos/brisanet-logo.png";
+import algarLogo from "@/assets/logos/algar-logo.png";
 import {
   menuOptionsClaro,
   menuOptionsTim,
   menuOptionsVivo,
   menuOptionsVR,
   menuOptionsC6,
-  menuOptionsCommon,
+  menuOptionsBrisanet,
+  menuOptionsAlgar,
+  menuOptionsAdmin,
 } from "./menuItems.const";
 
 /* 
@@ -37,7 +41,7 @@ export const options = {
     primaryColor: "#333333",
     baseUrl: "https://evolution.bigdates.com.br:3720",
     favicon: `${url}/favicon/favicon.ico`,
-    optionsMenu: menuOptionsCommon,
+    optionsMenu: menuOptionsAdmin,
     isAdminDomain: true,
   },
   "9001": {
@@ -79,10 +83,28 @@ export const options = {
   "9005": {
     name: "C6",
     logo: c6Logo,
-    primaryColor: "#008a1e",
+    primaryColor: "#656565",
     baseUrl: "https://evolution.bigdates.com.br:3720",
     favicon: `${url}/favicon/c6.ico`,
     optionsMenu: menuOptionsC6,
+    isAdminDomain: false,
+  },
+  "9006": {
+    name: "Brisanet",
+    logo: brisanetLogo,
+    primaryColor: "#ff4800",
+    baseUrl: "https://evolution.bigdates.com.br:3720",
+    favicon: `${url}/favicon/brisanet.ico`,
+    optionsMenu: menuOptionsBrisanet,
+    isAdminDomain: false,
+  },
+  "9007": {
+    name: "Algar",
+    logo: algarLogo,
+    primaryColor: "#23917e",
+    baseUrl: "https://evolution.bigdates.com.br:3720",
+    favicon: `${url}/favicon/algar.ico`,
+    optionsMenu: menuOptionsAlgar,
     isAdminDomain: false,
   },
 };

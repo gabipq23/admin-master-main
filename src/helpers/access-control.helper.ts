@@ -6,14 +6,16 @@ export type PermissionResource =
   | "companies"
   | "partners"
   | "users"
-  | "priorities";
+  | "priorities"
+  | "products";
 export type PermissionAction = "view" | "create" | "edit" | "delete";
 
 type RestrictedRoute =
   | "/app/companies"
   | "/app/partners"
   | "/app/users"
-  | "/app/priorities";
+  | "/app/priorities"
+  | "/app/products";
 
 const allCrudActions: PermissionAction[] = ["view", "create", "edit", "delete"];
 
@@ -25,11 +27,13 @@ const permissionsByRole: Record<
     companies: allCrudActions,
     partners: allCrudActions,
     users: allCrudActions,
+    products: allCrudActions,
     priorities: ["view", "edit"],
   },
   GESTOR: {
     users: allCrudActions,
     priorities: ["view", "edit"],
+    products: allCrudActions,
   },
   DIRETOR: {},
   GERENTE: {},
@@ -42,6 +46,7 @@ const routeResourceMap: Record<RestrictedRoute, PermissionResource> = {
   "/app/partners": "partners",
   "/app/users": "users",
   "/app/priorities": "priorities",
+  "/app/products": "products",
 };
 
 export function getStoredUserRole(): UserRole | null {

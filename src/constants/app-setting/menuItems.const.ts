@@ -29,6 +29,14 @@ export const menuOptionsCommon: MenuItem[] = [
   },
 ];
 
+export const menuOptionsAdmin: MenuItem[] = [
+  ...menuOptionsCommon,
+  {
+    label: "Produtos",
+    to: "/app/products",
+  },
+];
+
 // telas do menu específicas para cada empresa
 export const menuOptionsTim: MenuItem[] = [
   ...menuOptionsCommon,
@@ -37,40 +45,21 @@ export const menuOptionsTim: MenuItem[] = [
   //   to: "/app",
   // },
   {
-    label: "Pedidos",
+    label: "Produtos",
     items: [
       {
-        label: "Banda Larga PF",
-        to: "/app/tim/example",
+        label: "Banda Larga",
+        to: "/app/products/telecom/Banda Larga",
       },
       {
-        label: "Banda Larga PJ",
-        to: "/app/tim/example",
+        label: "Telefonia Móvel",
+        to: "/app/products/telecom/Telefonia Móvel",
       },
     ],
   },
 ];
 
-export const menuOptionsClaro: MenuItem[] = [
-  ...menuOptionsCommon,
-  // {
-  //   label: "Dashboard",
-  //   to: "/app",
-  // },
-  {
-    label: "Pedidos",
-    items: [
-      {
-        label: "Banda Larga PF",
-        to: "/app/claro/example",
-      },
-      {
-        label: "Banda Larga PJ",
-        to: "/app/claro/example",
-      },
-    ],
-  },
-];
+export const menuOptionsClaro: MenuItem[] = [...menuOptionsCommon];
 
 export const menuOptionsVivo: MenuItem[] = [
   ...menuOptionsCommon,
@@ -78,76 +67,26 @@ export const menuOptionsVivo: MenuItem[] = [
   //   label: "Dashboard",
   //   to: "/app",
   // },
-  {
-    label: "Pedidos",
-    items: [
-      {
-        label: "Banda Larga PF",
-        to: "/app/vivo/example",
-      },
-      {
-        label: "Banda Larga PJ",
-        to: "/app/vivo/example",
-      },
-      {
-        label: "Aparelhos",
-        to: "/app/vivo/example",
-      },
-    ],
-  },
+];
+
+export const menuOptionsVR: MenuItem[] = [...menuOptionsCommon];
+
+export const menuOptionsC6: MenuItem[] = [
+  ...menuOptionsCommon,
   {
     label: "Produtos",
     items: [
       {
-        label: "Banda Larga",
-        to: "/app/vivo/example",
+        label: "Maquininha",
+        to: "/app/products/financies/Maquininha",
       },
       {
-        label: "Aparelhos",
-        to: "/app/vivo/example",
+        label: "Empréstimo",
+        to: "/app/products/financies/Empréstimo",
       },
     ],
   },
 ];
 
-export const menuOptionsVR: MenuItem[] = [
-  ...menuOptionsCommon,
-  // {
-  //   label: "Dashboard",
-  //   to: "/app",
-  // },
-  {
-    label: "Pedidos",
-    items: [
-      {
-        label: "Exemplo 1",
-        to: "/app/vr/example",
-      },
-      {
-        label: "Exemplo 2",
-        to: "/app/vr/example",
-      },
-    ],
-  },
-];
-
-export const menuOptionsC6: MenuItem[] = [
-  ...menuOptionsCommon,
-  // {
-  //   label: "Dashboard",
-  //   to: "/app",
-  // },
-  {
-    label: "Pedidos",
-    items: [
-      {
-        label: "Exemplo 1",
-        to: "/app/c6/example",
-      },
-      {
-        label: "Exemplo 2",
-        to: "/app/c6/example",
-      },
-    ],
-  },
-];
+export const menuOptionsBrisanet: MenuItem[] = [...menuOptionsCommon];
+export const menuOptionsAlgar: MenuItem[] = [...menuOptionsCommon];
