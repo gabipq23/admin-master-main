@@ -9,7 +9,6 @@ import { resolveImageUrl } from "@/utils/products.utils";
 type ProductOfferConditionFile = { url: string; type: string };
 type ProductDetail = EntityType["details"][number];
 
-
 interface ViewModalProps {
     open: boolean;
     viewingEntity: EntityType | null;
@@ -74,22 +73,7 @@ export function ViewModal({
                             <Typography.Title level={4} style={{ marginBottom: 8 }}>
                                 {viewingEntity?.name} - {viewingEntity?.client_type}
                             </Typography.Title>
-                            {/* <Space wrap size={4} style={{ marginTop: 4 }}>
-                            <Typography.Text type="secondary" style={{ fontSize: 13 }}>
-                                Disponível em:
-                            </Typography.Text>
-                            {viewingEntity?.uf && viewingEntity.uf.length > 0 ? (
-                                viewingEntity.uf.map((uf) => (
-                                    <Tag key={uf} color="blue" style={{ fontSize: 11 }}>
-                                        {uf}
-                                    </Tag>
-                                ))
-                            ) : (
-                                <Tag color="blue" style={{ fontSize: 11 }}>
-                                    Todas as UFs
-                                </Tag>
-                            )}
-                        </Space> */}
+
                         </div>
 
                         {(viewingEntity?.offer_title || viewingEntity?.offer_subtitle) && (
