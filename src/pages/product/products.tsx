@@ -1,22 +1,14 @@
 import { Typography } from "antd";
 import { useParams } from "@tanstack/react-router";
-import { useMemo } from "react";
-import { configByModel } from "./config-page.const";
+import { configByModel, isKnownProductModel, defaultProductModel } from "./config-page.const";
 
 export function ProductsPage() {
-    const params = useParams({ strict: false });
-    const { model, category } = params as { model?: string; category?: string };
+    const { model: rawModel, category } = useParams({ from: "/app/products/$model/$category" });
 
-    const config = useMemo(() => {
-        const modelKey = model?.toLowerCase();
-        if (!modelKey || !configByModel[modelKey]) {
-            throw new Error(`Modelo desconhecido: ${modelKey || "não informado"}`);
-        }
-        return configByModel[modelKey];
-    }, [model]);
-
-    const { data, isLoading } = config.useListEntity(category || "");
-    const categoryLabel = config.getCategoryLabel(category || "");
+    const model = isKnownProductModel(rawModel) ? rawModel : defaultProductModel;
+    const config = configByModel[model];
+    const { data, isLoading } = config.useListEntity(category);
+    const categoryLabel = config.getCategoryLabel(category);
     const TableComponent = config.TableComponent;
 
     return (

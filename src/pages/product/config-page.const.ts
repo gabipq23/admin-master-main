@@ -5,6 +5,7 @@ import * as financiesConfig from "./financies/config-page.const";
 
 import { TableMain as TelecomTable } from "./telecom/components/table";
 import { TableMain as FinanciesTable } from "./financies/components/table";
+
 interface ModelConfig {
   entityPage: { plural: string; name: string };
   useListEntity: (category: string) => {
@@ -15,7 +16,9 @@ interface ModelConfig {
   TableComponent: ComponentType<any>;
 }
 
-export const configByModel: Record<string, ModelConfig> = {
+export type ProductModel = "telecom" | "financies";
+
+export const configByModel: Record<ProductModel, ModelConfig> = {
   telecom: {
     entityPage: telecomConfig.entityPage,
     useListEntity: telecomConfig.useListEntity,
@@ -29,3 +32,19 @@ export const configByModel: Record<string, ModelConfig> = {
     TableComponent: FinanciesTable,
   },
 };
+
+export const defaultProductModel: ProductModel = "telecom";
+
+export const defaultCategoryByModel: Record<ProductModel, string> = {
+  telecom: "Banda Larga",
+  financies: "Maquininha",
+};
+
+export function isKnownProductModel(model: string): model is ProductModel {
+  return model in configByModel;
+}
+
+export function resolveProductModel(rawModel?: string): ProductModel {
+  const normalized = (rawModel ?? "").toLowerCase();
+  return isKnownProductModel(normalized) ? normalized : defaultProductModel;
+}
