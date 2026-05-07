@@ -2,45 +2,13 @@ import { Modal, Button, Row, Col, Typography, Space } from "antd";
 import { WifiOutlined, DownloadOutlined } from "@ant-design/icons";
 import { entityPage, type EntityType } from "../config-page.const";
 import { appSetting } from "@/constants/app-setting/config.const";
+import { formatBRL } from "@/utils/number.utils";
+import { ExtraSection } from "./view-extras-info";
+import { resolveImageUrl } from "@/utils/products.utils";
 
 type ProductOfferConditionFile = { url: string; type: string };
 type ProductDetail = EntityType["details"][number];
 
-function resolveImageUrl(value: unknown): string | null {
-    if (typeof value === "string" && value.trim().length > 0) return value;
-    if (!value || typeof value !== "object") return null;
-
-    const candidate = value as {
-        url?: unknown;
-        thumbUrl?: unknown;
-        response?: { url?: unknown };
-        originFileObj?: { name?: unknown };
-        name?: unknown;
-    };
-
-    if (typeof candidate.url === "string" && candidate.url.trim().length > 0) {
-        return candidate.url;
-    }
-
-    if (
-        candidate.response &&
-        typeof candidate.response.url === "string" &&
-        candidate.response.url.trim().length > 0
-    ) {
-        return candidate.response.url;
-    }
-
-    if (typeof candidate.thumbUrl === "string" && candidate.thumbUrl.trim().length > 0) {
-        return candidate.thumbUrl;
-    }
-
-    return null;
-}
-
-function formatBRL(value: number | undefined): string {
-    if (value === undefined || value === null) return "-";
-    return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
 
 interface ViewModalProps {
     open: boolean;
@@ -58,6 +26,11 @@ export function ViewModal({
     onDelete,
 }: ViewModalProps) {
     const color = appSetting?.primaryColor
+
+    const clientExtras = viewingEntity?.extras?.client ?? [];
+    const nonClientExtras = viewingEntity?.extras?.non_client ?? [];
+    const hasExtras = clientExtras.length > 0 || nonClientExtras.length > 0;
+
     return (
         <Modal
             open={open}
@@ -312,276 +285,19 @@ export function ViewModal({
                         </div>
                     )}
 
-
-
                     {/* Extras */}
-                    {(viewingEntity?.extras?.client?.length > 0 ||
-                        viewingEntity?.extras?.non_client?.length > 0) && (
-                            <div style={{ marginBottom: 24 }}>
-                                <Typography.Title level={5} style={{ marginBottom: 16 }}>
-                                    Extras
-                                </Typography.Title>
+                    {hasExtras && (
+                        <div style={{ marginBottom: 24 }}>
+                            <Typography.Title level={5} style={{ marginBottom: 16 }}>
+                                Extras
+                            </Typography.Title>
 
-                                <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-
-                                    {/* Cliente */}
-                                    {viewingEntity?.extras?.client?.length > 0 && (
-                                        <div>
-                                            <Typography.Text strong style={{ display: "block", marginBottom: 12, fontSize: 14 }}>
-                                                Cliente
-                                            </Typography.Text>
-                                            <Row gutter={[16, 16]}>
-                                                {viewingEntity?.extras.client.map((group: any, idx: number) => (
-                                                    <Col xs={24} md={12} lg={8} key={`${group.id}-${idx}`}>
-                                                        <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 8, padding: 16, height: "100%" }}>
-
-                                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
-                                                                <Typography.Text strong style={{ flex: 1 }}>
-                                                                    {group.label}
-                                                                </Typography.Text>
-                                                                <Typography.Text type="secondary" style={{ fontSize: 11, textTransform: "uppercase" }}>
-                                                                    {group.input_type}
-                                                                </Typography.Text>
-                                                            </div>
-
-                                                            {Array.isArray(group.images) && group.images.length > 0 && (
-                                                                <Space wrap size={8} style={{ marginBottom: 12 }}>
-                                                                    {group.images.map((imgUrl: string, imgIdx: number) => {
-                                                                        const imgName = imgUrl.split("/").pop() || `imagem_${imgIdx + 1}`;
-                                                                        return (
-                                                                            <a
-                                                                                key={imgIdx}
-                                                                                href={imgUrl}
-                                                                                target="_blank"
-                                                                                rel="noopener noreferrer"
-                                                                                download={imgName}
-                                                                                style={{ color: color, display: "flex", flexDirection: "column", alignItems: "center" }}
-                                                                            >
-                                                                                <img
-                                                                                    src={imgUrl}
-                                                                                    alt={imgName}
-                                                                                    style={{ width: 40, height: 40, objectFit: "cover", borderRadius: 4, border: "1px solid #e5e7eb", marginBottom: 4 }}
-                                                                                />
-                                                                            </a>
-                                                                        );
-                                                                    })}
-                                                                </Space>
-                                                            )}
-
-                                                            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                                                                {group.options.map((option, optionIdx) => (
-                                                                    <div
-                                                                        key={`${option.id}-${optionIdx}`}
-                                                                        style={{ border: "1px solid #f3f4f6", borderRadius: 6, padding: "8px 12px", display: "flex", flexDirection: "column", gap: 4 }}
-                                                                    >
-                                                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                                                                            <div>
-                                                                                <Typography.Text style={{ fontSize: 13, display: "block" }}>
-                                                                                    {option.label}
-                                                                                </Typography.Text>
-                                                                                {option.description && (
-                                                                                    <Typography.Text type="secondary" style={{ fontSize: 12, display: "block" }}>
-                                                                                        {option.description}
-                                                                                    </Typography.Text>
-                                                                                )}
-                                                                            </div>
-                                                                            <Typography.Text strong style={{ fontSize: 13, marginLeft: 8, whiteSpace: "nowrap" }}>
-                                                                                {option.price > 0 ? formatBRL(option.price) : "-"}
-                                                                            </Typography.Text>
-                                                                        </div>
-
-                                                                        {option.bonus && (
-                                                                            <div style={{ marginTop: 6, background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 6, padding: "8px 10px", display: "flex", flexDirection: "column", gap: 6 }}>
-                                                                                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                                                                    <span style={{ fontSize: 10, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", background: color, color: "#fff", borderRadius: 4, padding: "2px 8px" }}>
-                                                                                        Bônus
-                                                                                    </span>
-                                                                                    {option.bonus.type && (
-                                                                                        <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                                                                                            {option.bonus.type}
-                                                                                        </Typography.Text>
-                                                                                    )}
-                                                                                </div>
-
-                                                                                <Space size={16}>
-                                                                                    {option.bonus.speed > 0 && (
-                                                                                        <div>
-                                                                                            <Typography.Text type="secondary" style={{ fontSize: 11, textTransform: "uppercase", display: "block" }}>
-                                                                                                Velocidade
-                                                                                            </Typography.Text>
-                                                                                            <Typography.Text style={{ fontSize: 12 }}>
-                                                                                                {option.bonus.speed} Mbps
-                                                                                            </Typography.Text>
-                                                                                        </div>
-                                                                                    )}
-                                                                                    {typeof option.bonus.price !== "undefined" && (
-                                                                                        <div>
-                                                                                            <Typography.Text type="secondary" style={{ fontSize: 11, textTransform: "uppercase", display: "block" }}>
-                                                                                                Preço
-                                                                                            </Typography.Text>
-                                                                                            <Typography.Text style={{ fontSize: 12, color: color }}>
-                                                                                                {option.bonus.price > 0 ? formatBRL(option.bonus.price) : "-"}
-                                                                                            </Typography.Text>
-                                                                                        </div>
-                                                                                    )}
-                                                                                </Space>
-
-                                                                                {option.bonus.description && (
-                                                                                    <div>
-                                                                                        <Typography.Text type="secondary" style={{ fontSize: 11, textTransform: "uppercase", display: "block" }}>
-                                                                                            Descrição
-                                                                                        </Typography.Text>
-                                                                                        <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                                                                                            {option.bonus.description}
-                                                                                        </Typography.Text>
-                                                                                    </div>
-                                                                                )}
-                                                                            </div>
-                                                                        )}
-
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-
-                                                        </div>
-                                                    </Col>
-                                                ))}
-                                            </Row>
-                                        </div>
-                                    )}
-
-                                    {/* Não Cliente */}
-                                    {viewingEntity?.extras?.non_client?.length > 0 && (
-                                        <div>
-                                            <Typography.Text strong style={{ display: "block", marginBottom: 12, fontSize: 14 }}>
-                                                Não Cliente
-                                            </Typography.Text>
-                                            <Row gutter={[16, 16]}>
-                                                {viewingEntity?.extras.non_client.map((group: any, idx: number) => (
-                                                    <Col xs={24} md={12} lg={8} key={`${group.id}-${idx}`}>
-                                                        <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 8, padding: 16, height: "100%" }}>
-
-                                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
-                                                                <Typography.Text strong style={{ flex: 1 }}>
-                                                                    {group.label}
-                                                                </Typography.Text>
-                                                                <Typography.Text type="secondary" style={{ fontSize: 11, textTransform: "uppercase" }}>
-                                                                    {group.input_type}
-                                                                </Typography.Text>
-                                                            </div>
-
-                                                            {Array.isArray(group.images) && group.images.length > 0 && (
-                                                                <Space wrap size={8} style={{ marginBottom: 12 }}>
-                                                                    {group.images.map((imgUrl: string, imgIdx: number) => {
-                                                                        const imgName = imgUrl.split("/").pop() || `imagem_${imgIdx + 1}`;
-                                                                        return (
-                                                                            <a
-                                                                                key={imgIdx}
-                                                                                href={imgUrl}
-                                                                                target="_blank"
-                                                                                rel="noopener noreferrer"
-                                                                                download={imgName}
-                                                                                style={{ color: color, display: "flex", flexDirection: "column", alignItems: "center" }}
-                                                                            >
-                                                                                <img
-                                                                                    src={imgUrl}
-                                                                                    alt={imgName}
-                                                                                    style={{ width: 40, height: 40, objectFit: "cover", borderRadius: 4, border: "1px solid #e5e7eb", marginBottom: 4 }}
-                                                                                />
-                                                                            </a>
-                                                                        );
-                                                                    })}
-                                                                </Space>
-                                                            )}
-
-                                                            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                                                                {group.options.map((option, optionIdx) => (
-                                                                    <div
-                                                                        key={`${option.id}-${optionIdx}`}
-                                                                        style={{ border: "1px solid #f3f4f6", borderRadius: 6, padding: "8px 12px", display: "flex", flexDirection: "column", gap: 4 }}
-                                                                    >
-                                                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                                                                            <div>
-                                                                                <Typography.Text style={{ fontSize: 13, display: "block" }}>
-                                                                                    {option.label}
-                                                                                </Typography.Text>
-                                                                                {option.description && (
-                                                                                    <Typography.Text type="secondary" style={{ fontSize: 12, display: "block" }}>
-                                                                                        {option.description}
-                                                                                    </Typography.Text>
-                                                                                )}
-                                                                            </div>
-                                                                            <Typography.Text strong style={{ fontSize: 13, marginLeft: 8, whiteSpace: "nowrap" }}>
-                                                                                {option.price > 0 ? formatBRL(option.price) : "-"}
-                                                                            </Typography.Text>
-                                                                        </div>
-
-                                                                        {option.bonus && (
-                                                                            <div style={{ marginTop: 6, background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 6, padding: "8px 10px", display: "flex", flexDirection: "column", gap: 6 }}>
-                                                                                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                                                                    <span style={{ fontSize: 10, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", background: color, color: "#fff", borderRadius: 4, padding: "2px 8px" }}>
-                                                                                        Bônus
-                                                                                    </span>
-                                                                                    {option.bonus.type && (
-                                                                                        <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                                                                                            {option.bonus.type}
-                                                                                        </Typography.Text>
-                                                                                    )}
-                                                                                </div>
-
-                                                                                <Space size={16}>
-                                                                                    {option.bonus.speed > 0 && (
-                                                                                        <div>
-                                                                                            <Typography.Text type="secondary" style={{ fontSize: 11, textTransform: "uppercase", display: "block" }}>
-                                                                                                Velocidade
-                                                                                            </Typography.Text>
-                                                                                            <Typography.Text style={{ fontSize: 12 }}>
-                                                                                                {option.bonus.speed} Mbps
-                                                                                            </Typography.Text>
-                                                                                        </div>
-                                                                                    )}
-                                                                                    {typeof option.bonus.price !== "undefined" && (
-                                                                                        <div>
-                                                                                            <Typography.Text type="secondary" style={{ fontSize: 11, textTransform: "uppercase", display: "block" }}>
-                                                                                                Preço
-                                                                                            </Typography.Text>
-                                                                                            <Typography.Text style={{ fontSize: 12, color: color }}>
-                                                                                                {option.bonus.price > 0 ? formatBRL(option.bonus.price) : "-"}
-                                                                                            </Typography.Text>
-                                                                                        </div>
-                                                                                    )}
-                                                                                </Space>
-
-                                                                                {option.bonus.description && (
-                                                                                    <div>
-                                                                                        <Typography.Text type="secondary" style={{ fontSize: 11, textTransform: "uppercase", display: "block" }}>
-                                                                                            Descrição
-                                                                                        </Typography.Text>
-                                                                                        <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                                                                                            {option.bonus.description}
-                                                                                        </Typography.Text>
-                                                                                    </div>
-                                                                                )}
-                                                                            </div>
-                                                                        )}
-
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-
-                                                        </div>
-                                                    </Col>
-                                                ))}
-                                            </Row>
-                                        </div>
-                                    )}
-
-                                </div>
+                            <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+                                <ExtraSection title="Cliente" groups={clientExtras} color={color} />
+                                <ExtraSection title="Não Cliente" groups={nonClientExtras} color={color} />
                             </div>
-                        )}
-
-
-
+                        </div>
+                    )}
 
                 </div>
 
