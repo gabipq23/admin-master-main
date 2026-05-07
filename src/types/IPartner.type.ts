@@ -82,4 +82,5 @@ export interface IUpdatePartnerPayload {
 export interface IPartnerFilters {
   company_id?: number;
   partner_id?: number;
+  segment?: string;
 }
