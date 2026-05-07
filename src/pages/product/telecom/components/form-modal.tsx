@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Form,
   Input,
@@ -30,6 +30,7 @@ import {
 } from "../config-page.const";
 import type { UploadFile } from "antd";
 import InputTypeTooltipContent from "../../common/InputTypeTooltipContent";
+import { appSetting } from "@/constants/app-setting/config.const";
 interface FormModalProps {
   open: boolean;
   editingEntity: EntityType | null;
@@ -46,6 +47,51 @@ interface ExtrasGroupListProps {
 }
 
 type ExtraFormItem = NonNullable<FormValues["extras_non_client"]>[number];
+
+function parseDecimalValue(value: unknown, fallback = 0): number {
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : fallback;
+  }
+
+  if (typeof value !== "string") {
+    return fallback;
+  }
+
+  const normalized = value.trim();
+  if (!normalized) return fallback;
+
+  const sanitized = normalized
+    .replace(/\.(?=\d{3}(\D|$))/g, "")
+    .replace(",", ".");
+
+  const parsed = Number(sanitized);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function buildInitialBonusVisible(entity: EntityType | null): Record<string, boolean> {
+  if (!entity) return {};
+
+  const nextState: Record<string, boolean> = {};
+
+  const groups = [
+    { fieldName: "extras_non_client", items: entity.extras?.non_client ?? [] },
+    { fieldName: "extras_client", items: entity.extras?.client ?? [] },
+  ] as const;
+
+  groups.forEach(({ fieldName, items }) => {
+    items.forEach((group, groupIndex) => {
+      group.options?.forEach((option, optionIndex) => {
+        const hasBonus = !!option.bonus && Object.values(option.bonus).some((value) => value != null && value !== "");
+
+        if (hasBonus) {
+          nextState[`${fieldName}_${groupIndex}_${optionIndex}`] = true;
+        }
+      });
+    });
+  });
+
+  return nextState;
+}
 
 function prepareExtrasGroup(
   extras: ExtraFormItem[],
@@ -73,11 +119,11 @@ function prepareExtrasGroup(
         options: (extra.options ?? []).map((option, optionIdx) => ({
           ...option,
           id: String(option.id ?? `option_${prefix}_${idx}_${optionIdx}`),
-          price: Number(option.price ?? 0),
+          price: parseDecimalValue(option.price),
           bonus: option.bonus
             ? {
               ...option.bonus,
-              price: Number(option.bonus.price ?? 0),
+              price: parseDecimalValue(option.bonus.price),
               speed: Number(option.bonus.speed ?? 0),
             }
             : undefined,
@@ -96,6 +142,73 @@ function mapExistingImagesToUploadFiles(images?: string[]): UploadFile[] {
     status: "done",
     url,
   }));
+}
+
+function resolveConditionUrl(condition: unknown): string | undefined {
+  if (typeof condition === "string" && condition.trim()) return condition;
+  if (!condition || typeof condition !== "object") return undefined;
+
+  const candidate = condition as {
+    url?: unknown;
+    thumbUrl?: unknown;
+    path?: unknown;
+    response?: { url?: unknown };
+  };
+
+  if (typeof candidate.url === "string" && candidate.url.trim()) return candidate.url;
+  if (typeof candidate.thumbUrl === "string" && candidate.thumbUrl.trim()) return candidate.thumbUrl;
+  if (typeof candidate.path === "string" && candidate.path.trim()) return candidate.path;
+  if (typeof candidate.response?.url === "string" && candidate.response.url.trim()) {
+    return candidate.response.url;
+  }
+
+  return undefined;
+}
+
+function resolveConditionName(condition: unknown, index: number): string {
+  if (typeof condition === "string" && condition.trim()) {
+    return condition.split("/").pop() || `arquivo_${index + 1}`;
+  }
+
+  if (!condition || typeof condition !== "object") {
+    return `arquivo_${index + 1}`;
+  }
+
+  const candidate = condition as { name?: unknown; url?: unknown; path?: unknown };
+
+  if (typeof candidate.name === "string" && candidate.name.trim()) return candidate.name;
+
+  const fallbackUrl =
+    (typeof candidate.url === "string" && candidate.url.trim() && candidate.url) ||
+    (typeof candidate.path === "string" && candidate.path.trim() && candidate.path);
+
+  if (fallbackUrl) {
+    return fallbackUrl.split("/").pop() || `arquivo_${index + 1}`;
+  }
+
+  return `arquivo_${index + 1}`;
+}
+
+function mapExistingConditionsToUploadFiles(
+  conditions?: Array<{ url?: string; type?: string } | string | UploadFile>,
+): UploadFile[] {
+  if (!conditions?.length) return [];
+
+  return conditions.map((condition, idx) => {
+    const url = resolveConditionUrl(condition);
+    const name = resolveConditionName(condition, idx);
+    const type = typeof condition === "object" && condition && "type" in condition
+      ? (condition as { type?: string }).type
+      : undefined;
+
+    return {
+      uid: `${url ?? name}-${idx}`,
+      name,
+      status: "done",
+      ...(url ? { url } : {}),
+      ...(type ? { type } : {}),
+    } satisfies UploadFile;
+  });
 }
 
 // Componente interno de grupos de extras (evita duplicação client/non_client)
@@ -207,7 +320,7 @@ function ExtrasGroupList({ fieldName, groupPlaceholder, bonusVisible, onToggleBo
                 {(optionFields, { add: addOption, remove: removeOption }) => (
                   <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                     {optionFields.map(({ key: optionKey, name: optionName, ...optionRest }) => {
-                      const bonusKey = `${fieldName}_${optionKey}`;
+                      const bonusKey = `${fieldName}_${name}_${optionName}`;
                       const isBonusVisible = bonusVisible[bonusKey];
                       return (
                         <div
@@ -340,21 +453,38 @@ export function FormModal({ open, editingEntity, category, onClose }: FormModalP
   const [form] = Form.useForm<FormValues>();
   const createMutation = useCreateEntity();
   const updateMutation = useUpdateEntity();
-
+  const color = appSetting?.primaryColor
   const isEditing = !!editingEntity;
   const isPending = createMutation.isPending || updateMutation.isPending;
   const [activeExtrasTab, setActiveExtrasTab] = useState<ExtrasTab>("non_client");
-  const [bonusVisible, setBonusVisible] = useState<Record<string, boolean>>({});
+  const [bonusVisibleOverrides, setBonusVisibleOverrides] = useState<Record<string, boolean>>({});
+
+  const bonusVisible = useMemo(
+    () => ({
+      ...buildInitialBonusVisible(editingEntity),
+      ...bonusVisibleOverrides,
+    }),
+    [editingEntity, bonusVisibleOverrides],
+  );
 
   const handleToggleBonus = (optionKey: string) => {
-    setBonusVisible((prev) => ({ ...prev, [optionKey]: !prev[optionKey] }));
+    setBonusVisibleOverrides((prev) => ({ ...prev, [optionKey]: !bonusVisible[optionKey] }));
   };
+
+  function handleClose() {
+    setBonusVisibleOverrides({});
+    onClose();
+  }
+
   useEffect(() => {
     if (open && editingEntity) {
       form.setFieldsValue({
         ...editingEntity,
         company_id: editingEntity.company_id ?? undefined,
         partner_id: editingEntity.partner_id ?? undefined,
+        offer_conditions: mapExistingConditionsToUploadFiles(
+          editingEntity.offer_conditions,
+        ),
         extras_non_client: (editingEntity.extras?.non_client ?? []).map((group) => ({
           ...group,
           images: mapExistingImagesToUploadFiles(group.images),
@@ -376,6 +506,14 @@ export function FormModal({ open, editingEntity, category, onClose }: FormModalP
     const conditionFiles = (values.offer_conditions ?? [])
       .filter((f) => f.originFileObj)
       .map((f) => f.originFileObj as File);
+
+    const persistedOfferConditions = (values.offer_conditions ?? [])
+      .filter((f) => !f.originFileObj && f.status === "done")
+      .map((f) => ({
+        url: resolveConditionUrl(f)!,
+        type: f.type ?? "file",
+      }))
+      .filter((condition) => !!condition.url);
 
     // Extrai arquivos novos de cada detail.images, agrupados por índice
     const detailsImages = (values.details ?? [])
@@ -401,19 +539,25 @@ export function FormModal({ open, editingEntity, category, onClose }: FormModalP
       .filter((extra) => extra.files.length > 0);
 
     const rawPricing = values.pricing;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { pricing: _p, extras_non_client: _nonClient, extras_client: _client, ...restValues } = values;
+    const { pricing, offer_conditions, extras_non_client, extras_client, ...restValues } = values;
+    void pricing;
+    void offer_conditions;
+    void extras_non_client;
+    void extras_client;
 
     const entityPayload = {
       ...restValues,
+      offer_conditions: persistedOfferConditions,
       pricing: {
         base_monthly: {
-          current_price: Number(rawPricing?.base_monthly?.current_price ?? 0),
+          current_price: parseDecimalValue(rawPricing?.base_monthly?.current_price),
           ...(rawPricing?.base_monthly?.original_price != null && {
-            original_price: Number(rawPricing.base_monthly.original_price),
+            original_price: parseDecimalValue(rawPricing.base_monthly.original_price),
           }),
         },
-        installation: { current_price: Number(rawPricing?.installation?.current_price ?? 0) },
+        installation: {
+          current_price: parseDecimalValue(rawPricing?.installation?.current_price),
+        },
       },
       details: (values.details ?? []).map((detail) => ({
         ...detail,
@@ -434,6 +578,7 @@ export function FormModal({ open, editingEntity, category, onClose }: FormModalP
           id: editingEntity.id,
           entity: {
             ...entityPayload,
+            online: editingEntity.online,
             company_id: values.company_id ?? editingEntity.company_id ?? null,
             partner_id: values.partner_id ?? editingEntity.partner_id ?? null,
           },
@@ -441,7 +586,7 @@ export function FormModal({ open, editingEntity, category, onClose }: FormModalP
           detailsImages,
           extrasImages,
         },
-        { onSuccess: onClose },
+        { onSuccess: handleClose },
       );
     else
       createMutation.mutate(
@@ -457,7 +602,7 @@ export function FormModal({ open, editingEntity, category, onClose }: FormModalP
           detailsImages,
           extrasImages,
         },
-        { onSuccess: onClose },
+        { onSuccess: handleClose },
       );
   }
 
@@ -472,7 +617,7 @@ export function FormModal({ open, editingEntity, category, onClose }: FormModalP
       okText={isEditing ? "Salvar" : "Criar"}
       cancelText="Cancelar"
       onOk={handleSubmit}
-      onCancel={onClose}
+      onCancel={handleClose}
       confirmLoading={isPending}
       destroyOnHidden
       width={940}
@@ -650,8 +795,8 @@ export function FormModal({ open, editingEntity, category, onClose }: FormModalP
                           theme={{
                             components: {
                               Checkbox: {
-                                colorPrimary: "#0026d9",
-                                colorPrimaryHover: "#0026d9",
+                                colorPrimary: color,
+                                colorPrimaryHover: color,
                                 borderRadius: 4,
                                 controlInteractiveSize: 18,
                                 lineWidth: 2,

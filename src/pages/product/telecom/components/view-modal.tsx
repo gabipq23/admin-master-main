@@ -1,6 +1,7 @@
 import { Modal, Button, Row, Col, Typography, Space } from "antd";
 import { WifiOutlined, DownloadOutlined } from "@ant-design/icons";
 import { entityPage, type EntityType } from "../config-page.const";
+import { appSetting } from "@/constants/app-setting/config.const";
 
 type ProductOfferConditionFile = { url: string; type: string };
 type ProductDetail = EntityType["details"][number];
@@ -56,6 +57,7 @@ export function ViewModal({
     onEdit,
     onDelete,
 }: ViewModalProps) {
+    const color = appSetting?.primaryColor
     return (
         <Modal
             open={open}
@@ -121,7 +123,7 @@ export function ViewModal({
                             <div style={{ marginBottom: 16 }}>
                                 {viewingEntity?.offer_title && (
                                     <Typography.Title level={5} style={{ marginBottom: 4 }}>
-                                        <WifiOutlined style={{ color: "#3b82f6", marginRight: 8 }} />
+                                        <WifiOutlined style={{ color: color, marginRight: 8 }} />
                                         {viewingEntity.offer_title}
                                     </Typography.Title>
                                 )}
@@ -150,7 +152,7 @@ export function ViewModal({
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     download={fileName}
-                                                    style={{ color: "#0026d9", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}
+                                                    style={{ color: color, fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}
                                                 >
                                                     <DownloadOutlined />
                                                     <span style={{ textDecoration: "underline" }}>{fileName}</span>
@@ -241,7 +243,7 @@ export function ViewModal({
                                                                 fontSize: 10,
                                                                 textAlign: "center",
                                                                 borderRadius: 4,
-                                                                background: "#0026d9",
+                                                                background: color,
                                                                 color: "#fff",
                                                                 padding: "2px 8px",
                                                             }}
@@ -256,7 +258,7 @@ export function ViewModal({
                                                                 fontSize: 10,
                                                                 textAlign: "center",
                                                                 borderRadius: 4,
-                                                                background: "#0026d9",
+                                                                background: color,
                                                                 color: "#fff",
                                                                 padding: "2px 8px",
                                                             }}
@@ -284,7 +286,7 @@ export function ViewModal({
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
                                                                 download={imgName}
-                                                                style={{ color: "#0026d9", display: "flex", flexDirection: "column", alignItems: "center" }}
+                                                                style={{ color: color, display: "flex", flexDirection: "column", alignItems: "center" }}
                                                             >
                                                                 <img
                                                                     src={imgUrl}
@@ -353,7 +355,7 @@ export function ViewModal({
                                                                                 target="_blank"
                                                                                 rel="noopener noreferrer"
                                                                                 download={imgName}
-                                                                                style={{ color: "#0026d9", display: "flex", flexDirection: "column", alignItems: "center" }}
+                                                                                style={{ color: color, display: "flex", flexDirection: "column", alignItems: "center" }}
                                                                             >
                                                                                 <img
                                                                                     src={imgUrl}
@@ -391,7 +393,7 @@ export function ViewModal({
                                                                         {option.bonus && (
                                                                             <div style={{ marginTop: 6, background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 6, padding: "8px 10px", display: "flex", flexDirection: "column", gap: 6 }}>
                                                                                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                                                                    <span style={{ fontSize: 10, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", background: "#0026d9", color: "#fff", borderRadius: 4, padding: "2px 8px" }}>
+                                                                                    <span style={{ fontSize: 10, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", background: color, color: "#fff", borderRadius: 4, padding: "2px 8px" }}>
                                                                                         Bônus
                                                                                     </span>
                                                                                     {option.bonus.type && (
@@ -417,7 +419,7 @@ export function ViewModal({
                                                                                             <Typography.Text type="secondary" style={{ fontSize: 11, textTransform: "uppercase", display: "block" }}>
                                                                                                 Preço
                                                                                             </Typography.Text>
-                                                                                            <Typography.Text style={{ fontSize: 12, color: "#0026d9" }}>
+                                                                                            <Typography.Text style={{ fontSize: 12, color: color }}>
                                                                                                 {option.bonus.price > 0 ? formatBRL(option.bonus.price) : "-"}
                                                                                             </Typography.Text>
                                                                                         </div>
@@ -479,7 +481,7 @@ export function ViewModal({
                                                                                 target="_blank"
                                                                                 rel="noopener noreferrer"
                                                                                 download={imgName}
-                                                                                style={{ color: "#0026d9", display: "flex", flexDirection: "column", alignItems: "center" }}
+                                                                                style={{ color: color, display: "flex", flexDirection: "column", alignItems: "center" }}
                                                                             >
                                                                                 <img
                                                                                     src={imgUrl}
@@ -517,7 +519,7 @@ export function ViewModal({
                                                                         {option.bonus && (
                                                                             <div style={{ marginTop: 6, background: "#f9fafb", border: "1px solid #e5e7eb", borderRadius: 6, padding: "8px 10px", display: "flex", flexDirection: "column", gap: 6 }}>
                                                                                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                                                                    <span style={{ fontSize: 10, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", background: "#0026d9", color: "#fff", borderRadius: 4, padding: "2px 8px" }}>
+                                                                                    <span style={{ fontSize: 10, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em", background: color, color: "#fff", borderRadius: 4, padding: "2px 8px" }}>
                                                                                         Bônus
                                                                                     </span>
                                                                                     {option.bonus.type && (
@@ -543,7 +545,7 @@ export function ViewModal({
                                                                                             <Typography.Text type="secondary" style={{ fontSize: 11, textTransform: "uppercase", display: "block" }}>
                                                                                                 Preço
                                                                                             </Typography.Text>
-                                                                                            <Typography.Text style={{ fontSize: 12, color: "#0026d9" }}>
+                                                                                            <Typography.Text style={{ fontSize: 12, color: color }}>
                                                                                                 {option.bonus.price > 0 ? formatBRL(option.bonus.price) : "-"}
                                                                                             </Typography.Text>
                                                                                         </div>
