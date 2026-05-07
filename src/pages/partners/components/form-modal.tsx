@@ -153,7 +153,8 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
             <Form.Item
               name="cnpj"
               label="CNPJ"
-              rules={[{ required: true, message: "Informe o CNPJ" }]}
+              rules={[{ required: true, message: "Informe o CNPJ" }, { min: 14, message: 'CNPJ deve ter 14 dígitos' },
+              { max: 14, message: 'CNPJ deve ter 14 dígitos' },]}
             >
               <Input placeholder="00.000.000/0000-00" />
             </Form.Item>
@@ -177,7 +178,8 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
             <Form.Item
               name="telephone"
               label="Telefone"
-              rules={[{ required: true, message: "Informe o telefone" }]}
+              rules={[{ required: true, message: "Informe o telefone" }, { min: 10, message: 'Telefone inválido' },
+              { max: 11, message: 'Telefone inválido' },]}
             >
               <Input placeholder="(00) 00000-0000" />
             </Form.Item>
@@ -210,8 +212,10 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
               name="client_type"
               label="Tipo de Cliente"
               rules={[{ required: true, message: "Informe o tipo de cliente" }]}
+
             >
-              <Select placeholder="Selecione o tipo de cliente" options={[{ value: "PF", label: "PF" }, { value: "PJ", label: "PJ" }]} />
+
+              <Select mode="multiple" placeholder="Selecione o tipo de cliente" options={[{ value: "PF", label: "PF" }, { value: "PJ", label: "PJ" }]} />
             </Form.Item>
           </Col>
           <Col span={8}>

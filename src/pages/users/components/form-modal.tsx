@@ -9,6 +9,7 @@ import {
 } from "../config-page.const";
 import { useCompanyQuery } from "@/hooks/companies/useCompanyQuery";
 import { usePartnerQuery } from "@/hooks/partners/usePartnerQuery";
+import { useUserQuery } from "@/hooks/users/useUserQuery";
 import { useAuth } from "@/context/auth-provider";
 
 interface FormModalProps {
@@ -28,11 +29,54 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
   const userType = Form.useWatch("user_type", form);
   const selectedRole = Form.useWatch("role", form);
   const selectedCompanyId = Form.useWatch("company_id", form);
+  const selectedPartnerId = Form.useWatch("partner_id", form);
 
-  const supervisorOptions = [1, 2, 3].map((name) => ({
-    label: name,
-    value: name,
-  }));
+  const users = useUserQuery().data?.users;
+
+  const roleHierarchy: Record<string, number> = {
+    ADMIN: 1,
+    GESTOR: 2,
+    DIRETOR: 3,
+    GERENTE: 4,
+    LIDER: 5,
+    CONSULTOR: 6,
+  };
+
+  const compatibleUsers = useMemo(
+    () => (users ?? []).filter((user) => {
+      if (selectedCompanyId == null) return false;
+
+      const hasSameCompany = String(user.company_id) === String(selectedCompanyId);
+      if (!hasSameCompany) return false;
+
+      // If a partner is selected, allow same-partner users and company-level users without partner.
+      if (selectedPartnerId != null) {
+        const hasSameOrNoPartner =
+          String(user.partner_id) === String(selectedPartnerId) ||
+          user.partner_id == null;
+        if (!hasSameOrNoPartner) return false;
+      }
+
+      // Only show users with a higher role than the selected role.
+      if (selectedRole) {
+        const selectedRoleLevel = roleHierarchy[selectedRole] ?? Infinity;
+        const userRoleLevel = roleHierarchy[user.role] ?? Infinity;
+        return userRoleLevel < selectedRoleLevel;
+      }
+
+      return true;
+    }),
+    [users, selectedCompanyId, selectedPartnerId, selectedRole],
+  );
+
+  const supervisorOptions = useMemo(
+    () => compatibleUsers.map((user) => ({
+      label: `${user.user_name} - ${user.role}`,
+      value: user.user_id,
+    })),
+    [compatibleUsers],
+  );
+
   const companyOptions = useCompanyQuery({ enabled: isGlobalAdmin }).data?.companies.map((company) => ({
     label: company.company_name,
     value: company.company_id,

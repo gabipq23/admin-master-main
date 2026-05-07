@@ -8,6 +8,7 @@ import {
   type FormValues,
 } from "../config-page.const";
 
+
 interface FormModalProps {
   open: boolean;
   editingEntity: EntityType | null;
@@ -109,7 +110,10 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
             <Form.Item
               name="cnpj"
               label="CNPJ"
-
+              rules={[
+                { min: 14, message: 'CNPJ deve ter 14 dígitos' },
+                { max: 14, message: 'CNPJ deve ter 14 dígitos' },
+              ]}
             >
               <Input placeholder="00.000.000/0000-00" />
             </Form.Item>
@@ -132,7 +136,10 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
             <Form.Item
               name="telephone"
               label="Telefone"
-
+              rules={[
+                { min: 10, message: 'Telefone inválido' },
+                { max: 11, message: 'Telefone inválido' },
+              ]}
             >
               <Input placeholder="(00) 00000-0000" />
             </Form.Item>
