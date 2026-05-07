@@ -29,6 +29,7 @@ import {
   type FormValues,
 } from "../config-page.const";
 import type { UploadFile } from "antd";
+import InputTypeTooltipContent from "../../common/InputTypeTooltipContent";
 interface FormModalProps {
   open: boolean;
   editingEntity: EntityType | null;
@@ -129,7 +130,7 @@ function ExtrasGroupList({ fieldName, groupPlaceholder, bonusVisible, onToggleBo
                       <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
                         Tipo
                         <Tooltip
-                          title="x"
+                          title={<InputTypeTooltipContent />}
                           placement="top"
                           overlayStyle={{ fontSize: "12px" }}
                         >
