@@ -1,6 +1,7 @@
 export interface Extra {
   id: string;
   label: string;
+  description?: string;
   images: string[];
   options: {
     id: string;

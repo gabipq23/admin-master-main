@@ -8,18 +8,89 @@ import {
     Upload,
     Tooltip,
     Typography,
+    Modal,
+    Space,
+    Empty,
+    Spin,
+    Popover,
 } from "antd";
 import InputTypeTooltipContent from "../../common/InputTypeTooltipContent";
 import { ExclamationCircleOutlined, UploadOutlined } from "@ant-design/icons";
+import { useMemo, useState } from "react";
+
+function formatCurrencyPreview(value?: number) {
+    if (typeof value !== "number") return "-";
+    return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+export type ReusableExtraTemplate = {
+    id: string;
+    sourceProductId: number;
+    sourceProductName: string;
+    scope: "client" | "non_client";
+    group: {
+        id?: string;
+        label?: string;
+        description?: string;
+        input_type?: "radio" | "checkbox" | "checkbox_group" | "select";
+        images?: unknown[];
+        options?: {
+            id?: string;
+            label?: string;
+            price?: number;
+            description?: string;
+            bonus?: {
+                type?: string;
+                price?: number;
+                speed?: number;
+                description?: string;
+            };
+        }[];
+    };
+};
 
 interface ExtrasGroupListProps {
-    fieldName: string;
+    fieldName: "extras_non_client" | "extras_client";
     groupPlaceholder: string;
     bonusVisible: Record<string, boolean>;
     onToggleBonus: (key: string) => void;
+    reusableTemplates?: ReusableExtraTemplate[];
+    isLoadingReusableTemplates?: boolean;
+    onApplyTemplate?: (
+        fieldName: "extras_non_client" | "extras_client",
+        groupIndex: number,
+        group: ReusableExtraTemplate["group"],
+    ) => void;
 }
 
-export function ExtrasGroupList({ fieldName, groupPlaceholder, bonusVisible, onToggleBonus }: ExtrasGroupListProps) {
+export function ExtrasGroupList({
+    fieldName,
+    groupPlaceholder,
+    bonusVisible,
+    onToggleBonus,
+    reusableTemplates = [],
+    isLoadingReusableTemplates = false,
+    onApplyTemplate,
+}: ExtrasGroupListProps) {
+    const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
+    const [templateSearch, setTemplateSearch] = useState("");
+
+    const scope = fieldName === "extras_client" ? "client" : "non_client";
+
+    const templatesByScope = useMemo(
+        () => reusableTemplates.filter((template) => template.scope === scope),
+        [reusableTemplates, scope],
+    );
+
+    const filteredTemplates = useMemo(
+        () =>
+            templatesByScope.filter((template) =>
+                `${template.sourceProductName} ${template.group.label ?? ""}`
+                    .toLowerCase()
+                    .includes(templateSearch.toLowerCase().trim()),
+            ),
+        [templateSearch, templatesByScope],
+    );
 
     return (
         <Form.List name={fieldName}>
@@ -247,9 +318,164 @@ export function ExtrasGroupList({ fieldName, groupPlaceholder, bonusVisible, onT
                         </div>
                     ))}
 
-                    <Button type="dashed" onClick={() => addGroup()} block>
-                        + Adicionar Grupo
-                    </Button>
+                    <Space direction="vertical" size={8} style={{ width: "100%" }}>
+                        <Button type="dashed" onClick={() => addGroup()} block>
+                            + Adicionar Grupo
+                        </Button>
+                        <Button
+                            type="default"
+                            onClick={() => setIsTemplateModalOpen(true)}
+                            block
+                        >
+                            Reaproveitar Extra de Outro Produto
+                        </Button>
+                    </Space>
+
+                    <Modal
+                        open={isTemplateModalOpen}
+                        title="Reaproveitar Extra"
+                        onCancel={() => {
+                            setIsTemplateModalOpen(false);
+                            setTemplateSearch("");
+                        }}
+                        footer={null}
+                        width={760}
+                        destroyOnHidden
+                    >
+                        <Input.Search
+                            placeholder="Buscar por produto ou título do extra"
+                            value={templateSearch}
+                            onChange={(event) => setTemplateSearch(event.target.value)}
+                            allowClear
+                            style={{ marginBottom: 16 }}
+                        />
+
+                        {isLoadingReusableTemplates ? (
+                            <div style={{ display: "flex", justifyContent: "center", padding: "24px 0" }}>
+                                <Spin />
+                            </div>
+                        ) : filteredTemplates.length === 0 ? (
+                            <Empty description="Nenhum extra disponível para reaproveitar" />
+                        ) : (
+                            <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 420, overflowY: "auto" }}>
+                                {filteredTemplates.map((template) => (
+                                    <div
+                                        key={template.id}
+                                        style={{
+                                            border: "1px solid #e5e7eb",
+                                            borderRadius: 8,
+                                            padding: 12,
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            alignItems: "flex-start",
+                                            gap: 12,
+                                        }}
+                                    >
+                                        <div style={{ flex: 1 }}>
+                                            <Typography.Text strong>
+                                                {template.group.label || "Extra sem título"}
+                                            </Typography.Text>
+                                            <Typography.Paragraph type="secondary" style={{ margin: 0 }}>
+                                                Produto: {template.sourceProductName}
+                                            </Typography.Paragraph>
+                                            <Typography.Paragraph type="secondary" style={{ margin: 0 }}>
+                                                Tipo: {template.group.input_type || "-"} | Opções: {(template.group.options ?? []).length}
+                                            </Typography.Paragraph>
+
+                                            {(() => {
+                                                const options = template.group.options ?? [];
+                                                const bonusCount = options.filter((option) => {
+                                                    const bonus = option.bonus;
+                                                    return !!bonus && Object.values(bonus).some((value) => value != null && value !== "");
+                                                }).length;
+
+                                                if (!options.length) return null;
+
+                                                return (
+                                                    <div style={{ marginTop: 8 }}>
+                                                        <Typography.Text type="secondary" style={{ display: "block", marginBottom: 4 }}>
+                                                            Prévia das opções {bonusCount > 0 ? `• ${bonusCount} com bônus` : ""}
+                                                        </Typography.Text>
+                                                        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                                                            {options.slice(0, 2).map((option, index) => (
+                                                                <div
+                                                                    key={`${option.id ?? option.label ?? "option"}-${index}`}
+                                                                    style={{
+                                                                        background: "#fafafa",
+                                                                        border: "1px solid #f3f4f6",
+                                                                        borderRadius: 6,
+                                                                        padding: "6px 8px",
+                                                                    }}
+                                                                >
+                                                                    <Typography.Text style={{ display: "block", fontSize: 12 }}>
+                                                                        {option.label || `Opção ${index + 1}`} • {formatCurrencyPreview(option.price)}
+                                                                    </Typography.Text>
+                                                                    {option.bonus && (
+                                                                        <Typography.Text type="secondary" style={{ display: "block", fontSize: 11 }}>
+                                                                            Bônus: {option.bonus.type || "-"}
+                                                                            {typeof option.bonus.speed === "number" ? ` • ${option.bonus.speed} Mbps` : ""}
+                                                                            {typeof option.bonus.price === "number" ? ` • ${formatCurrencyPreview(option.bonus.price)}` : ""}
+                                                                        </Typography.Text>
+                                                                    )}
+                                                                </div>
+                                                            ))}
+                                                            {options.length > 2 && (
+                                                                <Popover
+                                                                    trigger="hover"
+                                                                    placement="leftTop"
+                                                                    title="Opções adicionais"
+                                                                    content={
+                                                                        <div style={{ maxWidth: 300, display: "flex", flexDirection: "column", gap: 6 }}>
+                                                                            {options.slice(2).map((option, extraIndex) => (
+                                                                                <div
+                                                                                    key={`${option.id ?? option.label ?? "option"}-extra-${extraIndex}`}
+                                                                                    style={{
+                                                                                        border: "1px solid #f3f4f6",
+                                                                                        borderRadius: 6,
+                                                                                        padding: "6px 8px",
+                                                                                        background: "#fff",
+                                                                                    }}
+                                                                                >
+                                                                                    <Typography.Text style={{ display: "block", fontSize: 12 }}>
+                                                                                        {option.label || `Opção ${extraIndex + 4}`} • {formatCurrencyPreview(option.price)}
+                                                                                    </Typography.Text>
+                                                                                    {option.bonus && (
+                                                                                        <Typography.Text type="secondary" style={{ display: "block", fontSize: 11 }}>
+                                                                                            Bônus: {option.bonus.type || "-"}
+                                                                                        </Typography.Text>
+                                                                                    )}
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    }
+                                                                >
+                                                                    <Typography.Text type="secondary" style={{ fontSize: 11, cursor: "pointer", textDecoration: "underline", width: "fit-content" }}>
+                                                                        + {options.length - 2} opção(ões)
+                                                                    </Typography.Text>
+                                                                </Popover>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })()}
+                                        </div>
+                                        <Button
+                                            type="primary"
+                                            onClick={() => {
+                                                const nextGroupIndex = groupFields.length;
+                                                addGroup(template.group);
+                                                onApplyTemplate?.(fieldName, nextGroupIndex, template.group);
+                                                setIsTemplateModalOpen(false);
+                                                setTemplateSearch("");
+                                            }}
+                                        >
+                                            Usar este Extra
+                                        </Button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </Modal>
                 </div>
             )}
         </Form.List>

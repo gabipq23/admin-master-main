@@ -24,6 +24,7 @@ import {
 import {
   useCreateEntity,
   entityPage,
+  useListEntity,
   useUpdateEntity,
   type EntityType,
   type FormValues,
@@ -32,7 +33,7 @@ import type { UploadFile } from "antd";
 import { appSetting } from "@/constants/app-setting/config.const";
 import { buildInitialBonusVisible, mapExistingConditionsToUploadFiles, mapExistingImagesToUploadFiles, prepareExtrasGroup, resolveConditionUrl } from "@/utils/products.utils";
 import { parseDecimalValue } from "@/utils/number.utils";
-import { ExtrasGroupList } from "./form-extras";
+import { ExtrasGroupList, type ReusableExtraTemplate } from "./form-extras";
 interface FormModalProps {
   open: boolean;
   editingEntity: EntityType | null;
@@ -46,6 +47,8 @@ export function FormModal({ open, editingEntity, category, onClose }: FormModalP
   const [form] = Form.useForm<FormValues>();
   const createMutation = useCreateEntity();
   const updateMutation = useUpdateEntity();
+  const { data: reusableProductsData, isLoading: isLoadingReusableProducts } =
+    useListEntity(category);
   const color = appSetting?.primaryColor
   const isEditing = !!editingEntity;
   const isPending = createMutation.isPending || updateMutation.isPending;
@@ -63,6 +66,96 @@ export function FormModal({ open, editingEntity, category, onClose }: FormModalP
   const handleToggleBonus = (optionKey: string) => {
     setBonusVisibleOverrides((prev) => ({ ...prev, [optionKey]: !bonusVisible[optionKey] }));
   };
+
+  const reusableExtraTemplates = useMemo<ReusableExtraTemplate[]>(() => {
+    const products = reusableProductsData?.products ?? [];
+
+    return products
+      .filter((product) => !editingEntity || product.id !== editingEntity.id)
+      .flatMap((product) => {
+        const nonClientTemplates: ReusableExtraTemplate[] =
+          (product.extras?.non_client ?? []).map((extra, idx) => ({
+            id: `${product.id}-non_client-${extra.id ?? idx}`,
+            sourceProductId: product.id,
+            sourceProductName: product.name,
+            scope: "non_client",
+            group: {
+              id: undefined,
+              label: extra.label,
+              description: extra.description,
+              input_type: extra.input_type,
+              images: mapExistingImagesToUploadFiles(extra.images),
+              options: (extra.options ?? []).map((option) => ({
+                id: undefined,
+                label: option.label,
+                price: option.price,
+                description: option.description,
+                bonus: option.bonus
+                  ? {
+                    type: option.bonus.type,
+                    price: option.bonus.price,
+                    speed: option.bonus.speed,
+                    description: option.bonus.description,
+                  }
+                  : undefined,
+              })),
+            },
+          }));
+
+        const clientTemplates: ReusableExtraTemplate[] =
+          (product.extras?.client ?? []).map((extra, idx) => ({
+            id: `${product.id}-client-${extra.id ?? idx}`,
+            sourceProductId: product.id,
+            sourceProductName: product.name,
+            scope: "client",
+            group: {
+              id: undefined,
+              label: extra.label,
+              description: extra.description,
+              input_type: extra.input_type,
+              images: mapExistingImagesToUploadFiles(extra.images),
+              options: (extra.options ?? []).map((option) => ({
+                id: undefined,
+                label: option.label,
+                price: option.price,
+                description: option.description,
+                bonus: option.bonus
+                  ? {
+                    type: option.bonus.type,
+                    price: option.bonus.price,
+                    speed: option.bonus.speed,
+                    description: option.bonus.description,
+                  }
+                  : undefined,
+              })),
+            },
+          }));
+
+        return [...nonClientTemplates, ...clientTemplates];
+      });
+  }, [editingEntity, reusableProductsData?.products]);
+
+  function handleTemplateApplied(
+    fieldName: "extras_non_client" | "extras_client",
+    groupIndex: number,
+    group: ReusableExtraTemplate["group"],
+  ) {
+    setBonusVisibleOverrides((prev) => {
+      const next = { ...prev };
+
+      (group.options ?? []).forEach((option, optionIndex) => {
+        const hasBonus =
+          !!option.bonus &&
+          Object.values(option.bonus).some((value) => value != null && value !== "");
+
+        if (hasBonus) {
+          next[`${fieldName}_${groupIndex}_${optionIndex}`] = true;
+        }
+      });
+
+      return next;
+    });
+  }
 
   function handleClose() {
     setBonusVisibleOverrides({});
@@ -491,6 +584,9 @@ export function FormModal({ open, editingEntity, category, onClose }: FormModalP
                 groupPlaceholder="Ex: Deixe seu pacote mais completo"
                 bonusVisible={bonusVisible}
                 onToggleBonus={handleToggleBonus}
+                reusableTemplates={reusableExtraTemplates}
+                isLoadingReusableTemplates={isLoadingReusableProducts}
+                onApplyTemplate={handleTemplateApplied}
               />
             )}
             {activeExtrasTab === "client" && (
@@ -499,6 +595,9 @@ export function FormModal({ open, editingEntity, category, onClose }: FormModalP
                 groupPlaceholder="Ex: O dobro de canais"
                 bonusVisible={bonusVisible}
                 onToggleBonus={handleToggleBonus}
+                reusableTemplates={reusableExtraTemplates}
+                isLoadingReusableTemplates={isLoadingReusableProducts}
+                onApplyTemplate={handleTemplateApplied}
               />
             )}
           </div>
