@@ -1,10 +1,8 @@
-import { Modal, Button, Row, Col, Typography } from "antd";
+import { Modal, Button, Typography } from "antd";
 import { entityPage, type EntityType } from "../config-page.const";
 
-function formatBRL(value: number | undefined): string {
-    if (value === undefined || value === null) return "-";
-    return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
+import { appSetting } from "@/constants/app-setting/config.const";
+import { WifiOutlined } from "@ant-design/icons";
 
 interface ViewModalProps {
     open: boolean;
@@ -22,7 +20,7 @@ export function ViewModal({
     onDelete,
 }: ViewModalProps) {
     if (!viewingEntity) return null;
-
+    const color = appSetting?.primaryColor
     return (
         <Modal
             open={open}
@@ -41,61 +39,47 @@ export function ViewModal({
             destroyOnHidden
             width={600}
         >
-            <div style={{ maxHeight: "60vh", overflowY: "auto" }}>
-                <Row gutter={16} style={{ marginBottom: 16 }}>
-                    <Col span={12}>
-                        <Typography.Text type="secondary">Nome</Typography.Text>
-                        <Typography.Paragraph strong>{viewingEntity.name}</Typography.Paragraph>
-                    </Col>
-                    <Col span={12}>
-                        <Typography.Text type="secondary">Categoria</Typography.Text>
-                        <Typography.Paragraph strong>{viewingEntity.category}</Typography.Paragraph>
-                    </Col>
-                </Row>
+            <div className="max-h-130 overflow-y-auto scrollbar-thin">
 
-                <Row gutter={16} style={{ marginBottom: 16 }}>
-                    <Col span={12}>
-                        <Typography.Text type="secondary">Empresa</Typography.Text>
-                        <Typography.Paragraph strong>{viewingEntity.company}</Typography.Paragraph>
-                    </Col>
-                    <Col span={12}>
-                        <Typography.Text type="secondary">Tipo de Cliente</Typography.Text>
-                        <Typography.Paragraph strong>{viewingEntity.client_type}</Typography.Paragraph>
-                    </Col>
-                </Row>
+                {/* Header do Plano */}
+                <div style={{ background: "#f5f5f5", padding: 24, borderRadius: 8, marginBottom: 24 }}>
+                    {viewingEntity?.badge && (
+                        <div style={{ marginBottom: 8 }}>
+                            <Typography.Text strong style={{ color: "#374151" }}>
+                                {viewingEntity.badge}
+                            </Typography.Text>
+                        </div>
+                    )}
 
-                <Row gutter={16} style={{ marginBottom: 16 }}>
-                    <Col span={12}>
-                        <Typography.Text type="secondary">Taxa de Juros</Typography.Text>
-                        <Typography.Paragraph strong>
-                            {(viewingEntity as any).interest_rate ? `${(viewingEntity as any).interest_rate}%` : "-"}
-                        </Typography.Paragraph>
-                    </Col>
-                    <Col span={12}>
-                        <Typography.Text type="secondary">Valor Máximo</Typography.Text>
-                        <Typography.Paragraph strong>
-                            {formatBRL((viewingEntity as any).max_amount)}
-                        </Typography.Paragraph>
-                    </Col>
-                </Row>
+                    <div style={{ marginBottom: 16 }}>
+                        <Typography.Title level={4} style={{ marginBottom: 8 }}>
+                            {viewingEntity?.name} - {viewingEntity?.client_type}
+                        </Typography.Title>
 
-                <Row gutter={16} style={{ marginBottom: 16 }}>
-                    <Col span={12}>
-                        <Typography.Text type="secondary">Valor Mínimo</Typography.Text>
-                        <Typography.Paragraph strong>
-                            {formatBRL((viewingEntity as any).min_amount)}
-                        </Typography.Paragraph>
-                    </Col>
-                </Row>
+                    </div>
 
-                {(viewingEntity as any).description && (
-                    <Row gutter={16} style={{ marginBottom: 16 }}>
-                        <Col span={24}>
-                            <Typography.Text type="secondary">Descrição</Typography.Text>
-                            <Typography.Paragraph>{(viewingEntity as any).description}</Typography.Paragraph>
-                        </Col>
-                    </Row>
-                )}
+                    {(viewingEntity?.offer_title || viewingEntity?.offer_subtitle) && (
+                        <div style={{ marginBottom: 16 }}>
+                            {viewingEntity?.offer_title && (
+                                <Typography.Title level={5} style={{ marginBottom: 4 }}>
+                                    <WifiOutlined style={{ color: color, marginRight: 8 }} />
+                                    {viewingEntity.offer_title}
+                                </Typography.Title>
+                            )}
+                            {viewingEntity?.offer_subtitle && (
+                                <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+                                    {viewingEntity.offer_subtitle}
+                                </Typography.Text>
+                            )}
+                        </div>
+                    )}
+
+
+                </div>
+
+
+
+
             </div>
         </Modal>
     );

@@ -86,4 +86,5 @@ export interface IUpdateUser {
 export interface IUserFilters {
   company_id?: number;
   partner_id?: number;
+  segment?: string;
 }

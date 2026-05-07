@@ -28,3 +28,28 @@ export function formatPhoneNumber(phone: string): string {
 
   return phone;
 }
+
+export function formatBRL(value: number | undefined): string {
+  if (value === undefined || value === null) return "-";
+  return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+export function parseDecimalValue(value: unknown, fallback = 0): number {
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : fallback;
+  }
+
+  if (typeof value !== "string") {
+    return fallback;
+  }
+
+  const normalized = value.trim();
+  if (!normalized) return fallback;
+
+  const sanitized = normalized
+    .replace(/\.(?=\d{3}(\D|$))/g, "")
+    .replace(",", ".");
+
+  const parsed = Number(sanitized);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
