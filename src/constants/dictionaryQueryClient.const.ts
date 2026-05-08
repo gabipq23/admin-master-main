@@ -1,4 +1,5 @@
 import { CompaniesService } from "@/services/companies.service";
+import { PartnersPriorityService } from "@/services/partner-priority.service";
 import { PartnersService } from "@/services/partners.service";
 import { ProductsService } from "@/services/products.service";
 import { UsersService } from "@/services/users.service";
@@ -27,5 +28,11 @@ export const dictionaryQueryClient = {
     plural: "Produtos",
     key: "products",
     service: ProductsService,
+  },
+  partnerpriority: {
+    name: "Sugestão de Prioridade",
+    plural: "Sugestões de Prioridade",
+    key: "partner-priorities",
+    service: PartnersPriorityService,
   },
 };

@@ -28,17 +28,16 @@ const permissionsByRole: Record<
     partners: allCrudActions,
     users: allCrudActions,
     products: allCrudActions,
-    priorities: ["view", "edit"],
+    priorities: allCrudActions,
   },
   GESTOR: {
     users: allCrudActions,
-    priorities: ["view", "edit"],
     products: allCrudActions,
   },
-  DIRETOR: {},
-  GERENTE: {},
-  LIDER: {},
-  CONSULTOR: {},
+  DIRETOR: { products: allCrudActions },
+  GERENTE: { products: ["view"] },
+  LIDER: { products: ["view"] },
+  CONSULTOR: { products: ["view"] },
 };
 
 const routeResourceMap: Record<RestrictedRoute, PermissionResource> = {

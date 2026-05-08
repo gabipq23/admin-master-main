@@ -3,75 +3,6 @@ import type { TableColumnsType } from "antd";
 import { useMemo } from "react";
 import { useStyle } from "@/style/tableStyle";
 
-const mockRows: PriorityRow[] = [
-    {
-        uf: "BA",
-        stateName: "Bahia",
-        partnerOptions: [
-            { label: "Parceiro C", value: 401 },
-            { label: "Parceiro D", value: 402 },
-        ],
-    },
-    {
-        uf: "PE",
-        stateName: "Pernambuco",
-        partnerOptions: [
-            { label: "Parceiro E", value: 403 },
-            { label: "Parceiro F", value: 404 },
-        ],
-    },
-    {
-        uf: "RJ",
-        stateName: "Rio de Janeiro",
-        partnerOptions: [
-            { label: "Parceiro X", value: 101 },
-            { label: "Parceiro Y", value: 102 },
-        ],
-    },
-    {
-        uf: "SP",
-        stateName: "Sao Paulo",
-        partnerOptions: [
-            { label: "Parceiro Z", value: 201 },
-            { label: "Parceiro W", value: 202 },
-        ],
-    },
-    {
-        uf: "MG",
-        stateName: "Minas Gerais",
-        partnerOptions: [
-            { label: "Parceiro A", value: 301 },
-            { label: "Parceiro B", value: 302 },
-        ],
-    },
-    {
-        uf: "PR",
-        stateName: "Parana",
-        partnerOptions: [
-            { label: "Parceiro G", value: 501 },
-            { label: "Parceiro H", value: 502 },
-        ],
-    },
-    {
-        uf: "SC",
-        stateName: "Santa Catarina",
-        partnerOptions: [
-            { label: "Parceiro M", value: 503 },
-            { label: "Parceiro N", value: 504 },
-        ],
-    },
-];
-
-const mockSelectedByUf: Record<string, number | undefined> = {
-    BA: 401,
-    PE: undefined,
-    RJ: 101,
-    SP: 202,
-    MG: 301,
-    PR: 502,
-    SC: undefined,
-};
-
 export interface PriorityRow {
     uf: string;
     stateName: string;
@@ -143,12 +74,9 @@ export function PriorityTable({
     onChangePriority,
 }: PriorityTableProps) {
     const { styles } = useStyle();
-    const isUsingMockData = rows.length === 0;
-    const dataSource = isUsingMockData ? mockRows : rows;
-    const selectedMap = isUsingMockData ? mockSelectedByUf : selectedByUf;
 
     const dataSourceByRegion = useMemo<PriorityRowWithRegion[]>(() => {
-        return [...dataSource]
+        return [...rows]
             .map((row) => ({
                 ...row,
                 region: REGION_BY_UF[row.uf] ?? "Outras",
@@ -161,7 +89,7 @@ export function PriorityTable({
 
                 return a.stateName.localeCompare(b.stateName, "pt-BR");
             });
-    }, [dataSource]);
+    }, [rows]);
 
     const regionRowSpanByIndex = useMemo<Record<number, number>>(() => {
         const groupCountByRegion = new Map<RegionName, number>();
@@ -229,9 +157,9 @@ export function PriorityTable({
                     <Select
                         allowClear
                         placeholder="Sem prioridade definida"
-                        style={{ width: "50%" }}
+                        style={{ width: "100%" }}
                         options={record.partnerOptions}
-                        value={selectedMap[record.uf]}
+                        value={selectedByUf[record.uf]}
                         onChange={(value) => onChangePriority(record.uf, value)}
                     />
                 ),
@@ -259,7 +187,7 @@ export function PriorityTable({
             //     },
             // },
         ],
-        [onChangePriority, regionRowSpanByIndex, selectedMap],
+        [onChangePriority, regionRowSpanByIndex, selectedByUf],
     );
 
     return (

@@ -10,19 +10,22 @@ import {
     getUfName,
     hasClientType,
     normalizePartnerUfs,
+    type PriorityClientTypeFilter,
+    useListEntity,
+    useUpdateEntity,
 } from "./config-page.const";
 import { PriorityTable, type PriorityRow } from "./components/table";
 
 type AppliedFilters = {
     companyId: number;
-    clientType: string;
+    clientType: PriorityClientTypeFilter;
 };
 
 export function PrioritiesPage() {
     const [companyId, setCompanyId] = useState<number | undefined>(undefined);
-    const [clientType, setClientType] = useState<string | undefined>(undefined);
+    const [clientType, setClientType] = useState<PriorityClientTypeFilter | undefined>(undefined);
     const [appliedFilters, setAppliedFilters] = useState<AppliedFilters | null>(null);
-    const [selectedPriorityByUf, setSelectedPriorityByUf] = useState<Record<string, number | undefined>>({});
+    const [overridesByUf, setOverridesByUf] = useState<Record<string, number | undefined>>({});
 
     const { data: companiesData, isLoading: isCompaniesLoading } = useCompanyQuery();
 
@@ -31,6 +34,35 @@ export function PrioritiesPage() {
         queryFn: () => dictionaryQueryClient.partners.service.getAll(),
         retry: 2,
     });
+
+    const updateMutation = useUpdateEntity();
+
+    const priorityFilters = useMemo(
+        () => {
+            if (!appliedFilters) return undefined;
+
+            if (appliedFilters.clientType === "PF e PJ") {
+                return { company_id: appliedFilters.companyId };
+            }
+
+            return {
+                company_id: appliedFilters.companyId,
+                client_type: appliedFilters.clientType,
+            };
+        },
+        [appliedFilters],
+    );
+
+    const { data: prioritiesData, isLoading: isPrioritiesLoading } = useListEntity(
+        priorityFilters,
+        { enabled: !!appliedFilters },
+    );
+
+    const selectedPriorityByUf = useMemo(() => {
+        const fromApi: Record<string, number | undefined> = {};
+        (prioritiesData ?? []).forEach((p) => { fromApi[p.uf] = p.partner_id; });
+        return { ...fromApi, ...overridesByUf };
+    }, [prioritiesData, overridesByUf]);
 
     const companyOptions = useMemo(
         () =>
@@ -87,17 +119,34 @@ export function PrioritiesPage() {
             return;
 
         setAppliedFilters({ companyId, clientType });
-        setSelectedPriorityByUf({});
+        setOverridesByUf({});
     }
 
     function handleChangePriority(uf: string, partnerId: number | undefined) {
-        setSelectedPriorityByUf((prev) => ({
+        setOverridesByUf((prev) => ({
             ...prev,
             [uf]: partnerId,
         }));
     }
 
-    const isLoading = isCompaniesLoading || isPartnersLoading;
+    function handleSave() {
+        if (!appliedFilters) return;
+        if (appliedFilters.clientType === "PF e PJ") return;
+        const clientTypeToSave = appliedFilters.clientType;
+
+        Object.entries(selectedPriorityByUf).forEach(([uf, partnerId]) => {
+            if (partnerId !== undefined) {
+                updateMutation.mutate({
+                    company_id: appliedFilters.companyId,
+                    partner_id: partnerId,
+                    uf,
+                    client_type: clientTypeToSave,
+                });
+            }
+        });
+    }
+
+    const isLoading = isCompaniesLoading || isPartnersLoading || isPrioritiesLoading;
 
     return (
         <div className="py-6">
@@ -130,7 +179,7 @@ export function PrioritiesPage() {
                             style={{ width: "300px", marginTop: 8 }}
                             options={clientTypeOptions}
                             value={clientType}
-                            onChange={setClientType}
+                            onChange={(value) => setClientType(value as PriorityClientTypeFilter | undefined)}
                         />
                     </Col>
                     <Col>
@@ -141,6 +190,17 @@ export function PrioritiesPage() {
                             onClick={handleSearch}
                         >
                             Buscar Estados
+                        </Button>
+                    </Col>
+                    <Col>
+                        <Button
+                            type="default"
+                            block
+                            disabled={!appliedFilters || appliedFilters.clientType === "PF e PJ" || updateMutation.isPending}
+                            loading={updateMutation.isPending}
+                            onClick={handleSave}
+                        >
+                            Salvar Prioridades
                         </Button>
                     </Col>
                 </Row>
