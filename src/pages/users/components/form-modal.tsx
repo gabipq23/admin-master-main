@@ -6,9 +6,13 @@ import {
   useUpdateEntity,
   type EntityType,
   type FormValues,
+  roleHierarchy,
+  subCredenciadoRoleOptions,
+  allRoleOptions,
 } from "../config-page.const";
 import { useCompanyQuery } from "@/hooks/companies/useCompanyQuery";
 import { usePartnerQuery } from "@/hooks/partners/usePartnerQuery";
+import { useUserQuery } from "@/hooks/users/useUserQuery";
 import { useAuth } from "@/context/auth-provider";
 
 interface FormModalProps {
@@ -28,11 +32,40 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
   const userType = Form.useWatch("user_type", form);
   const selectedRole = Form.useWatch("role", form);
   const selectedCompanyId = Form.useWatch("company_id", form);
+  const selectedPartnerId = Form.useWatch("partner_id", form);
 
-  const supervisorOptions = [1, 2, 3].map((name) => ({
-    label: name,
-    value: name,
-  }));
+  const users = useUserQuery().data?.users;
+
+  const supervisorOptions = useMemo(
+    () => (users ?? [])
+      .filter((user) => {
+        if (selectedCompanyId == null) return false;
+
+        const hasSameCompany = String(user.company_id) === String(selectedCompanyId);
+        if (!hasSameCompany) return false;
+
+        if (selectedPartnerId != null) {
+          const hasSameOrNoPartner =
+            String(user.partner_id) === String(selectedPartnerId) ||
+            user.partner_id == null;
+          if (!hasSameOrNoPartner) return false;
+        }
+
+        if (selectedRole) {
+          const selectedRoleLevel = roleHierarchy[selectedRole] ?? Infinity;
+          const userRoleLevel = roleHierarchy[user.role] ?? Infinity;
+          return userRoleLevel < selectedRoleLevel;
+        }
+
+        return true;
+      })
+      .map((user) => ({
+        label: `${user.user_name} - ${user.role}`,
+        value: user.user_id,
+      })),
+    [users, selectedCompanyId, selectedPartnerId, selectedRole],
+  );
+
   const companyOptions = useCompanyQuery({ enabled: isGlobalAdmin }).data?.companies.map((company) => ({
     label: company.company_name,
     value: company.company_id,
@@ -53,20 +86,6 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
       value: partner.partner_id,
     })),
     [partnersByCompany],
-  );
-
-
-  const allRoleOptions = [
-    { label: "Admin", value: "ADMIN" },
-    { label: "Gestor", value: "GESTOR" },
-    { label: "Diretor", value: "DIRETOR" },
-    { label: "Gerente", value: "GERENTE" },
-    { label: "Líder", value: "LIDER" },
-    { label: "Consultor", value: "CONSULTOR" },
-  ];
-
-  const subCredenciadoRoleOptions = allRoleOptions.filter(
-    (option) => option.value === "LIDER" || option.value === "CONSULTOR",
   );
 
   const showPersonResponsible = ["GERENTE", "LIDER", "CONSULTOR"].includes(
@@ -92,7 +111,6 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
       if (!["LIDER", "CONSULTOR"].includes(currentRole)) {
         form.setFieldValue("role", undefined);
       }
-      return;
     }
   }, [userType, form]);
 
@@ -173,7 +191,7 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
       // requiredMark="optional"
       >
         <Row gutter={16}>
-          <Col span={7}>
+          <Col span={8}>
             <Form.Item
               name="user_type"
               label="Tipo de Usuário"
@@ -198,7 +216,7 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
             </Form.Item>
           </Col>
 
-          <Col span={9}>
+          <Col span={8}>
             <Form.Item
               name="password"
               label="Senha"
@@ -207,7 +225,7 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
               <Input.Password
                 placeholder={
                   isEditing
-                    ? "Deixe em branco para manter a senha atual"
+                    ? "Deixe em branco para manter a senha"
                     : "Digite a senha"
                 }
               />
@@ -215,7 +233,7 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
         </Row>
 
         <Row gutter={16}>
-          <Col span={7}>
+          <Col span={8}>
             <Form.Item
               name="telephone"
               label="Telefone"
@@ -226,14 +244,15 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
           </Col>
           <Col span={8}>
             <Form.Item
-              name={userType === "SUBCREDENCIADO" ? "cnpj" : "cpf"}
-              label={userType === "SUBCREDENCIADO" ? "CNPJ" : "CPF"}
-              rules={[{ required: true, message: `Informe o ${userType === "SUBCREDENCIADO" ? "CNPJ" : "CPF"}` }]}
+              name="cpf"
+              label="CPF"
+              rules={[{ required: true, message: "Informe o CPF" }]}
             >
-              <Input placeholder={userType === "SUBCREDENCIADO" ? "00.000.000/0000-00" : "000.000.000-00"} />
+              <Input placeholder="000.000.000-00" />
             </Form.Item>
           </Col>
-          <Col span={9}>
+
+          <Col span={8}>
             <Form.Item
               name="email"
               label="Email"
@@ -252,7 +271,7 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
 
         <Row gutter={16}>
           {isGlobalAdmin && (
-            <Col span={7}>
+            <Col span={8}>
               <Form.Item name="company_id" label="Empresa">
                 <Select
                   placeholder="Selecione..."
@@ -272,7 +291,7 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
               </Form.Item>
             </Col>
           )}
-          <Col span={9}>
+          <Col span={8}>
             <Form.Item
               name="role"
               label="Nível de Acesso"
@@ -288,9 +307,12 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
               />
             </Form.Item>
           </Col>
+        </Row>
+        <Row gutter={16}>
           {showPersonResponsible && (
-            <Col span={7}>
+            <Col span={8} >
               <Form.Item
+
                 name="person_responsible_id"
                 label="Responsável"
                 rules={[{ required: true, message: "Selecione o responsável" }]}
@@ -302,10 +324,10 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
               </Form.Item>
             </Col>
           )}
-          <Col span={12}>
+          <Col span={8}>
             <Typography>Permissões de Notificação</Typography>
-            <div className="flex gap-2">
-              <Form.Item name="allow_email_notifications" >
+            <div className="flex gap-2 " >
+              <Form.Item name="allow_email_notifications">
 
                 <Row>
                   <Col span={12}>
@@ -326,6 +348,18 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
             </div>
 
           </Col>
+          {userType === "SUBCREDENCIADO" && (
+            <Col span={8}>
+              <Form.Item
+
+                name="cnpj"
+                label="CNPJ"
+                rules={[{ required: true, message: "Informe o CNPJ" }]}
+              >
+                <Input placeholder="00.000.000/0000-00" />
+              </Form.Item>
+            </Col>
+          )}
         </Row>
 
 

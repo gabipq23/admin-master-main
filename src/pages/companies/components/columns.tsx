@@ -14,7 +14,7 @@ export function getColumns(): TableColumnsType<EntityType> {
             title: "Nome da empresa",
             dataIndex: "company_name",
             key: "company_name",
-            width: 140,
+            width: 200,
             sorter: (a, b) => a.company_name.localeCompare(b.company_name),
         },
         {
@@ -40,8 +40,8 @@ export function getColumns(): TableColumnsType<EntityType> {
         },
         {
             title: "Responsável",
-            dataIndex: "responsible",
-            key: "responsible",
+            dataIndex: "manager_name",
+            key: "respmanager_nameonsible",
             width: 140,
             render: (responsible: string) => responsible || "-"
         },

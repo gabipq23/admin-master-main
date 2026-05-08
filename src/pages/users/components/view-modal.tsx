@@ -1,16 +1,7 @@
 import { Col, Modal, Row, Button, Typography } from "antd";
-import { entityPage, type EntityType } from "../config-page.const";
+import { entityPage, type EntityType, roleLabelMap } from "../config-page.const";
 import ReadonlyField from "@/layout/common-components/ReadOnlyField";
 import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
-
-const roleLabelMap: Record<EntityType["role"], string> = {
-    ADMIN: "Admin",
-    GESTOR: "Gestor",
-    DIRETOR: "Diretor",
-    GERENTE: "Gerente",
-    LIDER: "Líder",
-    CONSULTOR: "Consultor",
-};
 
 interface ViewModalProps {
     open: boolean;
