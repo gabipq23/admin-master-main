@@ -191,7 +191,7 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
       // requiredMark="optional"
       >
         <Row gutter={16}>
-          <Col span={7}>
+          <Col span={8}>
             <Form.Item
               name="user_type"
               label="Tipo de Usuário"
@@ -216,7 +216,7 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
             </Form.Item>
           </Col>
 
-          <Col span={9}>
+          <Col span={8}>
             <Form.Item
               name="password"
               label="Senha"
@@ -225,7 +225,7 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
               <Input.Password
                 placeholder={
                   isEditing
-                    ? "Deixe em branco para manter a senha atual"
+                    ? "Deixe em branco para manter a senha"
                     : "Digite a senha"
                 }
               />
@@ -233,7 +233,7 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
         </Row>
 
         <Row gutter={16}>
-          <Col span={7}>
+          <Col span={8}>
             <Form.Item
               name="telephone"
               label="Telefone"
@@ -251,18 +251,8 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
               <Input placeholder="000.000.000-00" />
             </Form.Item>
           </Col>
-          {userType === "SUBCREDENCIADO" && (
-            <Col span={8}>
-              <Form.Item
-                name="cnpj"
-                label="CNPJ"
-                rules={[{ required: true, message: "Informe o CNPJ" }]}
-              >
-                <Input placeholder="00.000.000/0000-00" />
-              </Form.Item>
-            </Col>
-          )}
-          <Col span={9}>
+
+          <Col span={8}>
             <Form.Item
               name="email"
               label="Email"
@@ -281,7 +271,7 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
 
         <Row gutter={16}>
           {isGlobalAdmin && (
-            <Col span={7}>
+            <Col span={8}>
               <Form.Item name="company_id" label="Empresa">
                 <Select
                   placeholder="Selecione..."
@@ -301,7 +291,7 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
               </Form.Item>
             </Col>
           )}
-          <Col span={9}>
+          <Col span={8}>
             <Form.Item
               name="role"
               label="Nível de Acesso"
@@ -317,9 +307,12 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
               />
             </Form.Item>
           </Col>
+        </Row>
+        <Row gutter={16}>
           {showPersonResponsible && (
-            <Col span={7}>
+            <Col span={8} >
               <Form.Item
+
                 name="person_responsible_id"
                 label="Responsável"
                 rules={[{ required: true, message: "Selecione o responsável" }]}
@@ -331,10 +324,10 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
               </Form.Item>
             </Col>
           )}
-          <Col span={12}>
+          <Col span={8}>
             <Typography>Permissões de Notificação</Typography>
-            <div className="flex gap-2">
-              <Form.Item name="allow_email_notifications" >
+            <div className="flex gap-2 " >
+              <Form.Item name="allow_email_notifications">
 
                 <Row>
                   <Col span={12}>
@@ -355,6 +348,18 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
             </div>
 
           </Col>
+          {userType === "SUBCREDENCIADO" && (
+            <Col span={8}>
+              <Form.Item
+
+                name="cnpj"
+                label="CNPJ"
+                rules={[{ required: true, message: "Informe o CNPJ" }]}
+              >
+                <Input placeholder="00.000.000/0000-00" />
+              </Form.Item>
+            </Col>
+          )}
         </Row>
 
 
