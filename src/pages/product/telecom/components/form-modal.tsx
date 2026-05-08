@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Form,
   Input,
@@ -12,6 +12,7 @@ import {
   Checkbox,
   ConfigProvider,
   Typography,
+  Segmented,
 } from "antd";
 import ptBR from "antd/locale/pt_BR";
 import {
@@ -23,11 +24,16 @@ import {
 import {
   useCreateEntity,
   entityPage,
+  useListEntity,
   useUpdateEntity,
   type EntityType,
   type FormValues,
 } from "../config-page.const";
 import type { UploadFile } from "antd";
+import { appSetting } from "@/constants/app-setting/config.const";
+import { buildInitialBonusVisible, mapExistingConditionsToUploadFiles, mapExistingImagesToUploadFiles, prepareExtrasGroup, resolveConditionUrl } from "@/utils/products.utils";
+import { parseDecimalValue } from "@/utils/number.utils";
+import { ExtrasGroupList, type ReusableExtraTemplate } from "./form-extras";
 interface FormModalProps {
   open: boolean;
   editingEntity: EntityType | null;
@@ -35,13 +41,126 @@ interface FormModalProps {
   onClose: () => void;
 }
 
+type ExtrasTab = "non_client" | "client";
+
 export function FormModal({ open, editingEntity, category, onClose }: FormModalProps) {
   const [form] = Form.useForm<FormValues>();
   const createMutation = useCreateEntity();
   const updateMutation = useUpdateEntity();
-
+  const { data: reusableProductsData, isLoading: isLoadingReusableProducts } =
+    useListEntity(category);
+  const color = appSetting?.primaryColor
   const isEditing = !!editingEntity;
   const isPending = createMutation.isPending || updateMutation.isPending;
+  const [activeExtrasTab, setActiveExtrasTab] = useState<ExtrasTab>("non_client");
+  const [bonusVisibleOverrides, setBonusVisibleOverrides] = useState<Record<string, boolean>>({});
+
+  const bonusVisible = useMemo(
+    () => ({
+      ...buildInitialBonusVisible(editingEntity),
+      ...bonusVisibleOverrides,
+    }),
+    [editingEntity, bonusVisibleOverrides],
+  );
+
+  const handleToggleBonus = (optionKey: string) => {
+    setBonusVisibleOverrides((prev) => ({ ...prev, [optionKey]: !bonusVisible[optionKey] }));
+  };
+
+  const reusableExtraTemplates = useMemo<ReusableExtraTemplate[]>(() => {
+    const products = reusableProductsData?.products ?? [];
+
+    return products
+      .filter((product) => !editingEntity || product.id !== editingEntity.id)
+      .flatMap((product) => {
+        const nonClientTemplates: ReusableExtraTemplate[] =
+          (product.extras?.non_client ?? []).map((extra, idx) => ({
+            id: `${product.id}-non_client-${extra.id ?? idx}`,
+            sourceProductId: product.id,
+            sourceProductName: product.name,
+            scope: "non_client",
+            group: {
+              id: undefined,
+              label: extra.label,
+              description: extra.description,
+              input_type: extra.input_type,
+              images: mapExistingImagesToUploadFiles(extra.images),
+              options: (extra.options ?? []).map((option) => ({
+                id: undefined,
+                label: option.label,
+                price: option.price,
+                description: option.description,
+                bonus: option.bonus
+                  ? {
+                    type: option.bonus.type,
+                    price: option.bonus.price,
+                    speed: option.bonus.speed,
+                    description: option.bonus.description,
+                  }
+                  : undefined,
+              })),
+            },
+          }));
+
+        const clientTemplates: ReusableExtraTemplate[] =
+          (product.extras?.client ?? []).map((extra, idx) => ({
+            id: `${product.id}-client-${extra.id ?? idx}`,
+            sourceProductId: product.id,
+            sourceProductName: product.name,
+            scope: "client",
+            group: {
+              id: undefined,
+              label: extra.label,
+              description: extra.description,
+              input_type: extra.input_type,
+              images: mapExistingImagesToUploadFiles(extra.images),
+              options: (extra.options ?? []).map((option) => ({
+                id: undefined,
+                label: option.label,
+                price: option.price,
+                description: option.description,
+                bonus: option.bonus
+                  ? {
+                    type: option.bonus.type,
+                    price: option.bonus.price,
+                    speed: option.bonus.speed,
+                    description: option.bonus.description,
+                  }
+                  : undefined,
+              })),
+            },
+          }));
+
+        return [...nonClientTemplates, ...clientTemplates];
+      });
+  }, [editingEntity, reusableProductsData?.products]);
+
+  function handleTemplateApplied(
+    fieldName: "extras_non_client" | "extras_client",
+    groupIndex: number,
+    group: ReusableExtraTemplate["group"],
+  ) {
+    setBonusVisibleOverrides((prev) => {
+      const next = { ...prev };
+
+      (group.options ?? []).forEach((option, optionIndex) => {
+        const hasBonus =
+          !!option.bonus &&
+          Object.values(option.bonus).some((value) => value != null && value !== "");
+
+        if (hasBonus) {
+          next[`${fieldName}_${groupIndex}_${optionIndex}`] = true;
+        }
+      });
+
+      return next;
+    });
+  }
+
+  function handleClose() {
+    setBonusVisibleOverrides({});
+    onClose();
+  }
 
   useEffect(() => {
     if (open && editingEntity) {
@@ -49,6 +168,17 @@ export function FormModal({ open, editingEntity, category, onClose }: FormModalP
         ...editingEntity,
         company_id: editingEntity.company_id ?? undefined,
         partner_id: editingEntity.partner_id ?? undefined,
+        offer_conditions: mapExistingConditionsToUploadFiles(
+          editingEntity.offer_conditions,
+        ),
+        extras_non_client: (editingEntity.extras?.non_client ?? []).map((group) => ({
+          ...group,
+          images: mapExistingImagesToUploadFiles(group.images),
+        })),
+        extras_client: (editingEntity.extras?.client ?? []).map((group) => ({
+          ...group,
+          images: mapExistingImagesToUploadFiles(group.images),
+        })),
       });
     } else if (open) {
       form.resetFields();
@@ -58,12 +188,18 @@ export function FormModal({ open, editingEntity, category, onClose }: FormModalP
   async function handleSubmit() {
     const values = await form.validateFields();
 
-    // Extrai arquivos novos de offer_conditions (originFileObj = File real)
     const conditionFiles = (values.offer_conditions ?? [])
       .filter((f) => f.originFileObj)
       .map((f) => f.originFileObj as File);
 
-    // Extrai arquivos novos de cada detail.images, agrupados por índice
+    const persistedOfferConditions = (values.offer_conditions ?? [])
+      .filter((f) => !f.originFileObj && f.status === "done")
+      .map((f) => ({
+        url: resolveConditionUrl(f)!,
+        type: f.type ?? "file",
+      }))
+      .filter((condition) => !!condition.url);
+
     const detailsImages = (values.details ?? [])
       .map((detail, idx) => ({
         detailIndex: idx,
@@ -73,20 +209,39 @@ export function FormModal({ open, editingEntity, category, onClose }: FormModalP
       }))
       .filter((d) => d.files.length > 0);
 
+    const extrasNonClient = values.extras_non_client ?? [];
+    const extrasClient = values.extras_client ?? [];
+
+    const normalizedExtrasNonClient = prepareExtrasGroup(extrasNonClient, "non_client");
+    const normalizedExtrasClient = prepareExtrasGroup(extrasClient, "client");
+
+    const extrasImages = [...normalizedExtrasNonClient, ...normalizedExtrasClient]
+      .map((extra) => ({
+        extraId: extra.extraId,
+        files: extra.files,
+      }))
+      .filter((extra) => extra.files.length > 0);
+
     const rawPricing = values.pricing;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { pricing: _p, ...restValues } = values;
+    const { pricing, offer_conditions, extras_non_client, extras_client, ...restValues } = values;
+    void pricing;
+    void offer_conditions;
+    void extras_non_client;
+    void extras_client;
 
     const entityPayload = {
       ...restValues,
+      offer_conditions: persistedOfferConditions,
       pricing: {
         base_monthly: {
-          current_price: Number(rawPricing?.base_monthly?.current_price ?? 0),
+          current_price: parseDecimalValue(rawPricing?.base_monthly?.current_price),
           ...(rawPricing?.base_monthly?.original_price != null && {
-            original_price: Number(rawPricing.base_monthly.original_price),
+            original_price: parseDecimalValue(rawPricing.base_monthly.original_price),
           }),
         },
-        installation: { current_price: Number(rawPricing?.installation?.current_price ?? 0) },
+        installation: {
+          current_price: parseDecimalValue(rawPricing?.installation?.current_price),
+        },
       },
       details: (values.details ?? []).map((detail) => ({
         ...detail,
@@ -95,6 +250,10 @@ export function FormModal({ open, editingEntity, category, onClose }: FormModalP
           .filter((f) => !f.originFileObj && f.status === "done" && !!f.url)
           .map((f) => f.url!),
       })),
+      extras: {
+        non_client: normalizedExtrasNonClient.map((extra) => extra.payload),
+        client: normalizedExtrasClient.map((extra) => extra.payload),
+      },
     };
 
     if (isEditing && editingEntity)
@@ -103,13 +262,15 @@ export function FormModal({ open, editingEntity, category, onClose }: FormModalP
           id: editingEntity.id,
           entity: {
             ...entityPayload,
+            online: editingEntity.online,
             company_id: values.company_id ?? editingEntity.company_id ?? null,
             partner_id: values.partner_id ?? editingEntity.partner_id ?? null,
           },
           conditionFiles,
           detailsImages,
+          extrasImages,
         },
-        { onSuccess: onClose },
+        { onSuccess: handleClose },
       );
     else
       createMutation.mutate(
@@ -123,10 +284,12 @@ export function FormModal({ open, editingEntity, category, onClose }: FormModalP
           },
           conditionFiles,
           detailsImages,
+          extrasImages,
         },
-        { onSuccess: onClose },
+        { onSuccess: handleClose },
       );
   }
+
   return (
     <Modal
       open={open}
@@ -136,7 +299,7 @@ export function FormModal({ open, editingEntity, category, onClose }: FormModalP
       okText={isEditing ? "Salvar" : "Criar"}
       cancelText="Cancelar"
       onOk={handleSubmit}
-      onCancel={onClose}
+      onCancel={handleClose}
       confirmLoading={isPending}
       destroyOnHidden
       width={940}
@@ -148,8 +311,6 @@ export function FormModal({ open, editingEntity, category, onClose }: FormModalP
       // requiredMark="optional"
       >
         <div className="max-h-115 overflow-y-auto scrollbar-thin">
-
-
           {/* Nome e Badge */}
           <Row gutter={16}>
             <Col span={12}>
@@ -314,8 +475,8 @@ export function FormModal({ open, editingEntity, category, onClose }: FormModalP
                           theme={{
                             components: {
                               Checkbox: {
-                                colorPrimary: "#0026d9",
-                                colorPrimaryHover: "#0026d9",
+                                colorPrimary: color,
+                                colorPrimaryHover: color,
                                 borderRadius: 4,
                                 controlInteractiveSize: 18,
                                 lineWidth: 2,
@@ -387,6 +548,60 @@ export function FormModal({ open, editingEntity, category, onClose }: FormModalP
               )}
             </Form.List>
           </div>
+
+          {/* Extras */}
+          <div style={{ background: "#fafafa", padding: 16, borderRadius: 8, marginBottom: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+              <Typography.Title level={5} style={{ margin: 0 }}>
+                Extras
+              </Typography.Title>
+              <Tooltip
+                title="Se este produto não tiver diferença entre as opções de extras para cliente e não cliente, preencha apenas o cenário de Não-clientes. Se houver diferença, preencha os dois cenários."
+                placement="top"
+                overlayStyle={{ fontSize: "12px" }}
+              >
+                <span style={{ color: "#ef4444", fontSize: 12, cursor: "pointer" }}>
+                  <ExclamationCircleOutlined />
+                </span>
+              </Tooltip>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <Segmented
+                value={activeExtrasTab}
+                onChange={(value) => setActiveExtrasTab(value as ExtrasTab)}
+                options={[
+                  { label: "Para Não-clientes", value: "non_client" },
+                  { label: "Para Clientes", value: "client" },
+                ]}
+                style={{ width: "100%" }}
+              />
+            </div>
+
+            {activeExtrasTab === "non_client" && (
+              <ExtrasGroupList
+                fieldName="extras_non_client"
+                groupPlaceholder="Ex: Deixe seu pacote mais completo"
+                bonusVisible={bonusVisible}
+                onToggleBonus={handleToggleBonus}
+                reusableTemplates={reusableExtraTemplates}
+                isLoadingReusableTemplates={isLoadingReusableProducts}
+                onApplyTemplate={handleTemplateApplied}
+              />
+            )}
+            {activeExtrasTab === "client" && (
+              <ExtrasGroupList
+                fieldName="extras_client"
+                groupPlaceholder="Ex: O dobro de canais"
+                bonusVisible={bonusVisible}
+                onToggleBonus={handleToggleBonus}
+                reusableTemplates={reusableExtraTemplates}
+                isLoadingReusableTemplates={isLoadingReusableProducts}
+                onApplyTemplate={handleTemplateApplied}
+              />
+            )}
+          </div>
+
         </div>
       </Form>
     </Modal >

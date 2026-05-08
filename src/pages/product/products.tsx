@@ -1,49 +1,14 @@
 import { Typography } from "antd";
 import { useParams } from "@tanstack/react-router";
-import { useMemo } from "react";
-import type { ComponentType } from "react";
-
-import * as telecomConfig from "./telecom/config-page.const";
-import * as financiesConfig from "./financies/config-page.const";
-
-import { TableMain as TelecomTable } from "./telecom/components/table";
-import { TableMain as FinanciesTable } from "./financies/components/table";
-interface ModelConfig {
-    entityPage: { plural: string; name: string };
-    useListEntity: (category: string) => { data?: { products: any[] }; isLoading: boolean };
-    getCategoryLabel: (category: string) => string;
-    TableComponent: ComponentType<any>;
-}
-
-const configByModel: Record<string, ModelConfig> = {
-    telecom: {
-        entityPage: telecomConfig.entityPage,
-        useListEntity: telecomConfig.useListEntity,
-        getCategoryLabel: telecomConfig.getTelecomCategoryLabel,
-        TableComponent: TelecomTable,
-    },
-    financies: {
-        entityPage: financiesConfig.entityPage,
-        useListEntity: financiesConfig.useListEntity,
-        getCategoryLabel: financiesConfig.getFinanciesCategoryLabel,
-        TableComponent: FinanciesTable,
-    },
-};
+import { configByModel, isKnownProductModel, defaultProductModel } from "./config-page.const";
 
 export function ProductsPage() {
-    const params = useParams({ strict: false });
-    const { model, category } = params as { model?: string; category?: string };
+    const { model: rawModel, category } = useParams({ from: "/app/products/$model/$category" });
 
-    const config = useMemo(() => {
-        const modelKey = model?.toLowerCase();
-        if (!modelKey || !configByModel[modelKey]) {
-            throw new Error(`Modelo desconhecido: ${modelKey || "não informado"}`);
-        }
-        return configByModel[modelKey];
-    }, [model]);
-
-    const { data, isLoading } = config.useListEntity(category || "");
-    const categoryLabel = config.getCategoryLabel(category || "");
+    const model = isKnownProductModel(rawModel) ? rawModel : defaultProductModel;
+    const config = configByModel[model];
+    const { data, isLoading } = config.useListEntity(category);
+    const categoryLabel = config.getCategoryLabel(category);
     const TableComponent = config.TableComponent;
 
     return (

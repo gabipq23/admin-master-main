@@ -1,5 +1,6 @@
 import { Card, Typography } from "antd";
 import { useState, useEffect } from "react";
+import type { ComponentType } from "react";
 import { useAdminScope } from "@/context/admin-scope-provider";
 import * as telecomConfig from "./telecom/config-page.const";
 import * as financiesConfig from "./financies/config-page.const";
@@ -24,15 +25,31 @@ const defaultCategoryByModel: Record<ProductModel, string> = {
     financies: financiesConfig.FINANCIES_DEFAULT_CATEGORY,
 };
 
-function TelecomPanel({ category, categorySelect }: { category: string; categorySelect: { options: Array<{ label: string; value: string }>; value: string; onChange: (v: string) => void } }) {
+type CategorySelect = {
+    options: Array<{ label: string; value: string }>;
+    value: string;
+    onChange: (v: string) => void;
+};
+
+type ProductPanelProps = {
+    category: string;
+    categorySelect: CategorySelect;
+};
+
+function TelecomPanel({ category, categorySelect }: ProductPanelProps) {
     const { data, isLoading } = telecomConfig.useListEntity(category);
     return <TelecomTable data={data?.products ?? []} isLoading={isLoading} category={category} categorySelect={categorySelect} />;
 }
 
-function FinanciesPanel({ category, categorySelect }: { category: string; categorySelect: { options: Array<{ label: string; value: string }>; value: string; onChange: (v: string) => void } }) {
+function FinanciesPanel({ category, categorySelect }: ProductPanelProps) {
     const { data, isLoading } = financiesConfig.useListEntity(category);
     return <FinanciesTable data={data?.products ?? []} isLoading={isLoading} category={category} categorySelect={categorySelect} />;
 }
+
+const panelByModel: Record<ProductModel, ComponentType<ProductPanelProps>> = {
+    telecom: TelecomPanel,
+    financies: FinanciesPanel,
+};
 
 export function ProductsAdminPage() {
     const { selectedSegmentId } = useAdminScope();
@@ -50,7 +67,12 @@ export function ProductsAdminPage() {
         setSelectedCategory(defaultCategoryByModel[resolvedModel]);
     }, [resolvedModel]);
 
-    const hasSegment = !!selectedSegmentId;
+    const ActivePanel = panelByModel[resolvedModel];
+    const categorySelect: CategorySelect = {
+        options: categoryOptions[resolvedModel],
+        value: selectedCategory,
+        onChange: setSelectedCategory,
+    };
 
     return (
         <div className="py-6">
@@ -58,40 +80,18 @@ export function ProductsAdminPage() {
                 Produtos
             </Typography.Title>
 
-            {!hasSegment ? (
+            {!selectedSegmentId ? (
                 <Card style={{ marginBottom: 16 }}>
                     <Typography.Paragraph>
                         Selecione um modelo/segmento usando o seletor "Modelo/Segmento" no topo da página.
                     </Typography.Paragraph>
 
                 </Card>
-
-                // <Alert
-                //     type="info"
-                //     showIcon
-                //     message="Selecione um modelo/segmento no subheader"
-                //     description="Use o seletor 'Modelo/Segmento' no topo da página para filtrar por Telecom ou Financeiro. Você também pode refinar por empresa e parceiro."
-                // />
             ) : (
-                resolvedModel === "telecom" ? (
-                    <TelecomPanel
-                        category={selectedCategory}
-                        categorySelect={{
-                            options: categoryOptions[resolvedModel],
-                            value: selectedCategory,
-                            onChange: setSelectedCategory,
-                        }}
-                    />
-                ) : (
-                    <FinanciesPanel
-                        category={selectedCategory}
-                        categorySelect={{
-                            options: categoryOptions[resolvedModel],
-                            value: selectedCategory,
-                            onChange: setSelectedCategory,
-                        }}
-                    />
-                )
+                <ActivePanel
+                    category={selectedCategory}
+                    categorySelect={categorySelect}
+                />
             )}
         </div>
     );

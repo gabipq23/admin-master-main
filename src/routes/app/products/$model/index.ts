@@ -1,20 +1,16 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import {
+  defaultCategoryByModel,
+  resolveProductModel,
+} from "@/pages/product/config-page.const";
 
 export const Route = createFileRoute("/app/products/$model/")({
   beforeLoad: ({ params }) => {
-    const { model } = params as { model: string };
-
-    const defaultCategoryByModel: Record<string, string> = {
-      telecom: "Banda Larga",
-      financies: "Maquininha",
-      benefits: "Benefício-Padrão",
-    };
-
-    const defaultCategory = defaultCategoryByModel[model] ?? "default";
+    const model = resolveProductModel(params.model);
 
     throw redirect({
       to: "/app/products/$model/$category",
-      params: { model, category: defaultCategory },
+      params: { model, category: defaultCategoryByModel[model] },
     });
   },
 });

@@ -1,45 +1,13 @@
 import { Modal, Button, Row, Col, Typography, Space } from "antd";
 import { WifiOutlined, DownloadOutlined } from "@ant-design/icons";
 import { entityPage, type EntityType } from "../config-page.const";
+import { appSetting } from "@/constants/app-setting/config.const";
+import { formatBRL } from "@/utils/number.utils";
+import { ExtraSection } from "./view-extras-info";
+import { resolveImageUrl } from "@/utils/products.utils";
 
 type ProductOfferConditionFile = { url: string; type: string };
 type ProductDetail = EntityType["details"][number];
-
-function resolveImageUrl(value: unknown): string | null {
-    if (typeof value === "string" && value.trim().length > 0) return value;
-    if (!value || typeof value !== "object") return null;
-
-    const candidate = value as {
-        url?: unknown;
-        thumbUrl?: unknown;
-        response?: { url?: unknown };
-        originFileObj?: { name?: unknown };
-        name?: unknown;
-    };
-
-    if (typeof candidate.url === "string" && candidate.url.trim().length > 0) {
-        return candidate.url;
-    }
-
-    if (
-        candidate.response &&
-        typeof candidate.response.url === "string" &&
-        candidate.response.url.trim().length > 0
-    ) {
-        return candidate.response.url;
-    }
-
-    if (typeof candidate.thumbUrl === "string" && candidate.thumbUrl.trim().length > 0) {
-        return candidate.thumbUrl;
-    }
-
-    return null;
-}
-
-function formatBRL(value: number | undefined): string {
-    if (value === undefined || value === null) return "-";
-    return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
 
 interface ViewModalProps {
     open: boolean;
@@ -56,6 +24,12 @@ export function ViewModal({
     onEdit,
     onDelete,
 }: ViewModalProps) {
+    const color = appSetting?.primaryColor
+
+    const clientExtras = viewingEntity?.extras?.client ?? [];
+    const nonClientExtras = viewingEntity?.extras?.non_client ?? [];
+    const hasExtras = clientExtras.length > 0 || nonClientExtras.length > 0;
+
     return (
         <Modal
             open={open}
@@ -79,7 +53,8 @@ export function ViewModal({
             onCancel={onClose}
             destroyOnHidden
             width={940}
-        ><div>
+        >
+            <div>
 
 
                 <div className="max-h-130 overflow-y-auto scrollbar-thin">
@@ -98,29 +73,14 @@ export function ViewModal({
                             <Typography.Title level={4} style={{ marginBottom: 8 }}>
                                 {viewingEntity?.name} - {viewingEntity?.client_type}
                             </Typography.Title>
-                            {/* <Space wrap size={4} style={{ marginTop: 4 }}>
-                            <Typography.Text type="secondary" style={{ fontSize: 13 }}>
-                                Disponível em:
-                            </Typography.Text>
-                            {viewingEntity?.uf && viewingEntity.uf.length > 0 ? (
-                                viewingEntity.uf.map((uf) => (
-                                    <Tag key={uf} color="blue" style={{ fontSize: 11 }}>
-                                        {uf}
-                                    </Tag>
-                                ))
-                            ) : (
-                                <Tag color="blue" style={{ fontSize: 11 }}>
-                                    Todas as UFs
-                                </Tag>
-                            )}
-                        </Space> */}
+
                         </div>
 
                         {(viewingEntity?.offer_title || viewingEntity?.offer_subtitle) && (
                             <div style={{ marginBottom: 16 }}>
                                 {viewingEntity?.offer_title && (
                                     <Typography.Title level={5} style={{ marginBottom: 4 }}>
-                                        <WifiOutlined style={{ color: "#3b82f6", marginRight: 8 }} />
+                                        <WifiOutlined style={{ color: color, marginRight: 8 }} />
                                         {viewingEntity.offer_title}
                                     </Typography.Title>
                                 )}
@@ -149,7 +109,7 @@ export function ViewModal({
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     download={fileName}
-                                                    style={{ color: "#0026d9", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}
+                                                    style={{ color: color, fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}
                                                 >
                                                     <DownloadOutlined />
                                                     <span style={{ textDecoration: "underline" }}>{fileName}</span>
@@ -240,7 +200,7 @@ export function ViewModal({
                                                                 fontSize: 10,
                                                                 textAlign: "center",
                                                                 borderRadius: 4,
-                                                                background: "#0026d9",
+                                                                background: color,
                                                                 color: "#fff",
                                                                 padding: "2px 8px",
                                                             }}
@@ -255,7 +215,7 @@ export function ViewModal({
                                                                 fontSize: 10,
                                                                 textAlign: "center",
                                                                 borderRadius: 4,
-                                                                background: "#0026d9",
+                                                                background: color,
                                                                 color: "#fff",
                                                                 padding: "2px 8px",
                                                             }}
@@ -283,7 +243,7 @@ export function ViewModal({
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
                                                                 download={imgName}
-                                                                style={{ color: "#0026d9", display: "flex", flexDirection: "column", alignItems: "center" }}
+                                                                style={{ color: color, display: "flex", flexDirection: "column", alignItems: "center" }}
                                                             >
                                                                 <img
                                                                     src={imgUrl}
@@ -309,7 +269,23 @@ export function ViewModal({
                         </div>
                     )}
 
-                </div></div>
+                    {/* Extras */}
+                    {hasExtras && (
+                        <div style={{ marginBottom: 24 }}>
+                            <Typography.Title level={5} style={{ marginBottom: 16 }}>
+                                Extras
+                            </Typography.Title>
+
+                            <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+                                <ExtraSection title="Cliente" groups={clientExtras} color={color} />
+                                <ExtraSection title="Não Cliente" groups={nonClientExtras} color={color} />
+                            </div>
+                        </div>
+                    )}
+
+                </div>
+
+            </div>
         </Modal>
     );
 }

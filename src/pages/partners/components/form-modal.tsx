@@ -24,7 +24,6 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
   const updateMutation = useUpdateEntity();
   const [logoFile, setLogoFile] = useState<File | undefined>(undefined);
   const selectedUFs = (Form.useWatch("uf", form) ?? []) as string[];
-  const selectedClientTypes = (Form.useWatch("client_type", form) ?? []) as string[];
 
   const isEditing = !!editingEntity;
   const isPending = createMutation.isPending || updateMutation.isPending;
@@ -34,15 +33,10 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
     value: company.company_id,
   })) ?? [];
   const isAllSelected = selectedUFs.length === UF_OPTIONS.length && UF_OPTIONS.length > 0;
-  const isAllClientTypesSelected = selectedClientTypes.length === 2;
-
   function handleUFChange(checkedValues: Array<string | number>) {
     form.setFieldValue("uf", checkedValues as string[]);
   }
 
-  function handleClientTypeChange(checkedValues: Array<string | number>) {
-    form.setFieldValue("client_type", checkedValues as string[]);
-  }
 
   function handleSelectAll(event: CheckboxChangeEvent) {
     if (event.target.checked) {
@@ -54,18 +48,6 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
     }
 
     form.setFieldValue("uf", []);
-  }
-
-  function handleSelectAllClientTypes(event: CheckboxChangeEvent) {
-    if (event.target.checked) {
-      form.setFieldValue(
-        "client_type",
-        ["PF", "PJ"],
-      );
-      return;
-    }
-
-    form.setFieldValue("client_type", []);
   }
 
   function handleClose() {
@@ -171,7 +153,8 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
             <Form.Item
               name="cnpj"
               label="CNPJ"
-              rules={[{ required: true, message: "Informe o CNPJ" }]}
+              rules={[{ required: true, message: "Informe o CNPJ" }, { min: 14, message: 'CNPJ deve ter 14 dígitos' },
+              { max: 14, message: 'CNPJ deve ter 14 dígitos' },]}
             >
               <Input placeholder="00.000.000/0000-00" />
             </Form.Item>
@@ -195,7 +178,8 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
             <Form.Item
               name="telephone"
               label="Telefone"
-              rules={[{ required: true, message: "Informe o telefone" }]}
+              rules={[{ required: true, message: "Informe o telefone" }, { min: 10, message: 'Telefone inválido' },
+              { max: 11, message: 'Telefone inválido' },]}
             >
               <Input placeholder="(00) 00000-0000" />
             </Form.Item>
@@ -228,53 +212,10 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
               name="client_type"
               label="Tipo de Cliente"
               rules={[{ required: true, message: "Informe o tipo de cliente" }]}
-            >
-              <Dropdown
-                popupRender={() => (
-                  <div
-                    style={{
-                      width: 280,
-                      background: "#fff",
-                      border: "1px solid #e5e7eb",
-                      borderRadius: 8,
-                      boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                      padding: 12,
-                      maxHeight: 200,
-                      overflowY: "auto",
-                      scrollbarWidth: "none",
-                      msOverflowStyle: "none",
-                    }}
-                  >
 
-                    <div className="hide-scrollbar-uf">
-                      <div style={{ marginBottom: 12, paddingBottom: 12, borderBottom: "1px solid #e5e7eb" }}>
-                        <Checkbox
-                          checked={isAllClientTypesSelected}
-                          onChange={handleSelectAllClientTypes}
-                          style={{ fontWeight: 500 }}
-                        >
-                          Selecionar Todos
-                        </Checkbox>
-                      </div>
-                      <Checkbox.Group
-                        options={[{ value: "PF", label: "Pessoa Física" }, { value: "PJ", label: "Pessoa Jurídica" }]}
-                        value={selectedClientTypes}
-                        onChange={handleClientTypeChange}
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: 8,
-                        }}
-                      />
-                    </div>
-                  </div>
-                )}
-                trigger={["click"]}
-              >
-                <Button style={{ width: "100%" }}>
-                  {selectedClientTypes.length ? `${selectedClientTypes.length} Tipo(s) de Cliente selecionado(s)` : "Selecionar Tipo de Cliente"} <DownOutlined />
-                </Button>
-              </Dropdown>
+            >
+
+              <Select mode="multiple" placeholder="Selecione o tipo de cliente" options={[{ value: "PF", label: "PF" }, { value: "PJ", label: "PJ" }]} />
             </Form.Item>
           </Col>
           <Col span={8}>

@@ -1,16 +1,7 @@
 import { Tag } from "antd";
 import type { TableColumnsType } from "antd";
-import type { EntityType } from "../config-page.const";
+import { type EntityType, roleLabelMap } from "../config-page.const";
 import { formatCNPJ, formatCPF } from "@/utils/document.util";
-
-const roleLabelMap: Record<EntityType["role"], string> = {
-  ADMIN: "Admin",
-  GESTOR: "Gestor",
-  DIRETOR: "Diretor",
-  GERENTE: "Gerente",
-  LIDER: "Líder",
-  CONSULTOR: "Consultor",
-};
 
 export function getColumns(): TableColumnsType<EntityType> {
   return [
