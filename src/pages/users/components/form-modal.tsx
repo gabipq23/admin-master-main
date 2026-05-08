@@ -6,6 +6,9 @@ import {
   useUpdateEntity,
   type EntityType,
   type FormValues,
+  roleHierarchy,
+  subCredenciadoRoleOptions,
+  allRoleOptions,
 } from "../config-page.const";
 import { useCompanyQuery } from "@/hooks/companies/useCompanyQuery";
 import { usePartnerQuery } from "@/hooks/partners/usePartnerQuery";
@@ -33,48 +36,34 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
 
   const users = useUserQuery().data?.users;
 
-  const roleHierarchy: Record<string, number> = {
-    ADMIN: 1,
-    GESTOR: 2,
-    DIRETOR: 3,
-    GERENTE: 4,
-    LIDER: 5,
-    CONSULTOR: 6,
-  };
-
-  const compatibleUsers = useMemo(
-    () => (users ?? []).filter((user) => {
-      if (selectedCompanyId == null) return false;
-
-      const hasSameCompany = String(user.company_id) === String(selectedCompanyId);
-      if (!hasSameCompany) return false;
-
-      // If a partner is selected, allow same-partner users and company-level users without partner.
-      if (selectedPartnerId != null) {
-        const hasSameOrNoPartner =
-          String(user.partner_id) === String(selectedPartnerId) ||
-          user.partner_id == null;
-        if (!hasSameOrNoPartner) return false;
-      }
-
-      // Only show users with a higher role than the selected role.
-      if (selectedRole) {
-        const selectedRoleLevel = roleHierarchy[selectedRole] ?? Infinity;
-        const userRoleLevel = roleHierarchy[user.role] ?? Infinity;
-        return userRoleLevel < selectedRoleLevel;
-      }
-
-      return true;
-    }),
-    [users, selectedCompanyId, selectedPartnerId, selectedRole],
-  );
-
   const supervisorOptions = useMemo(
-    () => compatibleUsers.map((user) => ({
-      label: `${user.user_name} - ${user.role}`,
-      value: user.user_id,
-    })),
-    [compatibleUsers],
+    () => (users ?? [])
+      .filter((user) => {
+        if (selectedCompanyId == null) return false;
+
+        const hasSameCompany = String(user.company_id) === String(selectedCompanyId);
+        if (!hasSameCompany) return false;
+
+        if (selectedPartnerId != null) {
+          const hasSameOrNoPartner =
+            String(user.partner_id) === String(selectedPartnerId) ||
+            user.partner_id == null;
+          if (!hasSameOrNoPartner) return false;
+        }
+
+        if (selectedRole) {
+          const selectedRoleLevel = roleHierarchy[selectedRole] ?? Infinity;
+          const userRoleLevel = roleHierarchy[user.role] ?? Infinity;
+          return userRoleLevel < selectedRoleLevel;
+        }
+
+        return true;
+      })
+      .map((user) => ({
+        label: `${user.user_name} - ${user.role}`,
+        value: user.user_id,
+      })),
+    [users, selectedCompanyId, selectedPartnerId, selectedRole],
   );
 
   const companyOptions = useCompanyQuery({ enabled: isGlobalAdmin }).data?.companies.map((company) => ({
@@ -97,20 +86,6 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
       value: partner.partner_id,
     })),
     [partnersByCompany],
-  );
-
-
-  const allRoleOptions = [
-    { label: "Admin", value: "ADMIN" },
-    { label: "Gestor", value: "GESTOR" },
-    { label: "Diretor", value: "DIRETOR" },
-    { label: "Gerente", value: "GERENTE" },
-    { label: "Líder", value: "LIDER" },
-    { label: "Consultor", value: "CONSULTOR" },
-  ];
-
-  const subCredenciadoRoleOptions = allRoleOptions.filter(
-    (option) => option.value === "LIDER" || option.value === "CONSULTOR",
   );
 
   const showPersonResponsible = ["GERENTE", "LIDER", "CONSULTOR"].includes(
@@ -136,7 +111,6 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
       if (!["LIDER", "CONSULTOR"].includes(currentRole)) {
         form.setFieldValue("role", undefined);
       }
-      return;
     }
   }, [userType, form]);
 
@@ -270,13 +244,24 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
           </Col>
           <Col span={8}>
             <Form.Item
-              name={userType === "SUBCREDENCIADO" ? "cnpj" : "cpf"}
-              label={userType === "SUBCREDENCIADO" ? "CNPJ" : "CPF"}
-              rules={[{ required: true, message: `Informe o ${userType === "SUBCREDENCIADO" ? "CNPJ" : "CPF"}` }]}
+              name="cpf"
+              label="CPF"
+              rules={[{ required: true, message: "Informe o CPF" }]}
             >
-              <Input placeholder={userType === "SUBCREDENCIADO" ? "00.000.000/0000-00" : "000.000.000-00"} />
+              <Input placeholder="000.000.000-00" />
             </Form.Item>
           </Col>
+          {userType === "SUBCREDENCIADO" && (
+            <Col span={8}>
+              <Form.Item
+                name="cnpj"
+                label="CNPJ"
+                rules={[{ required: true, message: "Informe o CNPJ" }]}
+              >
+                <Input placeholder="00.000.000/0000-00" />
+              </Form.Item>
+            </Col>
+          )}
           <Col span={9}>
             <Form.Item
               name="email"

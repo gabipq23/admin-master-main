@@ -29,3 +29,29 @@ export type FormValues = {
   team?: string;
   cnpj?: string;
 };
+
+export const roleHierarchy: Record<string, number> = {
+  ADMIN: 1,
+  GESTOR: 2,
+  DIRETOR: 3,
+  GERENTE: 4,
+  LIDER: 5,
+  CONSULTOR: 6,
+};
+
+export const allRoleOptions = [
+  { label: "Admin", value: "ADMIN" },
+  { label: "Gestor", value: "GESTOR" },
+  { label: "Diretor", value: "DIRETOR" },
+  { label: "Gerente", value: "GERENTE" },
+  { label: "Líder", value: "LIDER" },
+  { label: "Consultor", value: "CONSULTOR" },
+];
+
+export const subCredenciadoRoleOptions = allRoleOptions.filter(
+  (option) => option.value === "LIDER" || option.value === "CONSULTOR",
+);
+
+export const roleLabelMap: Record<string, string> = Object.fromEntries(
+  allRoleOptions.map((option) => [option.value, option.label]),
+);
