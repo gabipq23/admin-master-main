@@ -1,4 +1,3 @@
-import { useEffect, useMemo, useState } from "react";
 import {
   Form,
   Input,
@@ -22,18 +21,13 @@ import {
   ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import {
-  useCreateEntity,
   entityPage,
-  useListEntity,
-  useUpdateEntity,
   type EntityType,
-  type FormValues,
 } from "../config-page.const";
-import type { UploadFile } from "antd";
+import { ExtrasGroupList } from "./form-extras";
+import { useFormModal } from "@/hooks/products/userFormModal";
 import { appSetting } from "@/constants/app-setting/config.const";
-import { buildInitialBonusVisible, mapExistingConditionsToUploadFiles, mapExistingImagesToUploadFiles, prepareExtrasGroup, resolveConditionUrl } from "@/utils/products.utils";
-import { parseDecimalValue } from "@/utils/number.utils";
-import { ExtrasGroupList, type ReusableExtraTemplate } from "./form-extras";
+
 interface FormModalProps {
   open: boolean;
   editingEntity: EntityType | null;
@@ -44,252 +38,28 @@ interface FormModalProps {
 type ExtrasTab = "non_client" | "client";
 
 export function FormModal({ open, editingEntity, category, onClose }: FormModalProps) {
-  const [form] = Form.useForm<FormValues>();
-  const createMutation = useCreateEntity();
-  const updateMutation = useUpdateEntity();
-  const { data: reusableProductsData, isLoading: isLoadingReusableProducts } =
-    useListEntity(category);
-  const color = appSetting?.primaryColor
-  const isEditing = !!editingEntity;
-  const isPending = createMutation.isPending || updateMutation.isPending;
-  const [activeExtrasTab, setActiveExtrasTab] = useState<ExtrasTab>("non_client");
-  const [bonusVisibleOverrides, setBonusVisibleOverrides] = useState<Record<string, boolean>>({});
-
-  const bonusVisible = useMemo(
-    () => ({
-      ...buildInitialBonusVisible(editingEntity),
-      ...bonusVisibleOverrides,
-    }),
-    [editingEntity, bonusVisibleOverrides],
-  );
-
-  const handleToggleBonus = (optionKey: string) => {
-    setBonusVisibleOverrides((prev) => ({ ...prev, [optionKey]: !bonusVisible[optionKey] }));
-  };
-
-  const reusableExtraTemplates = useMemo<ReusableExtraTemplate[]>(() => {
-    const products = reusableProductsData?.products ?? [];
-
-    return products
-      .filter((product) => !editingEntity || product.id !== editingEntity.id)
-      .flatMap((product) => {
-        const nonClientTemplates: ReusableExtraTemplate[] =
-          (product.extras?.non_client ?? []).map((extra, idx) => ({
-            id: `${product.id}-non_client-${extra.id ?? idx}`,
-            sourceProductId: product.id,
-            sourceProductName: product.name,
-            scope: "non_client",
-            group: {
-              id: undefined,
-              label: extra.label,
-              description: extra.description,
-              input_type: extra.input_type,
-              images: mapExistingImagesToUploadFiles(extra.images),
-              options: (extra.options ?? []).map((option) => ({
-                id: undefined,
-                label: option.label,
-                price: option.price,
-                description: option.description,
-                bonus: option.bonus
-                  ? {
-                    type: option.bonus.type,
-                    price: option.bonus.price,
-                    speed: option.bonus.speed,
-                    description: option.bonus.description,
-                  }
-                  : undefined,
-              })),
-            },
-          }));
-
-        const clientTemplates: ReusableExtraTemplate[] =
-          (product.extras?.client ?? []).map((extra, idx) => ({
-            id: `${product.id}-client-${extra.id ?? idx}`,
-            sourceProductId: product.id,
-            sourceProductName: product.name,
-            scope: "client",
-            group: {
-              id: undefined,
-              label: extra.label,
-              description: extra.description,
-              input_type: extra.input_type,
-              images: mapExistingImagesToUploadFiles(extra.images),
-              options: (extra.options ?? []).map((option) => ({
-                id: undefined,
-                label: option.label,
-                price: option.price,
-                description: option.description,
-                bonus: option.bonus
-                  ? {
-                    type: option.bonus.type,
-                    price: option.bonus.price,
-                    speed: option.bonus.speed,
-                    description: option.bonus.description,
-                  }
-                  : undefined,
-              })),
-            },
-          }));
-
-        return [...nonClientTemplates, ...clientTemplates];
-      });
-  }, [editingEntity, reusableProductsData?.products]);
-
-  function handleTemplateApplied(
-    fieldName: "extras_non_client" | "extras_client",
-    groupIndex: number,
-    group: ReusableExtraTemplate["group"],
-  ) {
-    setBonusVisibleOverrides((prev) => {
-      const next = { ...prev };
-
-      (group.options ?? []).forEach((option, optionIndex) => {
-        const hasBonus =
-          !!option.bonus &&
-          Object.values(option.bonus).some((value) => value != null && value !== "");
-
-        if (hasBonus) {
-          next[`${fieldName}_${groupIndex}_${optionIndex}`] = true;
-        }
-      });
-
-      return next;
-    });
-  }
-
-  function handleClose() {
-    setBonusVisibleOverrides({});
-    onClose();
-  }
-
-  useEffect(() => {
-    if (open && editingEntity) {
-      form.setFieldsValue({
-        ...editingEntity,
-        company_id: editingEntity.company_id ?? undefined,
-        partner_id: editingEntity.partner_id ?? undefined,
-        offer_conditions: mapExistingConditionsToUploadFiles(
-          editingEntity.offer_conditions,
-        ),
-        extras_non_client: (editingEntity.extras?.non_client ?? []).map((group) => ({
-          ...group,
-          images: mapExistingImagesToUploadFiles(group.images),
-        })),
-        extras_client: (editingEntity.extras?.client ?? []).map((group) => ({
-          ...group,
-          images: mapExistingImagesToUploadFiles(group.images),
-        })),
-      });
-    } else if (open) {
-      form.resetFields();
-    }
-  }, [open, editingEntity, form]);
-
-  async function handleSubmit() {
-    const values = await form.validateFields();
-
-    const conditionFiles = (values.offer_conditions ?? [])
-      .filter((f) => f.originFileObj)
-      .map((f) => f.originFileObj as File);
-
-    const persistedOfferConditions = (values.offer_conditions ?? [])
-      .filter((f) => !f.originFileObj && f.status === "done")
-      .map((f) => ({
-        url: resolveConditionUrl(f)!,
-        type: f.type ?? "file",
-      }))
-      .filter((condition) => !!condition.url);
-
-    const detailsImages = (values.details ?? [])
-      .map((detail, idx) => ({
-        detailIndex: idx,
-        files: (detail.images ?? [])
-          .filter((f): f is UploadFile => typeof f !== "string" && !!f.originFileObj)
-          .map((f) => f.originFileObj as File),
-      }))
-      .filter((d) => d.files.length > 0);
-
-    const extrasNonClient = values.extras_non_client ?? [];
-    const extrasClient = values.extras_client ?? [];
-
-    const normalizedExtrasNonClient = prepareExtrasGroup(extrasNonClient, "non_client");
-    const normalizedExtrasClient = prepareExtrasGroup(extrasClient, "client");
-
-    const extrasImages = [...normalizedExtrasNonClient, ...normalizedExtrasClient]
-      .map((extra) => ({
-        extraId: extra.extraId,
-        files: extra.files,
-      }))
-      .filter((extra) => extra.files.length > 0);
-
-    const rawPricing = values.pricing;
-    const { pricing, offer_conditions, extras_non_client, extras_client, ...restValues } = values;
-    void pricing;
-    void offer_conditions;
-    void extras_non_client;
-    void extras_client;
-
-    const entityPayload = {
-      ...restValues,
-      offer_conditions: persistedOfferConditions,
-      pricing: {
-        base_monthly: {
-          current_price: parseDecimalValue(rawPricing?.base_monthly?.current_price),
-          ...(rawPricing?.base_monthly?.original_price != null && {
-            original_price: parseDecimalValue(rawPricing.base_monthly.original_price),
-          }),
-        },
-        installation: {
-          current_price: parseDecimalValue(rawPricing?.installation?.current_price),
-        },
-      },
-      details: (values.details ?? []).map((detail) => ({
-        ...detail,
-        images: (detail.images ?? [])
-          .filter((f): f is UploadFile => typeof f !== "string")
-          .filter((f) => !f.originFileObj && f.status === "done" && !!f.url)
-          .map((f) => f.url!),
-      })),
-      extras: {
-        non_client: normalizedExtrasNonClient.map((extra) => extra.payload),
-        client: normalizedExtrasClient.map((extra) => extra.payload),
-      },
-    };
-
-    if (isEditing && editingEntity)
-      updateMutation.mutate(
-        {
-          id: editingEntity.id,
-          entity: {
-            ...entityPayload,
-            online: editingEntity.online,
-            company_id: values.company_id ?? editingEntity.company_id ?? null,
-            partner_id: values.partner_id ?? editingEntity.partner_id ?? null,
-          },
-          conditionFiles,
-          detailsImages,
-          extrasImages,
-        },
-        { onSuccess: handleClose },
-      );
-    else
-      createMutation.mutate(
-        {
-          entity: {
-            ...entityPayload,
-            category,
-            company: "TIM",
-            company_id: values.company_id ?? null,
-            partner_id: values.partner_id ?? null,
-          },
-          conditionFiles,
-          detailsImages,
-          extrasImages,
-        },
-        { onSuccess: handleClose },
-      );
-  }
-
+  const color = appSetting?.primaryColor;
+  const {
+    form,
+    isEditing,
+    isPending,
+    isGlobalAdmin,
+    companyOptions,
+    partnerOptions,
+    selectedCompanyId,
+    setSelectedCompanyId,
+    selectedPartnerId,
+    setSelectedPartnerId,
+    reusableExtraTemplates,
+    isLoadingReusableProducts,
+    bonusVisible,
+    handleToggleBonus,
+    handleTemplateApplied,
+    activeExtrasTab,
+    setActiveExtrasTab,
+    handleSubmit,
+    handleClose,
+  } = useFormModal({ open, editingEntity, category, onClose });
   return (
     <Modal
       open={open}
@@ -311,6 +81,40 @@ export function FormModal({ open, editingEntity, category, onClose }: FormModalP
       // requiredMark="optional"
       >
         <div className="max-h-115 overflow-y-auto scrollbar-thin">
+          {isGlobalAdmin && (
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  label="Empresa"
+                  required
+                  validateStatus={selectedCompanyId == null ? "error" : ""}
+                  help={selectedCompanyId == null ? "Selecione uma empresa" : undefined}
+                >
+                  <Select
+                    placeholder="Selecione a empresa"
+                    options={companyOptions}
+                    value={selectedCompanyId}
+                    onChange={setSelectedCompanyId}
+                    allowClear
+                  />
+                </Form.Item>
+              </Col>
+
+              <Col span={12}>
+                <Form.Item label="Parceiro">
+                  <Select
+                    placeholder="Selecione o parceiro"
+                    options={partnerOptions}
+                    value={selectedPartnerId}
+                    onChange={setSelectedPartnerId}
+                    allowClear
+                    disabled={selectedCompanyId == null}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+          )}
+
           {/* Nome e Badge */}
           <Row gutter={16}>
             <Col span={12}>
