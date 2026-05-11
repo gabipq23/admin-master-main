@@ -33,10 +33,10 @@ export function FormModal({ open, editingEntity, onClose }: FormModalProps) {
     value: company.company_id,
   })) ?? [];
   const isAllSelected = selectedUFs.length === UF_OPTIONS.length && UF_OPTIONS.length > 0;
-
   function handleUFChange(checkedValues: Array<string | number>) {
     form.setFieldValue("uf", checkedValues as string[]);
   }
+
 
   function handleSelectAll(event: CheckboxChangeEvent) {
     if (event.target.checked) {
