@@ -150,8 +150,23 @@ export function PriorityTable({
                 ),
             },
             {
-                title: "Parceiro prioritario",
+                title: "Parceiro prioritario PF",
                 key: "partner",
+                width: 280,
+                render: (_: unknown, record: PriorityRowWithRegion) => (
+                    <Select
+                        allowClear
+                        placeholder="Sem prioridade definida"
+                        style={{ width: "100%" }}
+                        options={record.partnerOptions}
+                        value={selectedByUf[record.uf]}
+                        onChange={(value) => onChangePriority(record.uf, value)}
+                    />
+                ),
+            },
+            {
+                title: "Parceiro prioritario PJ",
+                key: "partnera",
                 width: 280,
                 render: (_: unknown, record: PriorityRowWithRegion) => (
                     <Select
