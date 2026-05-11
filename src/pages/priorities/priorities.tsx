@@ -5,27 +5,28 @@ import { Button, Col, Row, Select, Space, Typography } from "antd";
 import { useMemo, useState } from "react";
 import type { IPartner } from "@/types/IPartner.type";
 import {
-    clientTypeOptions,
     entityPage,
     getUfName,
-    hasClientType,
     normalizePartnerUfs,
-    type PriorityClientTypeFilter,
     useListEntity,
     useUpdateEntity,
 } from "./config-page.const";
 import { PriorityTable, type PriorityRow } from "./components/table";
+import type { IPartnerPriorityClientType } from "@/types/IPartnerPriority.type";
 
 type AppliedFilters = {
     companyId: number;
-    clientType: PriorityClientTypeFilter;
 };
+
+type PrioritySelectionByType = Record<IPartnerPriorityClientType, Record<string, number | undefined>>;
 
 export function PrioritiesPage() {
     const [companyId, setCompanyId] = useState<number | undefined>(undefined);
-    const [clientType, setClientType] = useState<PriorityClientTypeFilter | undefined>(undefined);
     const [appliedFilters, setAppliedFilters] = useState<AppliedFilters | null>(null);
-    const [overridesByUf, setOverridesByUf] = useState<Record<string, number | undefined>>({});
+    const [overridesByType, setOverridesByType] = useState<PrioritySelectionByType>({
+        PF: {},
+        PJ: {},
+    });
 
     const { data: companiesData, isLoading: isCompaniesLoading } = useCompanyQuery();
 
@@ -37,32 +38,30 @@ export function PrioritiesPage() {
 
     const updateMutation = useUpdateEntity();
 
-    const priorityFilters = useMemo(
-        () => {
-            if (!appliedFilters) return undefined;
-
-            if (appliedFilters.clientType === "PF e PJ") {
-                return { company_id: appliedFilters.companyId };
-            }
-
-            return {
-                company_id: appliedFilters.companyId,
-                client_type: appliedFilters.clientType,
-            };
-        },
-        [appliedFilters],
-    );
-
     const { data: prioritiesData, isLoading: isPrioritiesLoading } = useListEntity(
-        priorityFilters,
+        appliedFilters
+            ? {
+                company_id: appliedFilters.companyId,
+            }
+            : undefined,
         { enabled: !!appliedFilters },
     );
 
-    const selectedPriorityByUf = useMemo(() => {
-        const fromApi: Record<string, number | undefined> = {};
-        (prioritiesData ?? []).forEach((p) => { fromApi[p.uf] = p.partner_id; });
-        return { ...fromApi, ...overridesByUf };
-    }, [prioritiesData, overridesByUf]);
+    const selectedPriorityByType = useMemo<PrioritySelectionByType>(() => {
+        const fromApi: PrioritySelectionByType = {
+            PF: {},
+            PJ: {},
+        };
+
+        (prioritiesData ?? []).forEach((priority) => {
+            fromApi[priority.client_type][priority.uf] = priority.partner_id;
+        });
+
+        return {
+            PF: { ...fromApi.PF, ...overridesByType.PF },
+            PJ: { ...fromApi.PJ, ...overridesByType.PJ },
+        };
+    }, [prioritiesData, overridesByType]);
 
     const companyOptions = useMemo(
         () =>
@@ -73,24 +72,37 @@ export function PrioritiesPage() {
         [companiesData],
     );
 
-    const filteredPartners = useMemo(() => {
-        if (!appliedFilters)
-            return [] as IPartner[];
-
-        return (partnersData?.partners ?? []).filter(
-            (partner) =>
-                partner.company_id === appliedFilters.companyId &&
-                hasClientType(partner, appliedFilters.clientType),
-        );
-    }, [appliedFilters, partnersData]);
-
     const rows = useMemo<PriorityRow[]>(() => {
-        const allUfs = filteredPartners.flatMap((partner) => normalizePartnerUfs(partner));
-        const uniqueUfs = Array.from(new Set(allUfs)).sort((a, b) => a.localeCompare(b));
+        if (!appliedFilters) return [];
+
+        const partners = (partnersData?.partners ?? []).filter(
+            (partner) => partner.company_id === appliedFilters.companyId,
+        );
+
+        const partnersByUf = new Map<string, IPartner[]>();
+
+        partners.forEach((partner) => {
+            normalizePartnerUfs(partner).forEach((uf) => {
+                const currentPartners = partnersByUf.get(uf) ?? [];
+                currentPartners.push(partner);
+                partnersByUf.set(uf, currentPartners);
+            });
+        });
+
+        const uniqueUfs = Array.from(partnersByUf.keys()).sort((a, b) => a.localeCompare(b));
 
         return uniqueUfs.map((uf) => {
-            const partnerOptions = filteredPartners
-                .filter((partner) => normalizePartnerUfs(partner).includes(uf))
+            const partnersInUf = partnersByUf.get(uf) ?? [];
+
+            const partnerOptionsPf = partnersInUf
+                .filter((partner) => partner.client_type.includes("PF"))
+                .map((partner) => ({
+                    label: partner.partner_name,
+                    value: partner.partner_id,
+                }));
+
+            const partnerOptionsPj = partnersInUf
+                .filter((partner) => partner.client_type.includes("PJ"))
                 .map((partner) => ({
                     label: partner.partner_name,
                     value: partner.partner_id,
@@ -99,50 +111,46 @@ export function PrioritiesPage() {
             return {
                 uf,
                 stateName: getUfName(uf),
-                partnerOptions,
+                partnerOptionsPf,
+                partnerOptionsPj,
             };
         });
-    }, [filteredPartners]);
-
-    // const selectedCompanyLabel = useMemo(
-    //     () => companyOptions.find((option) => option.value === appliedFilters?.companyId)?.label,
-    //     [appliedFilters?.companyId, companyOptions],
-    // );
-
-    // const selectedClientTypeLabel = useMemo(
-    //     () => clientTypeOptions.find((option) => option.value === appliedFilters?.clientType)?.label,
-    //     [appliedFilters?.clientType],
-    // );
+    }, [appliedFilters, partnersData]);
 
     function handleSearch() {
-        if (!companyId || !clientType)
+        if (!companyId)
             return;
 
-        setAppliedFilters({ companyId, clientType });
-        setOverridesByUf({});
+        setAppliedFilters({ companyId });
+        setOverridesByType({ PF: {}, PJ: {} });
     }
 
-    function handleChangePriority(uf: string, partnerId: number | undefined) {
-        setOverridesByUf((prev) => ({
+    function handleChangePriority(
+        uf: string,
+        clientType: IPartnerPriorityClientType,
+        partnerId: number | undefined,
+    ) {
+        setOverridesByType((prev) => ({
             ...prev,
-            [uf]: partnerId,
+            [clientType]: {
+                ...prev[clientType],
+                [uf]: partnerId,
+            },
         }));
     }
 
     function handleSave() {
-        if (!appliedFilters) return;
-        if (appliedFilters.clientType === "PF e PJ") return;
-        const clientTypeToSave = appliedFilters.clientType;
-
-        Object.entries(selectedPriorityByUf).forEach(([uf, partnerId]) => {
-            if (partnerId !== undefined) {
-                updateMutation.mutate({
-                    company_id: appliedFilters.companyId,
-                    partner_id: partnerId,
-                    uf,
-                    client_type: clientTypeToSave,
-                });
-            }
+        Object.entries(selectedPriorityByType).forEach(([clientType, priorities]) => {
+            Object.entries(priorities).forEach(([uf, partnerId]) => {
+                if (partnerId !== undefined) {
+                    updateMutation.mutate({
+                        company_id: appliedFilters!.companyId,
+                        partner_id: partnerId,
+                        uf,
+                        client_type: clientType as IPartnerPriorityClientType,
+                    });
+                }
+            });
         });
     }
 
@@ -171,22 +179,11 @@ export function PrioritiesPage() {
                             onChange={setCompanyId}
                         />
                     </Col>
-                    <Col className="flex flex-col">
-                        <Typography.Text strong>Atuação</Typography.Text>
-                        <Select
-                            allowClear
-                            placeholder="Selecione a atuação"
-                            style={{ width: "300px", marginTop: 8 }}
-                            options={clientTypeOptions}
-                            value={clientType}
-                            onChange={(value) => setClientType(value as PriorityClientTypeFilter | undefined)}
-                        />
-                    </Col>
                     <Col>
                         <Button
                             type="primary"
                             block
-                            disabled={!companyId || !clientType}
+                            disabled={!companyId}
                             onClick={handleSearch}
                         >
                             Buscar Estados
@@ -196,7 +193,7 @@ export function PrioritiesPage() {
                         <Button
                             type="default"
                             block
-                            disabled={!appliedFilters || appliedFilters.clientType === "PF e PJ" || updateMutation.isPending}
+                            disabled={!appliedFilters || updateMutation.isPending}
                             loading={updateMutation.isPending}
                             onClick={handleSave}
                         >
@@ -209,7 +206,7 @@ export function PrioritiesPage() {
                 <PriorityTable
                     rows={rows}
                     isLoading={isLoading}
-                    selectedByUf={selectedPriorityByUf}
+                    selectedByType={selectedPriorityByType}
                     onChangePriority={handleChangePriority}
                 />
 

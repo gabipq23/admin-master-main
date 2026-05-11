@@ -30,8 +30,8 @@ export const dictionaryQueryClient = {
     service: ProductsService,
   },
   partnerpriority: {
-    name: "Sugestão de Prioridade",
-    plural: "Sugestões de Prioridade",
+    name: "Gestão de Prioridade",
+    plural: "Gestão de Prioridades",
     key: "partner-priorities",
     service: PartnersPriorityService,
   },

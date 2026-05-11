@@ -2,11 +2,13 @@ import { Select, Table, Tag } from "antd";
 import type { TableColumnsType } from "antd";
 import { useMemo } from "react";
 import { useStyle } from "@/style/tableStyle";
+import type { IPartnerPriorityClientType } from "@/types/IPartnerPriority.type";
 
 export interface PriorityRow {
     uf: string;
     stateName: string;
-    partnerOptions: Array<{ label: string; value: number }>;
+    partnerOptionsPf: Array<{ label: string; value: number }>;
+    partnerOptionsPj: Array<{ label: string; value: number }>;
 }
 
 type RegionName =
@@ -51,26 +53,30 @@ const REGION_BY_UF: Record<string, RegionName> = {
     TO: "Norte",
 };
 
-const REGION_ORDER: RegionName[] = [
-    "Norte",
-    "Nordeste",
-    "Centro-Oeste",
-    "Sudeste",
-    "Sul",
-    "Outras",
-];
+const REGION_ORDER_INDEX: Record<RegionName, number> = {
+    Norte: 0,
+    Nordeste: 1,
+    "Centro-Oeste": 2,
+    Sudeste: 3,
+    Sul: 4,
+    Outras: 5,
+};
 
 interface PriorityTableProps {
     rows: PriorityRow[];
     isLoading: boolean;
-    selectedByUf: Record<string, number | undefined>;
-    onChangePriority: (uf: string, partnerId: number | undefined) => void;
+    selectedByType: Record<IPartnerPriorityClientType, Record<string, number | undefined>>;
+    onChangePriority: (
+        uf: string,
+        clientType: IPartnerPriorityClientType,
+        partnerId: number | undefined,
+    ) => void;
 }
 
 export function PriorityTable({
     rows,
     isLoading,
-    selectedByUf,
+    selectedByType,
     onChangePriority,
 }: PriorityTableProps) {
     const { styles } = useStyle();
@@ -82,8 +88,7 @@ export function PriorityTable({
                 region: REGION_BY_UF[row.uf] ?? "Outras",
             }))
             .sort((a, b) => {
-                const regionDiff =
-                    REGION_ORDER.indexOf(a.region) - REGION_ORDER.indexOf(b.region);
+                const regionDiff = REGION_ORDER_INDEX[a.region] - REGION_ORDER_INDEX[b.region];
 
                 if (regionDiff !== 0) return regionDiff;
 
@@ -118,92 +123,68 @@ export function PriorityTable({
         return rowSpanByIndex;
     }, [dataSourceByRegion]);
 
-    const columns = useMemo<TableColumnsType<PriorityRowWithRegion>>(
-        () => [
-            {
-                title: "Região",
-                key: "region",
-                width: 80,
-                render: (_: unknown, record: PriorityRowWithRegion, index: number) => ({
-                    children: (
-                        <Tag color="geekblue" style={{ marginInlineEnd: 0 }}>
-                            {record.region}
-                        </Tag>
-                    ),
-                    props: {
-                        rowSpan: regionRowSpanByIndex[index] ?? 1,
-                    },
-                }),
-            },
-            {
-                title: "Estado",
-                dataIndex: "uf",
-                key: "uf",
-                width: 180,
-                render: (_: string, record: PriorityRowWithRegion) => (
-                    <div className="flex items-center gap-2">
-                        <Tag color="blue" style={{ marginInlineEnd: 0 }}>
-                            {record.uf}
-                        </Tag>
-                        <span>{record.stateName}</span>
-                    </div>
+    const columns: TableColumnsType<PriorityRowWithRegion> = [
+        {
+            title: "Região",
+            key: "region",
+            width: 80,
+            render: (_, record, index) => ({
+                children: (
+                    <Tag color="geekblue" style={{ marginInlineEnd: 0 }}>
+                        {record.region}
+                    </Tag>
                 ),
-            },
-            {
-                title: "Parceiro prioritario PF",
-                key: "partner",
-                width: 280,
-                render: (_: unknown, record: PriorityRowWithRegion) => (
-                    <Select
-                        allowClear
-                        placeholder="Sem prioridade definida"
-                        style={{ width: "100%" }}
-                        options={record.partnerOptions}
-                        value={selectedByUf[record.uf]}
-                        onChange={(value) => onChangePriority(record.uf, value)}
-                    />
-                ),
-            },
-            {
-                title: "Parceiro prioritario PJ",
-                key: "partnera",
-                width: 280,
-                render: (_: unknown, record: PriorityRowWithRegion) => (
-                    <Select
-                        allowClear
-                        placeholder="Sem prioridade definida"
-                        style={{ width: "100%" }}
-                        options={record.partnerOptions}
-                        value={selectedByUf[record.uf]}
-                        onChange={(value) => onChangePriority(record.uf, value)}
-                    />
-                ),
-            },
-            // {
-            //     title: "Status",
-            //     key: "status",
-            //     width: 240,
-            //     render: (_: unknown, record: PriorityRowWithRegion) => {
-            //         const selectedPartnerId = selectedMap[record.uf];
-            //         const selectedPartner = record.partnerOptions.find(
-            //             (partner) => partner.value === selectedPartnerId,
-            //         );
+                props: {
+                    rowSpan: regionRowSpanByIndex[index] ?? 1,
+                },
+            }),
+        },
+        {
+            title: "Estado",
+            dataIndex: "uf",
+            key: "uf",
+            width: 180,
+            render: (_, record) => (
+                <div className="flex items-center gap-2">
+                    <Tag color="blue" style={{ marginInlineEnd: 0 }}>
+                        {record.uf}
+                    </Tag>
+                    <span>{record.stateName}</span>
+                </div>
+            ),
+        },
+        {
+            title: "Parceiro prioritario PF",
+            key: "partnerPf",
+            width: 280,
+            render: (_, record) => (
+                <Select
+                    allowClear
+                    placeholder="Sem prioridade definida"
+                    style={{ width: "100%" }}
+                    options={record.partnerOptionsPf}
+                    value={selectedByType.PF[record.uf]}
+                    onChange={(value) => onChangePriority(record.uf, "PF", value)}
+                />
+            ),
+        },
+        {
+            title: "Parceiro prioritario PJ",
+            key: "partnerPj",
+            width: 280,
+            render: (_, record) => (
+                <Select
+                    allowClear
+                    placeholder="Sem prioridade definida"
+                    style={{ width: "100%" }}
+                    options={record.partnerOptionsPj}
+                    value={selectedByType.PJ[record.uf]}
+                    onChange={(value) => onChangePriority(record.uf, "PJ", value)}
+                />
+            ),
+        },
 
-            //         if (!selectedPartner)
-            //             return (
-            //                 <Typography.Text type="secondary">nao definido</Typography.Text>
-            //             );
-
-            //         return (
-            //             <Typography.Text style={{ color: "#389e0d" }}>
-            //                 {selectedPartner.label}
-            //             </Typography.Text>
-            //         );
-            //     },
-            // },
-        ],
-        [onChangePriority, regionRowSpanByIndex, selectedByUf],
-    );
+    ];
 
     return (
         <Table
