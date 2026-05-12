@@ -7,7 +7,8 @@ export type PermissionResource =
   | "partners"
   | "users"
   | "priorities"
-  | "products";
+  | "products"
+  | "orders";
 export type PermissionAction = "view" | "create" | "edit" | "delete";
 
 type RestrictedRoute =
@@ -15,7 +16,8 @@ type RestrictedRoute =
   | "/app/partners"
   | "/app/users"
   | "/app/priorities"
-  | "/app/products";
+  | "/app/products"
+  | "/app/orders";
 
 const allCrudActions: PermissionAction[] = ["view", "create", "edit", "delete"];
 
@@ -29,15 +31,17 @@ const permissionsByRole: Record<
     users: allCrudActions,
     products: allCrudActions,
     priorities: allCrudActions,
+    orders: allCrudActions,
   },
   GESTOR: {
     users: allCrudActions,
     products: allCrudActions,
+    orders: allCrudActions,
   },
-  DIRETOR: { products: allCrudActions },
-  GERENTE: { products: ["view"] },
-  LIDER: { products: ["view"] },
-  CONSULTOR: { products: ["view"] },
+  DIRETOR: { products: allCrudActions, orders: ["view", "edit"] },
+  GERENTE: { products: ["view"], orders: ["view", "edit"] },
+  LIDER: { products: ["view"], orders: ["view", "edit"] },
+  CONSULTOR: { products: ["view"], orders: ["view", "edit"] },
 };
 
 const routeResourceMap: Record<RestrictedRoute, PermissionResource> = {
@@ -46,6 +50,7 @@ const routeResourceMap: Record<RestrictedRoute, PermissionResource> = {
   "/app/users": "users",
   "/app/priorities": "priorities",
   "/app/products": "products",
+  "/app/orders": "orders",
 };
 
 export function getStoredUserRole(): UserRole | null {

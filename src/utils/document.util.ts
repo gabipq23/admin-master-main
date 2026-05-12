@@ -18,3 +18,11 @@ export function formatCPF(cpf: string): string {
 
   return cleaned.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
 }
+
+export function formatCEP(cep: string) {
+  if (!cep) return "";
+  return cep
+    .replace(/\D/g, "")
+    .replace(/^(\d{5})(\d)/, "$1-$2")
+    .slice(0, 9);
+}
