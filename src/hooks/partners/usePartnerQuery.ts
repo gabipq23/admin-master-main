@@ -6,15 +6,24 @@ import { useQuery } from "@tanstack/react-query";
 
 export function usePartnerQuery({
   enabled = true,
-}: { enabled?: boolean } = {}) {
+  companyId,
+  segmentId,
+}: {
+  enabled?: boolean;
+  companyId?: number;
+  segmentId?: string;
+} = {}) {
   const entity = dictionaryQueryClient["partners"];
   const { user } = useAuth();
   const { selectedCompanyId, selectedSegmentId } = useAdminScope();
 
+  const resolvedSegmentId = segmentId ?? selectedSegmentId;
+  const resolvedCompanyId = companyId ?? selectedCompanyId;
+
   const filters = isAdminDomain
     ? {
-        ...(selectedSegmentId ? { segment: selectedSegmentId } : {}),
-        ...(selectedCompanyId != null ? { company_id: selectedCompanyId } : {}),
+        ...(resolvedSegmentId ? { segment: resolvedSegmentId } : {}),
+        ...(resolvedCompanyId != null ? { company_id: resolvedCompanyId } : {}),
       }
     : { company_id: user?.user.company_id ?? undefined };
 

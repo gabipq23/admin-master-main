@@ -29,16 +29,23 @@ export function useFormModal({ open, editingEntity, category, onClose }: any) {
   const createMutation = useCreateEntity();
   const updateMutation = useUpdateEntity();
   const { user, isGlobalAdmin } = useAuth();
-  const {
-    selectedCompanyId,
-    selectedPartnerId,
-    setSelectedCompanyId,
-    setSelectedPartnerId,
-  } = useAdminScope();
+  const { selectedSegmentId, selectedCompanyId, selectedPartnerId } =
+    useAdminScope();
+  const [modalCompanyId, setModalCompanyId] = useState<number | undefined>(
+    undefined,
+  );
+  const [modalPartnerId, setModalPartnerId] = useState<number | undefined>(
+    undefined,
+  );
   const { data: reusableProductsData, isLoading: isLoadingReusableProducts } =
     useListEntity(category);
   const { data: companiesData } = useCompanyQuery({ enabled: isGlobalAdmin });
-  const { data: partnersData } = usePartnerQuery();
+  const shouldFetchPartners = isGlobalAdmin ? modalCompanyId != null : true;
+  const { data: partnersData } = usePartnerQuery({
+    enabled: shouldFetchPartners,
+    companyId: modalCompanyId,
+    segmentId: selectedSegmentId,
+  });
   const [activeExtrasTab, setActiveExtrasTab] =
     useState<ExtrasTab>("non_client");
   const [bonusVisibleOverrides, setBonusVisibleOverrides] = useState<
@@ -121,6 +128,34 @@ export function useFormModal({ open, editingEntity, category, onClose }: any) {
     onClose();
   }
 
+  function handleSelectCompany(companyId: number | undefined) {
+    setModalCompanyId(companyId);
+    setModalPartnerId(undefined);
+  }
+
+  function handleSelectPartner(partnerId: number | undefined) {
+    setModalPartnerId(partnerId);
+  }
+
+  useEffect(() => {
+    if (!open || !isGlobalAdmin) return;
+
+    if (editingEntity) {
+      setModalCompanyId(editingEntity.company_id ?? undefined);
+      setModalPartnerId(editingEntity.partner_id ?? undefined);
+      return;
+    }
+
+    setModalCompanyId(selectedCompanyId ?? undefined);
+    setModalPartnerId(selectedPartnerId ?? undefined);
+  }, [
+    open,
+    isGlobalAdmin,
+    editingEntity,
+    selectedCompanyId,
+    selectedPartnerId,
+  ]);
+
   useEffect(() => {
     if (open && editingEntity) {
       form.setFieldsValue({
@@ -150,16 +185,14 @@ export function useFormModal({ open, editingEntity, category, onClose }: any) {
     const values = await form.validateFields();
 
     const effectiveCompanyId = isGlobalAdmin
-      ? (selectedCompanyId ?? null)
+      ? (modalCompanyId ?? null)
       : (user?.user.company_id ?? null);
     const effectivePartnerId = isGlobalAdmin
-      ? (selectedPartnerId ?? null)
+      ? (modalPartnerId ?? null)
       : (user?.user.partner_id ?? null);
 
     if (isGlobalAdmin && effectiveCompanyId == null) {
-      message.error(
-        "Selecione uma empresa no filtro superior antes de salvar o produto.",
-      );
+      message.error("Selecione uma empresa para associar o produto.");
       return;
     }
 
@@ -304,10 +337,10 @@ export function useFormModal({ open, editingEntity, category, onClose }: any) {
     bonusVisible,
     handleToggleBonus,
     handleTemplateApplied,
-    selectedCompanyId,
-    setSelectedCompanyId,
-    selectedPartnerId,
-    setSelectedPartnerId,
+    selectedCompanyId: modalCompanyId,
+    setSelectedCompanyId: handleSelectCompany,
+    selectedPartnerId: modalPartnerId,
+    setSelectedPartnerId: handleSelectPartner,
     handleSubmit,
     handleClose,
   };
