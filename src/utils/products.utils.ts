@@ -4,6 +4,8 @@ import type {
 } from "@/pages/product/telecom/config-page.const";
 import { parseDecimalValue } from "./number.utils";
 import type { UploadFile } from "antd";
+import type { Extra } from "@/types/IProduct.type";
+import type { ReusableExtraTemplate } from "@/pages/product/telecom/components/form-extras";
 
 export function resolveImageUrl(value: unknown): string | null {
   if (typeof value === "string" && value.trim().length > 0) return value;
@@ -210,4 +212,39 @@ export function mapExistingConditionsToUploadFiles(
       ...(type ? { type } : {}),
     } satisfies UploadFile;
   });
+}
+
+export function toExtraTemplate(
+  product: EntityType,
+  extra: Extra,
+  idx: number,
+  scope: "non_client" | "client",
+): ReusableExtraTemplate {
+  return {
+    id: `${product.id}-${scope}-${extra.id ?? idx}`,
+    sourceProductId: product.id,
+    sourceProductName: product.name,
+    scope,
+    group: {
+      id: undefined,
+      label: extra.label,
+      description: extra.description,
+      input_type: extra.input_type,
+      images: mapExistingImagesToUploadFiles(extra.images),
+      options: (extra.options ?? []).map((option) => ({
+        id: undefined,
+        label: option.label,
+        price: option.price,
+        description: option.description,
+        bonus: option.bonus
+          ? {
+              type: option.bonus.type,
+              price: option.bonus.price,
+              speed: option.bonus.speed,
+              description: option.bonus.description,
+            }
+          : undefined,
+      })),
+    },
+  };
 }
