@@ -27,7 +27,6 @@ const useTableStyles = createStyles(({ css }, isDarkMode: boolean) => {
         background: ${headerBg} ;
         color: ${headerColor} ;
       }
-
       /* Cor de fundo do body */
       .ant-table-tbody > tr > td {
         background: ${bodyBg} !important;

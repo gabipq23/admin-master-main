@@ -90,29 +90,29 @@ export function TableMain({ data, isLoading }: UsersTableProps) {
         onBulkDelete={handleBulkDelete}
         onCreate={handleCreate}
       />
-
-      <Table
-        rowKey="user_id"
-        columns={columns}
-        dataSource={filteredData}
-        className={styles.customTable}
-        loading={isLoading}
-        rowSelection={{
-          selectedRowKeys,
-          onChange: setSelectedRowKeys,
-        }}
-        pagination={{
-          pageSize: 10,
-          showTotal: (total) =>
-            `Total: ${total} ${entityPage.plural.toLowerCase()}`,
-        }}
-        scroll={{ y: 800 }}
-        onRow={(record) => ({
-          onClick: () => handleView(record),
-          style: { cursor: 'pointer' },
-        })}
-      />
-
+      <div className="flex overflow-y-auto ">
+        <Table
+          rowKey="user_id"
+          columns={columns}
+          dataSource={filteredData}
+          className={styles.customTable}
+          loading={isLoading}
+          rowSelection={{
+            selectedRowKeys,
+            onChange: setSelectedRowKeys,
+          }}
+          pagination={{
+            pageSize: 10,
+            showTotal: (total) =>
+              `Total: ${total} ${entityPage.plural.toLowerCase()}`,
+          }}
+          scroll={{ y: 800 }}
+          onRow={(record) => ({
+            onClick: () => handleView(record),
+            style: { cursor: 'pointer' },
+          })}
+        />
+      </div >
       <FormModal
         open={isFormModalOpen}
         editingEntity={editingEntity}

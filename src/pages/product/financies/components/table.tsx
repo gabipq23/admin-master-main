@@ -59,29 +59,29 @@ export function TableMain({ data, isLoading, category, categorySelect }: Product
                 onCreate={handleCreate}
                 categorySelect={categorySelect}
             />
-
-            <Table
-                rowKey="id"
-                columns={columns}
-                dataSource={filteredData}
-                className={styles.customTable}
-                loading={isLoading}
-                rowSelection={{
-                    selectedRowKeys,
-                    onChange: setSelectedRowKeys,
-                }}
-                pagination={{
-                    pageSize: 10,
-                    showTotal: (total) =>
-                        `Total: ${total} ${entityPage.plural.toLowerCase()}`,
-                }}
-                scroll={{ y: 800 }}
-                onRow={(record) => ({
-                    onClick: () => handleView(record),
-                    style: { cursor: "pointer" },
-                })}
-            />
-
+            <div className="flex overflow-y-auto">
+                <Table
+                    rowKey="id"
+                    columns={columns}
+                    dataSource={filteredData}
+                    className={styles.customTable}
+                    loading={isLoading}
+                    rowSelection={{
+                        selectedRowKeys,
+                        onChange: setSelectedRowKeys,
+                    }}
+                    pagination={{
+                        pageSize: 10,
+                        showTotal: (total) =>
+                            `Total: ${total} ${entityPage.plural.toLowerCase()}`,
+                    }}
+                    scroll={{ y: 800 }}
+                    onRow={(record) => ({
+                        onClick: () => handleView(record),
+                        style: { cursor: "pointer" },
+                    })}
+                />
+            </div>
             <FormModal
                 open={isFormModalOpen}
                 editingEntity={editingEntity}

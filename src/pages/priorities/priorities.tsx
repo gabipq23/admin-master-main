@@ -202,14 +202,14 @@ export function PrioritiesPage() {
                     </Col>
                 </Row>
 
-
-                <PriorityTable
-                    rows={rows}
-                    isLoading={isLoading}
-                    selectedByType={selectedPriorityByType}
-                    onChangePriority={handleChangePriority}
-                />
-
+                <div className="flex overflow-y-auto">
+                    <PriorityTable
+                        rows={rows}
+                        isLoading={isLoading}
+                        selectedByType={selectedPriorityByType}
+                        onChangePriority={handleChangePriority}
+                    />
+                </div>
             </Space>
         </div>
     );
