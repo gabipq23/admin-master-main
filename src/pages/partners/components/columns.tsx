@@ -9,7 +9,7 @@ export function getColumns(): TableColumnsType<EntityType> {
     {
       title: "Logo",
       dataIndex: "logo_url", key: "logo_url",
-      width: 140,
+      width: 160,
       render: (logo_url: string) => <div className="flex items-center text-center justify-center">
         <img src={logo_url} alt="Logo" className="h-8  " />
       </div>
@@ -18,7 +18,7 @@ export function getColumns(): TableColumnsType<EntityType> {
       title: "Nome",
       dataIndex: "partner_name",
       key: "partner_name",
-      width: 140,
+      width: 160,
       sorter: (a, b) => a.partner_name.localeCompare(b.partner_name),
     },
     {
@@ -32,7 +32,7 @@ export function getColumns(): TableColumnsType<EntityType> {
       title: "Email",
       dataIndex: "email",
       key: "email",
-      width: 140,
+      width: 180,
       render: (email: string) => email || "-"
     },
     {
