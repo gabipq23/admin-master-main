@@ -1,46 +1,24 @@
 
-import type { TableColumnsType } from "antd";
+import { Tooltip, type TableColumnsType } from "antd";
 import type { EntityType } from "../config-page.const";
 import { formatPhoneNumber } from "@/utils/number.utils";
 import { formatCNPJ } from "@/utils/document.util";
-
-const clientTypeMockOptions = [
-  ["PF"],
-  ["PJ"],
-  ["PJ", "PF"],
-  ["PF", "PJ"],
-];
-
-const ufMockOptions = [
-  ["RJ"],
-  ["SP"],
-  ["MG"],
-  ["PR"],
-  ["RJ", "SP"],
-  ["BA", "PE"],
-];
-
-function getStableSeed(record: EntityType, index: number): number {
-  return record.partner_id ?? index;
-}
-
-function pickBySeed<T>(options: T[], seed: number): T {
-  return options[Math.abs(seed) % options.length];
-}
 
 export function getColumns(): TableColumnsType<EntityType> {
   return [
     {
       title: "Logo",
       dataIndex: "logo_url", key: "logo_url",
-      width: 140,
-      render: (logo_url: string) => <img src={logo_url} alt="Logo" className="h-6 " />
+      width: 160,
+      render: (logo_url: string) => <div className="flex items-center text-center justify-center">
+        <img src={logo_url} alt="Logo" className="h-8  " />
+      </div>
     },
     {
       title: "Nome",
       dataIndex: "partner_name",
       key: "partner_name",
-      width: 140,
+      width: 160,
       sorter: (a, b) => a.partner_name.localeCompare(b.partner_name),
     },
     {
@@ -54,7 +32,7 @@ export function getColumns(): TableColumnsType<EntityType> {
       title: "Email",
       dataIndex: "email",
       key: "email",
-      width: 140,
+      width: 180,
       render: (email: string) => email || "-"
     },
     {
@@ -83,20 +61,32 @@ export function getColumns(): TableColumnsType<EntityType> {
       dataIndex: "client_type",
       key: "client_type",
       width: 140,
-      render: (client_type: string[], record: EntityType, index: number) =>
+      render: (client_type: string[]) =>
         client_type?.length
-          ? client_type.join(", ")
-          : pickBySeed(clientTypeMockOptions, getStableSeed(record, index)).join(", ")
+        && client_type.join(", ")
+
     },
     {
       title: "UF",
       dataIndex: "uf",
       key: "uf",
-      width: 140,
-      render: (uf: string[], record: EntityType, index: number) =>
-        uf?.length
-          ? uf.join(", ")
-          : pickBySeed(ufMockOptions, getStableSeed(record, index) + 1).join(", ")
+      width: 200,
+      ellipsis: {
+        showTitle: false,
+      },
+      render: (uf: string[]) => {
+        if (!uf?.length) return null;
+        const joined = uf.join(", ");
+        return (
+          <Tooltip
+            placement="topLeft"
+            title={joined}
+            overlayStyle={{ fontSize: "12px" }}
+          >
+            {joined}
+          </Tooltip>
+        );
+      },
     },
   ];
 }

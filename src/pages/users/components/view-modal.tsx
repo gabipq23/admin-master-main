@@ -47,7 +47,7 @@ export function ViewModal({
                     <Col span={8}>
                         <ReadonlyField
                             label="Hash"
-                            value={viewingEntity?.consultant_hash}
+                            value={viewingEntity?.consultant_hash} copyable
                         />
                     </Col>
                     <Col span={8}>
