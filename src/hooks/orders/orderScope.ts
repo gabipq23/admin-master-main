@@ -69,7 +69,7 @@ export function resolveOrderOperator(
   isAdminContext?: boolean,
 ): OrderOperator {
   const normalizedExplicit = explicitOperator?.toLowerCase();
-
+  console.log(isAdminContext);
   if (
     normalizedExplicit &&
     validOrderOperators.has(normalizedExplicit as OrderOperator)

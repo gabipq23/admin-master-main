@@ -125,11 +125,7 @@ import { Typography, message } from "antd";
 import { CopyOutlined } from "@ant-design/icons";
 
 
-interface Empresa {
-    cnpj?: string;
-    nome?: string;
-    porte?: string;
-}
+
 
 interface EmpresasDisplayProps {
     empresas?: any;
@@ -144,7 +140,7 @@ export default function EmpresasDisplay({
         empresas && empresas.length > 0
             ? empresas
                 .map(
-                    (empresa) =>
+                    (empresa: any) =>
                         `${empresa.cnpj || "-"}, ${empresa.nome || "-"
                         }, ${empresa.porte || "-"}`
                 )

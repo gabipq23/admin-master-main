@@ -96,6 +96,7 @@ export interface IOrderFingerprint {
     height?: number;
   };
   timezone_offset?: number;
+  timezone_name?: string;
 }
 
 export interface IWhatsAppInfo {
