@@ -4,7 +4,7 @@ import type {
   IOrderTelecomResponse,
 } from "@/types/IOrder.type";
 
-export type OrderModule = "telecom" | "financies" | "benefits";
+export type OrderModule = "telecom" | "finances" | "benefits";
 
 function resolveOrdersBasePath(module: OrderModule, operator: string): string {
   return `/${module}/${operator}/orders`;

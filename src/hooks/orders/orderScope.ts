@@ -13,7 +13,7 @@ export type OrderOperator =
 
 const validOrderModules = new Set<OrderModule>([
   "telecom",
-  "financies",
+  "finances",
   "benefits",
 ]);
 
@@ -37,7 +37,7 @@ export const operatorModuleMap: Record<string, OrderModule> = {
   brisanet: "telecom",
   nio: "telecom",
   vr: "benefits",
-  c6: "financies",
+  c6: "finances",
 };
 
 export function isOrderModule(value?: string): value is OrderModule {

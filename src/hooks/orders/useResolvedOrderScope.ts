@@ -6,7 +6,7 @@ import type { OrderModule } from "@/services/orders.service";
 import { resolveOrderModule, resolveOrderOperator } from "./orderScope";
 
 export interface ResolvedOrderScope {
-  /** Módulo usado no path da URL: telecom | financies | benefits */
+  /** Módulo usado no path da URL: telecom | finances | benefits */
   resolvedModule: OrderModule;
   /** Operadora usada no path da URL: tim | claro | c6 | vr | ... */
   resolvedOperator: string;

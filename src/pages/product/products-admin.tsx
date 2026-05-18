@@ -7,14 +7,14 @@ import * as financiesConfig from "./financies/config-page.const";
 import { TableMain as TelecomTable } from "./telecom/components/table";
 import { TableMain as FinanciesTable } from "./financies/components/table";
 
-type ProductModel = "telecom" | "financies";
+type ProductModel = "telecom" | "finances";
 
 const categoryOptions: Record<ProductModel, Array<{ label: string; value: string }>> = {
     telecom: [
         { label: "Banda Larga", value: "Banda Larga" },
         { label: "Telefonia Móvel", value: "Telefonia Móvel" },
     ],
-    financies: [
+    finances: [
         { label: "Maquininha", value: "Maquininha" },
         { label: "Empréstimo", value: "Empréstimo" },
     ],
@@ -22,7 +22,7 @@ const categoryOptions: Record<ProductModel, Array<{ label: string; value: string
 
 const defaultCategoryByModel: Record<ProductModel, string> = {
     telecom: telecomConfig.TELECOM_DEFAULT_CATEGORY,
-    financies: financiesConfig.FINANCIES_DEFAULT_CATEGORY,
+    finances: financiesConfig.FINANCIES_DEFAULT_CATEGORY,
 };
 
 type CategorySelect = {
@@ -48,14 +48,14 @@ function FinanciesPanel({ category, categorySelect }: ProductPanelProps) {
 
 const panelByModel: Record<ProductModel, ComponentType<ProductPanelProps>> = {
     telecom: TelecomPanel,
-    financies: FinanciesPanel,
+    finances: FinanciesPanel,
 };
 
 export function ProductsAdminPage() {
     const { selectedSegmentId } = useAdminScope();
 
     const resolvedModel: ProductModel =
-        selectedSegmentId === "telecom" || selectedSegmentId === "financies"
+        selectedSegmentId === "telecom" || selectedSegmentId === "finances"
             ? selectedSegmentId
             : "telecom";
 

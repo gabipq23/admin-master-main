@@ -46,7 +46,7 @@ export function ViewModal({
             <div style={{ marginTop: 16 }}>
                 <Row gutter={[16, 16]}>
                     <Col span={8}>
-                        <ReadonlyField label="Segmento" value={viewingEntity?.segment === "telecom" ? "Telecom" : viewingEntity?.segment === "financies" ? "Financeiro" : viewingEntity?.segment === "benefits" ? "Benefícios" : "-"} />
+                        <ReadonlyField label="Segmento" value={viewingEntity?.segment === "telecom" ? "Telecom" : viewingEntity?.segment === "finances" ? "Financeiro" : viewingEntity?.segment === "benefits" ? "Benefícios" : "-"} />
                     </Col>
                     <Col span={8}>
                         <ReadonlyField label="Nome da empresa" value={viewingEntity?.company_name} />

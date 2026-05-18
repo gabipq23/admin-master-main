@@ -108,6 +108,6 @@ export interface IDeleteProductPayload {
   ids: number[];
   model?: ProductModel;
 }
-export type ProductModel = "telecom" | "financies" | "benefits";
+export type ProductModel = "telecom" | "finances" | "benefits";
 
 export type ProductRequestEntity = FormData | Record<string, unknown>;

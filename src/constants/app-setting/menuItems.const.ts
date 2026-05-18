@@ -82,11 +82,11 @@ export const menuOptionsC6: MenuItem[] = [
     items: [
       {
         label: "Maquininha",
-        to: "/app/products/financies/Maquininha",
+        to: "/app/products/finances/Maquininha",
       },
       {
         label: "Empréstimo",
-        to: "/app/products/financies/Empréstimo",
+        to: "/app/products/finances/Empréstimo",
       },
     ],
   },
