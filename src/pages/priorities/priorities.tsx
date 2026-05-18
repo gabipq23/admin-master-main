@@ -157,7 +157,7 @@ export function PrioritiesPage() {
     const isLoading = isCompaniesLoading || isPartnersLoading || isPrioritiesLoading;
 
     return (
-        <div className="py-6">
+        <div className="py-6 min-h-[calc(100vh-160px)]">
             <Space direction="vertical" size={16} style={{ width: "100%" }}>
                 <div>
                     <Typography.Title level={3} style={{ marginBottom: 4 }}>

@@ -75,7 +75,7 @@ export function ProductsAdminPage() {
     };
 
     return (
-        <div className="py-6">
+        <div className="py-6 min-h-[calc(100vh-160px)]">
             <Typography.Title level={3} style={{ marginBottom: 16 }}>
                 Produtos
             </Typography.Title>
