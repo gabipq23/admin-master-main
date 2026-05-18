@@ -36,8 +36,8 @@ export const configByModel: Record<ProductModel, ModelConfig> = {
 export const defaultProductModel: ProductModel = "telecom";
 
 export const defaultCategoryByModel: Record<ProductModel, string> = {
-  telecom: "Banda Larga",
-  finances: "Maquininha",
+  telecom: "banda-larga",
+  finances: "maquininha",
 };
 
 export function isKnownProductModel(model: string): model is ProductModel {

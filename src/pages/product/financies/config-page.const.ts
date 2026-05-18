@@ -7,7 +7,7 @@ import type { IProduct } from "@/types/IProduct.type";
 
 export const entityPage = dictionaryQueryClient.products;
 export const productModel = "finances" as const;
-export const FINANCIES_DEFAULT_CATEGORY = "Maquininha" as const;
+export const FINANCIES_DEFAULT_CATEGORY = "maquininha" as const;
 
 const financiesCategoryLabelMap: Record<string, string> = {
   "credito-pessoal": "Maquininha",

@@ -11,12 +11,12 @@ type ProductModel = "telecom" | "finances";
 
 const categoryOptions: Record<ProductModel, Array<{ label: string; value: string }>> = {
     telecom: [
-        { label: "Banda Larga", value: "Banda Larga" },
-        { label: "Telefonia Móvel", value: "Telefonia Móvel" },
+        { label: "Banda Larga", value: "banda-larga" },
+        { label: "Telefonia Móvel", value: "telefonia-movel" },
     ],
     finances: [
-        { label: "Maquininha", value: "Maquininha" },
-        { label: "Empréstimo", value: "Empréstimo" },
+        { label: "Maquininha", value: "maquininha" },
+        { label: "Empréstimo", value: "emprestimo" },
     ],
 };
 

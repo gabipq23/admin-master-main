@@ -53,11 +53,11 @@ export const menuOptionsTim: MenuItem[] = [
     items: [
       {
         label: "Banda Larga",
-        to: "/app/products/telecom/Banda Larga",
+        to: "/app/products/telecom/banda-larga",
       },
       {
         label: "Telefonia Móvel",
-        to: "/app/products/telecom/Telefonia Móvel",
+        to: "/app/products/telecom/telefonia-movel",
       },
     ],
   },
@@ -82,11 +82,11 @@ export const menuOptionsC6: MenuItem[] = [
     items: [
       {
         label: "Maquininha",
-        to: "/app/products/finances/Maquininha",
+        to: "/app/products/finances/maquininha",
       },
       {
         label: "Empréstimo",
-        to: "/app/products/finances/Empréstimo",
+        to: "/app/products/finances/emprestimo",
       },
     ],
   },
