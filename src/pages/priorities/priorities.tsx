@@ -157,7 +157,7 @@ export function PrioritiesPage() {
     const isLoading = isCompaniesLoading || isPartnersLoading || isPrioritiesLoading;
 
     return (
-        <div className="py-6">
+        <div className="py-6 min-h-[calc(100vh-160px)]">
             <Space direction="vertical" size={16} style={{ width: "100%" }}>
                 <div>
                     <Typography.Title level={3} style={{ marginBottom: 4 }}>
@@ -202,14 +202,14 @@ export function PrioritiesPage() {
                     </Col>
                 </Row>
 
-
-                <PriorityTable
-                    rows={rows}
-                    isLoading={isLoading}
-                    selectedByType={selectedPriorityByType}
-                    onChangePriority={handleChangePriority}
-                />
-
+                <div className="flex overflow-y-auto">
+                    <PriorityTable
+                        rows={rows}
+                        isLoading={isLoading}
+                        selectedByType={selectedPriorityByType}
+                        onChangePriority={handleChangePriority}
+                    />
+                </div>
             </Space>
         </div>
     );

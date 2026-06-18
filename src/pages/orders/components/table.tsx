@@ -1,28 +1,30 @@
 import { useMemo, useState } from "react";
 import { Table } from "antd";
 import type { Key } from "react";
-import type { ICompany } from "@/types/ICompany.type";
-import { getColumns } from "./columns";
+import type { TableColumnsType } from "antd";
+import { useAllTableColumns } from "./columns";
 import { TableToolbar } from "./table-toolbar";
 import { FormModal } from "./form-modal";
 import { DeleteConfirmModal } from "./delete-confirm-modal";
 import { entityPage } from "../config-page.const";
 import { useStyle } from "@/style/tableStyle";
 import { ViewModal } from "./view-modal";
+import type { IOrderTelecom } from "@/types/IOrder.type";
 
 interface CompaniesTableProps {
-    data: ICompany[];
+    data: IOrderTelecom[];
     isLoading: boolean;
+    columns?: TableColumnsType<IOrderTelecom>;
 }
 
-export function TableMain({ data, isLoading }: CompaniesTableProps) {
+export function TableMain({ data, isLoading, columns }: CompaniesTableProps) {
     const [selectedRowKeys, setSelectedRowKeys] = useState<Key[]>([]);
     const [searchText, setSearchText] = useState("");
-    const [viewingEntity, setViewingEntity] = useState<ICompany | null>(null);
+    const [viewingEntity, setViewingEntity] = useState<IOrderTelecom | null>(null);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-    const [editingEntity, setEditingEntity] = useState<ICompany | null>(null);
+    const [editingEntity, setEditingEntity] = useState<IOrderTelecom | null>(null);
     const [isFormModalOpen, setIsFormModalOpen] = useState(false);
-    const [entitiesToDelete, setEntitiesToDelete] = useState<ICompany[]>([]);
+    const [entitiesToDelete, setEntitiesToDelete] = useState<IOrderTelecom[]>([]);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const { styles } = useStyle();
     const filteredData = useMemo(() => {
@@ -30,36 +32,32 @@ export function TableMain({ data, isLoading }: CompaniesTableProps) {
         const lower = searchText.toLowerCase();
         return data.filter(
             (u) =>
-                u.company_name.toLowerCase().includes(lower) ||
+
                 u.email?.toLowerCase().includes(lower),
         );
     }, [data, searchText]);
 
-    function handleEdit(record: ICompany) {
+    function handleEdit(record: IOrderTelecom) {
         setEditingEntity(record);
         setIsFormModalOpen(true);
         setIsViewModalOpen(false);
     }
-    function handleView(record: ICompany) {
+    function handleView(record: IOrderTelecom) {
         setViewingEntity(record);
         setIsViewModalOpen(true);
     }
-    function handleDelete(record: ICompany) {
+    function handleDelete(record: IOrderTelecom) {
         setIsViewModalOpen(false);
         setEntitiesToDelete([record]);
         setIsDeleteModalOpen(true);
     }
 
     function handleBulkDelete() {
-        const selected = data.filter((u) => selectedRowKeys.includes(u.company_id));
+        const selected = data.filter((u) => selectedRowKeys.includes(u.id));
         setEntitiesToDelete(selected);
         setIsDeleteModalOpen(true);
     }
 
-    function handleCreate() {
-        setEditingEntity(null);
-        setIsFormModalOpen(true);
-    }
 
     function handleFormClose() {
         setIsFormModalOpen(false);
@@ -75,7 +73,7 @@ export function TableMain({ data, isLoading }: CompaniesTableProps) {
         setIsViewModalOpen(false);
         setViewingEntity(null);
     }
-    const columns = getColumns();
+    const resolvedColumns = useAllTableColumns({ columns });
 
     return (
         <>
@@ -84,12 +82,12 @@ export function TableMain({ data, isLoading }: CompaniesTableProps) {
                 onSearchChange={setSearchText}
                 selectedCount={selectedRowKeys.length}
                 onBulkDelete={handleBulkDelete}
-                onCreate={handleCreate}
+
             />
-            <div className="flex overflow-y-auto ">
+            <div className="flex overflow-y-auto">
                 <Table
-                    rowKey="company_id"
-                    columns={columns}
+                    rowKey="id"
+                    columns={resolvedColumns}
                     dataSource={filteredData}
                     className={styles.customTable}
                     loading={isLoading}
@@ -119,10 +117,10 @@ export function TableMain({ data, isLoading }: CompaniesTableProps) {
                 open={isViewModalOpen}
                 viewingEntity={viewingEntity}
                 onClose={handleViewClose}
-                onEdit={(entity: ICompany) => {
+                onEdit={(entity: IOrderTelecom) => {
                     handleEdit(entity);
                 }}
-                onDelete={(entity: ICompany) => {
+                onDelete={(entity: IOrderTelecom) => {
                     handleDelete(entity);
                 }}
             />

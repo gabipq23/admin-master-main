@@ -13,7 +13,7 @@ import { useAdminScope } from "../../context/admin-scope-provider";
 import { useMemo } from "react";
 
 const segmentOptions = [
-  { label: "Financeiro", value: "financies" },
+  { label: "Financeiro", value: "finances" },
   { label: "Beneficios", value: "benefits" },
   { label: "Telecom", value: "telecom" },
 ];

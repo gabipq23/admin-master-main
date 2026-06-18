@@ -10,12 +10,12 @@ import type {
 } from "@/types/IProduct.type";
 
 export function isProductModel(value?: string): value is ProductModel {
-  return value === "telecom" || value === "financies" || value === "benefits";
+  return value === "telecom" || value === "finances" || value === "benefits";
 }
 
 function resolveProductsBasePath(model: ProductModel): string {
   if (model.startsWith("telecom")) return "/telecom/products";
-  if (model.startsWith("financies")) return "/financies/products";
+  if (model.startsWith("finances")) return "/finances/products";
   if (model.startsWith("benefits")) return "/benefits/products";
   throw new Error(`Segmento não mapeado: ${model}`);
 }

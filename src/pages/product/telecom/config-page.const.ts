@@ -8,11 +8,11 @@ import type { UploadFile } from "antd";
 
 export const entityPage = dictionaryQueryClient.products;
 export const productModel = "telecom" as const;
-export const TELECOM_DEFAULT_CATEGORY = "Banda Larga" as const;
+export const TELECOM_DEFAULT_CATEGORY = "banda-larga" as const;
 
 const telecomCategoryLabelMap: Record<string, string> = {
-  "banda-larga": "Banda Larga",
-  "telefonia-movel": "Telefonia Móvel",
+  "banda-larga": "banda-larga",
+  "telefonia-movel": "telefonia-movel",
 };
 
 export function getTelecomCategoryLabel(category: string) {

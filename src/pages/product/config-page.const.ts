@@ -16,7 +16,7 @@ interface ModelConfig {
   TableComponent: ComponentType<any>;
 }
 
-export type ProductModel = "telecom" | "financies";
+export type ProductModel = "telecom" | "finances";
 
 export const configByModel: Record<ProductModel, ModelConfig> = {
   telecom: {
@@ -25,7 +25,7 @@ export const configByModel: Record<ProductModel, ModelConfig> = {
     getCategoryLabel: telecomConfig.getTelecomCategoryLabel,
     TableComponent: TelecomTable,
   },
-  financies: {
+  finances: {
     entityPage: financiesConfig.entityPage,
     useListEntity: financiesConfig.useListEntity,
     getCategoryLabel: financiesConfig.getFinanciesCategoryLabel,
@@ -36,8 +36,8 @@ export const configByModel: Record<ProductModel, ModelConfig> = {
 export const defaultProductModel: ProductModel = "telecom";
 
 export const defaultCategoryByModel: Record<ProductModel, string> = {
-  telecom: "Banda Larga",
-  financies: "Maquininha",
+  telecom: "banda-larga",
+  finances: "maquininha",
 };
 
 export function isKnownProductModel(model: string): model is ProductModel {

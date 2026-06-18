@@ -189,6 +189,7 @@ export function PriorityTable({
     return (
         <Table
             rowKey="uf"
+            scroll={{ y: 800 }}
             columns={columns}
             dataSource={dataSourceByRegion}
             className={styles.customTable}

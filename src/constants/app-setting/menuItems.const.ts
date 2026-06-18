@@ -35,6 +35,10 @@ export const menuOptionsAdmin: MenuItem[] = [
     label: "Produtos",
     to: "/app/products",
   },
+  {
+    label: "Pedidos",
+    to: "/app/order",
+  },
 ];
 
 // telas do menu específicas para cada empresa
@@ -49,11 +53,11 @@ export const menuOptionsTim: MenuItem[] = [
     items: [
       {
         label: "Banda Larga",
-        to: "/app/products/telecom/Banda Larga",
+        to: "/app/products/telecom/banda-larga",
       },
       {
         label: "Telefonia Móvel",
-        to: "/app/products/telecom/Telefonia Móvel",
+        to: "/app/products/telecom/telefonia-movel",
       },
     ],
   },
@@ -78,11 +82,11 @@ export const menuOptionsC6: MenuItem[] = [
     items: [
       {
         label: "Maquininha",
-        to: "/app/products/financies/Maquininha",
+        to: "/app/products/finances/maquininha",
       },
       {
         label: "Empréstimo",
-        to: "/app/products/financies/Empréstimo",
+        to: "/app/products/finances/emprestimo",
       },
     ],
   },
